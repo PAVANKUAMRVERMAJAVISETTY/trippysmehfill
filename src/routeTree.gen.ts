@@ -14,6 +14,7 @@ import { Route as FeedbackRouteImport } from './routes/feedback'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedStaffRouteImport } from './routes/_authenticated/staff'
 import { Route as AuthenticatedReviewsRouteImport } from './routes/_authenticated/reviews'
 import { Route as AuthenticatedOrderHistoryRouteImport } from './routes/_authenticated/order-history'
 import { Route as AuthenticatedMenuManagerRouteImport } from './routes/_authenticated/menu-manager'
@@ -45,6 +46,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedStaffRoute = AuthenticatedStaffRouteImport.update({
+  id: '/staff',
+  path: '/staff',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedReviewsRoute = AuthenticatedReviewsRouteImport.update({
   id: '/reviews',
@@ -96,6 +102,7 @@ export interface FileRoutesByFullPath {
   '/menu-manager': typeof AuthenticatedMenuManagerRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
   '/reviews': typeof AuthenticatedReviewsRoute
+  '/staff': typeof AuthenticatedStaffRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -109,6 +116,7 @@ export interface FileRoutesByTo {
   '/menu-manager': typeof AuthenticatedMenuManagerRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
   '/reviews': typeof AuthenticatedReviewsRoute
+  '/staff': typeof AuthenticatedStaffRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   '/_authenticated/menu-manager': typeof AuthenticatedMenuManagerRoute
   '/_authenticated/order-history': typeof AuthenticatedOrderHistoryRoute
   '/_authenticated/reviews': typeof AuthenticatedReviewsRoute
+  '/_authenticated/staff': typeof AuthenticatedStaffRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -139,6 +148,7 @@ export interface FileRouteTypes {
     | '/menu-manager'
     | '/order-history'
     | '/reviews'
+    | '/staff'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -152,6 +162,7 @@ export interface FileRouteTypes {
     | '/menu-manager'
     | '/order-history'
     | '/reviews'
+    | '/staff'
   id:
     | '__root__'
     | '/'
@@ -166,6 +177,7 @@ export interface FileRouteTypes {
     | '/_authenticated/menu-manager'
     | '/_authenticated/order-history'
     | '/_authenticated/reviews'
+    | '/_authenticated/staff'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -212,6 +224,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/staff': {
+      id: '/_authenticated/staff'
+      path: '/staff'
+      fullPath: '/staff'
+      preLoaderRoute: typeof AuthenticatedStaffRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/reviews': {
       id: '/_authenticated/reviews'
@@ -273,6 +292,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMenuManagerRoute: typeof AuthenticatedMenuManagerRoute
   AuthenticatedOrderHistoryRoute: typeof AuthenticatedOrderHistoryRoute
   AuthenticatedReviewsRoute: typeof AuthenticatedReviewsRoute
+  AuthenticatedStaffRoute: typeof AuthenticatedStaffRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -283,6 +303,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMenuManagerRoute: AuthenticatedMenuManagerRoute,
   AuthenticatedOrderHistoryRoute: AuthenticatedOrderHistoryRoute,
   AuthenticatedReviewsRoute: AuthenticatedReviewsRoute,
+  AuthenticatedStaffRoute: AuthenticatedStaffRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
