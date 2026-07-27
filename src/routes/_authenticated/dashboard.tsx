@@ -45,13 +45,14 @@ function DashboardPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("feedback")
-        .select("id, customer_name, food, taste, packing, delivery, comments, created_at")
+        .select("id, food, taste, packing, delivery, comments, created_at, orders(order_no, customer_name)")
         .order("created_at", { ascending: false })
         .limit(50);
       if (error) throw error;
       return data ?? [];
     },
   });
+
 
   const today = startOfToday().getTime();
   const week = daysAgo(6).getTime();
