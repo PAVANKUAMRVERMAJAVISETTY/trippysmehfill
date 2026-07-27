@@ -128,12 +128,30 @@ function AuthPage() {
           </form>
         ) : (
           <form className="mt-4 space-y-3" onSubmit={signIn}>
-            <h1 className="text-center text-lg font-bold">Team sign in</h1>
+            <div className="grid grid-cols-3 gap-1 rounded-full bg-muted p-1" role="tablist">
+              {PORTALS.map((p) => (
+                <button
+                  key={p.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={portal === p.key}
+                  onClick={() => setPortal(p.key)}
+                  className={`rounded-full px-2 py-1.5 text-sm transition-colors ${
+                    portal === p.key ? "bg-primary font-semibold text-primary-foreground" : "text-muted-foreground"
+                  }`}
+                >
+                  {p.label}
+                </button>
+              ))}
+            </div>
+            <h1 className="text-center text-lg font-bold">
+              {PORTALS.find((p) => p.key === portal)!.label} sign in
+            </h1>
             <p className="text-center text-xs text-muted-foreground">
-              Admin, staff and delivery partners use the same sign-in.
+              {PORTALS.find((p) => p.key === portal)!.hint}
             </p>
             <div>
-              <Label htmlFor="u">Username / Owner ID</Label>
+              <Label htmlFor="u">{PORTALS.find((p) => p.key === portal)!.idLabel}</Label>
               <Input id="u" value={username} onChange={(e) => setUsername(e.target.value)} required autoComplete="username" />
             </div>
             <div>
@@ -144,6 +162,7 @@ function AuthPage() {
               {busy ? "Signing in…" : "Sign in"}
             </Button>
           </form>
+
         )}
         <a href="/" className="mt-4 block text-center text-sm text-muted-foreground underline">
           Back to menu
