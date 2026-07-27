@@ -14,6 +14,7 @@ import { Route as FeedbackRouteImport } from './routes/feedback'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedOrderHistoryRouteImport } from './routes/_authenticated/order-history'
 import { Route as AuthenticatedMenuManagerRouteImport } from './routes/_authenticated/menu-manager'
 import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticated/dispatch'
 import { Route as AuthenticatedDeliveryRouteImport } from './routes/_authenticated/delivery'
@@ -43,6 +44,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedOrderHistoryRoute =
+  AuthenticatedOrderHistoryRouteImport.update({
+    id: '/order-history',
+    path: '/order-history',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMenuManagerRoute =
   AuthenticatedMenuManagerRouteImport.update({
     id: '/menu-manager',
@@ -74,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/delivery': typeof AuthenticatedDeliveryRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/menu-manager': typeof AuthenticatedMenuManagerRoute
+  '/order-history': typeof AuthenticatedOrderHistoryRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -84,6 +92,7 @@ export interface FileRoutesByTo {
   '/delivery': typeof AuthenticatedDeliveryRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/menu-manager': typeof AuthenticatedMenuManagerRoute
+  '/order-history': typeof AuthenticatedOrderHistoryRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -96,6 +105,7 @@ export interface FileRoutesById {
   '/_authenticated/delivery': typeof AuthenticatedDeliveryRoute
   '/_authenticated/dispatch': typeof AuthenticatedDispatchRoute
   '/_authenticated/menu-manager': typeof AuthenticatedMenuManagerRoute
+  '/_authenticated/order-history': typeof AuthenticatedOrderHistoryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -108,6 +118,7 @@ export interface FileRouteTypes {
     | '/delivery'
     | '/dispatch'
     | '/menu-manager'
+    | '/order-history'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -118,6 +129,7 @@ export interface FileRouteTypes {
     | '/delivery'
     | '/dispatch'
     | '/menu-manager'
+    | '/order-history'
   id:
     | '__root__'
     | '/'
@@ -129,6 +141,7 @@ export interface FileRouteTypes {
     | '/_authenticated/delivery'
     | '/_authenticated/dispatch'
     | '/_authenticated/menu-manager'
+    | '/_authenticated/order-history'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -176,6 +189,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/order-history': {
+      id: '/_authenticated/order-history'
+      path: '/order-history'
+      fullPath: '/order-history'
+      preLoaderRoute: typeof AuthenticatedOrderHistoryRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/menu-manager': {
       id: '/_authenticated/menu-manager'
       path: '/menu-manager'
@@ -212,6 +232,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDeliveryRoute: typeof AuthenticatedDeliveryRoute
   AuthenticatedDispatchRoute: typeof AuthenticatedDispatchRoute
   AuthenticatedMenuManagerRoute: typeof AuthenticatedMenuManagerRoute
+  AuthenticatedOrderHistoryRoute: typeof AuthenticatedOrderHistoryRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -219,6 +240,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDeliveryRoute: AuthenticatedDeliveryRoute,
   AuthenticatedDispatchRoute: AuthenticatedDispatchRoute,
   AuthenticatedMenuManagerRoute: AuthenticatedMenuManagerRoute,
+  AuthenticatedOrderHistoryRoute: AuthenticatedOrderHistoryRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
