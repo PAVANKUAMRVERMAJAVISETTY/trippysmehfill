@@ -14,6 +14,7 @@ import { Route as FeedbackRouteImport } from './routes/feedback'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedMenuManagerRouteImport } from './routes/_authenticated/menu-manager'
 import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticated/dispatch'
 
 const TrackRoute = TrackRouteImport.update({
@@ -40,6 +41,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedMenuManagerRoute =
+  AuthenticatedMenuManagerRouteImport.update({
+    id: '/menu-manager',
+    path: '/menu-manager',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDispatchRoute = AuthenticatedDispatchRouteImport.update({
   id: '/dispatch',
   path: '/dispatch',
@@ -52,6 +59,7 @@ export interface FileRoutesByFullPath {
   '/feedback': typeof FeedbackRoute
   '/track': typeof TrackRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
+  '/menu-manager': typeof AuthenticatedMenuManagerRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -59,6 +67,7 @@ export interface FileRoutesByTo {
   '/feedback': typeof FeedbackRoute
   '/track': typeof TrackRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
+  '/menu-manager': typeof AuthenticatedMenuManagerRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -68,12 +77,19 @@ export interface FileRoutesById {
   '/feedback': typeof FeedbackRoute
   '/track': typeof TrackRoute
   '/_authenticated/dispatch': typeof AuthenticatedDispatchRoute
+  '/_authenticated/menu-manager': typeof AuthenticatedMenuManagerRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/auth' | '/feedback' | '/track' | '/dispatch'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/feedback'
+    | '/track'
+    | '/dispatch'
+    | '/menu-manager'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/auth' | '/feedback' | '/track' | '/dispatch'
+  to: '/' | '/auth' | '/feedback' | '/track' | '/dispatch' | '/menu-manager'
   id:
     | '__root__'
     | '/'
@@ -82,6 +98,7 @@ export interface FileRouteTypes {
     | '/feedback'
     | '/track'
     | '/_authenticated/dispatch'
+    | '/_authenticated/menu-manager'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -129,6 +146,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/menu-manager': {
+      id: '/_authenticated/menu-manager'
+      path: '/menu-manager'
+      fullPath: '/menu-manager'
+      preLoaderRoute: typeof AuthenticatedMenuManagerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dispatch': {
       id: '/_authenticated/dispatch'
       path: '/dispatch'
@@ -141,10 +165,12 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedDispatchRoute: typeof AuthenticatedDispatchRoute
+  AuthenticatedMenuManagerRoute: typeof AuthenticatedMenuManagerRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDispatchRoute: AuthenticatedDispatchRoute,
+  AuthenticatedMenuManagerRoute: AuthenticatedMenuManagerRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

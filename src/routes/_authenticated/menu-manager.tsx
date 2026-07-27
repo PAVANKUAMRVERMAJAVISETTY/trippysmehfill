@@ -74,10 +74,12 @@ function MenuManagerPage() {
   }
 
   async function toggle(item: Item, field: "is_available" | "is_special", value: boolean) {
-    const { error } = await supabase.from("menu_items").update({ [field]: value }).eq("id", item.id);
+    const patch = field === "is_available" ? { is_available: value } : { is_special: value };
+    const { error } = await supabase.from("menu_items").update(patch).eq("id", item.id);
     if (error) return toast.error(error.message);
     qc.invalidateQueries({ queryKey: ["menu-manager"] });
   }
+
 
   async function remove(item: Item) {
     if (!confirm(`Delete "${item.name}" from the menu?`)) return;
