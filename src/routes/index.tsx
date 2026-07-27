@@ -22,7 +22,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Trippy's Mehfill — Hyderabad's Cloud Kitchen" },
       {
         property: "og:description",
-        content: "Taste the royal flavors of Hyderabad. Order dum biryani and more, delivered fresh.",
+        content: "Order authentic Hyderabadi dum biryani, khichdi and curries from Trippy's Mehfill. Freshly cooked, delivered to your campus.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
