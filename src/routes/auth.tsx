@@ -23,8 +23,17 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
 });
 
+type Portal = "admin" | "staff" | "driver";
+
+const PORTALS: { key: Portal; label: string; idLabel: string; hint: string }[] = [
+  { key: "admin", label: "Admin", idLabel: "Owner ID", hint: "Full access — orders, menu, team and settings." },
+  { key: "staff", label: "Staff", idLabel: "Username", hint: "Orders, menu and feedback. No team or settings access." },
+  { key: "driver", label: "Delivery", idLabel: "User ID", hint: "Your assigned deliveries and collections." },
+];
+
 function AuthPage() {
   const navigate = useNavigate();
+  const [portal, setPortal] = useState<Portal>("admin");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
@@ -39,9 +48,14 @@ function AuthPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  async function routeByRole(userId: string) {
+  async function routeByRole(userId: string, expected?: Portal) {
     const { data } = await supabase.from("user_roles").select("role").eq("user_id", userId);
     const roles = (data ?? []).map((r) => r.role);
+    if (expected && !roles.includes(expected)) {
+      await supabase.auth.signOut();
+      toast.error(`This account is not a ${expected === "driver" ? "delivery partner" : expected} account.`);
+      return;
+    }
     if (roles.includes("driver") && !roles.includes("admin") && !roles.includes("staff")) {
       navigate({ to: "/delivery", replace: true });
     } else if (roles.length > 0) {
@@ -66,8 +80,9 @@ function AuthPage() {
       await supabase.auth.signOut();
       return toast.error("This account has been deactivated");
     }
-    await routeByRole(data.user.id);
+    await routeByRole(data.user.id, portal);
   }
+
 
   async function setupOwner(e: React.FormEvent) {
     e.preventDefault();
