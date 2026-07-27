@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { rupees, startOfToday, daysAgo } from "@/lib/session";
+import { rupees, startOfToday, daysAgo, useSession } from "@/lib/session";
 
 export const Route = createFileRoute("/_authenticated/drivers")({
   component: DriversPage,
@@ -29,6 +29,7 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 }
 
 function DriversPage() {
+  const { role } = useSession();
   const [driverId, setDriverId] = useState("");
 
   const { data: drivers = [] } = useQuery({
@@ -72,6 +73,10 @@ function DriversPage() {
       avg: times.length ? Math.round(times.reduce((a, b) => a + b, 0) / times.length) : 0,
     };
   }, [orders]);
+
+  if (role && role !== "admin") {
+    return <p className="text-muted-foreground">Only the owner can view delivery partner statistics.</p>;
+  }
 
   return (
     <div>
