@@ -112,7 +112,10 @@ function DashboardPage() {
             {feedback.slice(0, 8).map((f) => (
               <div key={f.id} className="rounded-xl border border-border bg-card p-3 text-sm">
                 <div className="flex justify-between">
-                  <span className="font-medium">{f.customer_name}</span>
+                  <span className="font-medium">
+                    #{f.orders?.order_no} · {f.orders?.customer_name}
+                  </span>
+
                   <span className="text-primary">
                     {"★".repeat(Math.round((f.food + f.taste + f.packing + f.delivery) / 4))}
                   </span>
