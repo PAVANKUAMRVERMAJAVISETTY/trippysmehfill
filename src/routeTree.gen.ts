@@ -17,6 +17,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedMenuManagerRouteImport } from './routes/_authenticated/menu-manager'
 import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticated/dispatch'
 import { Route as AuthenticatedDeliveryRouteImport } from './routes/_authenticated/delivery'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
 
 const TrackRoute = TrackRouteImport.update({
   id: '/track',
@@ -58,12 +59,18 @@ const AuthenticatedDeliveryRoute = AuthenticatedDeliveryRouteImport.update({
   path: '/delivery',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
   '/feedback': typeof FeedbackRoute
   '/track': typeof TrackRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/delivery': typeof AuthenticatedDeliveryRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/menu-manager': typeof AuthenticatedMenuManagerRoute
@@ -73,6 +80,7 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/feedback': typeof FeedbackRoute
   '/track': typeof TrackRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
   '/delivery': typeof AuthenticatedDeliveryRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/menu-manager': typeof AuthenticatedMenuManagerRoute
@@ -84,6 +92,7 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/feedback': typeof FeedbackRoute
   '/track': typeof TrackRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/delivery': typeof AuthenticatedDeliveryRoute
   '/_authenticated/dispatch': typeof AuthenticatedDispatchRoute
   '/_authenticated/menu-manager': typeof AuthenticatedMenuManagerRoute
@@ -95,6 +104,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/feedback'
     | '/track'
+    | '/dashboard'
     | '/delivery'
     | '/dispatch'
     | '/menu-manager'
@@ -104,6 +114,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/feedback'
     | '/track'
+    | '/dashboard'
     | '/delivery'
     | '/dispatch'
     | '/menu-manager'
@@ -114,6 +125,7 @@ export interface FileRouteTypes {
     | '/auth'
     | '/feedback'
     | '/track'
+    | '/_authenticated/dashboard'
     | '/_authenticated/delivery'
     | '/_authenticated/dispatch'
     | '/_authenticated/menu-manager'
@@ -185,16 +197,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDeliveryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
   AuthenticatedDeliveryRoute: typeof AuthenticatedDeliveryRoute
   AuthenticatedDispatchRoute: typeof AuthenticatedDispatchRoute
   AuthenticatedMenuManagerRoute: typeof AuthenticatedMenuManagerRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
   AuthenticatedDeliveryRoute: AuthenticatedDeliveryRoute,
   AuthenticatedDispatchRoute: AuthenticatedDispatchRoute,
   AuthenticatedMenuManagerRoute: AuthenticatedMenuManagerRoute,
