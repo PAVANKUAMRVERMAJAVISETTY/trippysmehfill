@@ -14,16 +14,268 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      feedback: {
+        Row: {
+          comments: string | null
+          created_at: string
+          delivery: number
+          food: number
+          id: string
+          order_id: string
+          packing: number
+          taste: number
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string
+          delivery?: number
+          food?: number
+          id?: string
+          order_id: string
+          packing?: number
+          taste?: number
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string
+          delivery?: number
+          food?: number
+          id?: string
+          order_id?: string
+          packing?: number
+          taste?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "feedback_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      menu_items: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          is_available: boolean
+          is_special: boolean
+          name: string
+          price: number
+          sort_order: number
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_available?: boolean
+          is_special?: boolean
+          name: string
+          price?: number
+          sort_order?: number
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          is_available?: boolean
+          is_special?: boolean
+          name?: string
+          price?: number
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      orders: {
+        Row: {
+          address: string
+          assigned_at: string | null
+          campus: string | null
+          cancelled_at: string | null
+          created_at: string
+          customer_name: string
+          delivered_at: string | null
+          delivery_minutes: number | null
+          driver_id: string | null
+          food_preference: string | null
+          id: string
+          items: Json
+          notes: string | null
+          order_no: number
+          payment_method: string
+          phone: string
+          status: Database["public"]["Enums"]["order_status"]
+          total: number
+        }
+        Insert: {
+          address: string
+          assigned_at?: string | null
+          campus?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          customer_name: string
+          delivered_at?: string | null
+          delivery_minutes?: number | null
+          driver_id?: string | null
+          food_preference?: string | null
+          id?: string
+          items?: Json
+          notes?: string | null
+          order_no?: number
+          payment_method?: string
+          phone: string
+          status?: Database["public"]["Enums"]["order_status"]
+          total?: number
+        }
+        Update: {
+          address?: string
+          assigned_at?: string | null
+          campus?: string | null
+          cancelled_at?: string | null
+          created_at?: string
+          customer_name?: string
+          delivered_at?: string | null
+          delivery_minutes?: number | null
+          driver_id?: string | null
+          food_preference?: string | null
+          id?: string
+          items?: Json
+          notes?: string | null
+          order_no?: number
+          payment_method?: string
+          phone?: string
+          status?: Database["public"]["Enums"]["order_status"]
+          total?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_driver_id_fkey"
+            columns: ["driver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          active: boolean
+          created_at: string
+          id: string
+          name: string
+          phone: string | null
+          username: string
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          id: string
+          name: string
+          phone?: string | null
+          username: string
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          id?: string
+          name?: string
+          phone?: string | null
+          username?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_any_admin: { Args: never; Returns: boolean }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_staff: { Args: { _user_id: string }; Returns: boolean }
+      order_summary: {
+        Args: { p_order_id: string }
+        Returns: {
+          customer_name: string
+          has_feedback: boolean
+          order_no: number
+          status: Database["public"]["Enums"]["order_status"]
+        }[]
+      }
+      place_order: {
+        Args: {
+          p_address: string
+          p_campus: string
+          p_food_preference: string
+          p_items: Json
+          p_name: string
+          p_notes: string
+          p_phone: string
+          p_total: number
+        }
+        Returns: {
+          id: string
+          order_no: number
+        }[]
+      }
+      submit_feedback: {
+        Args: {
+          p_comments: string
+          p_delivery: number
+          p_food: number
+          p_order_id: string
+          p_packing: number
+          p_taste: number
+        }
+        Returns: undefined
+      }
+      track_orders: {
+        Args: { p_phone: string }
+        Returns: {
+          created_at: string
+          driver_name: string
+          id: string
+          items: Json
+          order_no: number
+          status: Database["public"]["Enums"]["order_status"]
+          total: number
+        }[]
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "staff" | "driver"
+      order_status: "pending" | "assigned" | "delivered" | "cancelled"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +402,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "staff", "driver"],
+      order_status: ["pending", "assigned", "delivered", "cancelled"],
+    },
   },
 } as const
