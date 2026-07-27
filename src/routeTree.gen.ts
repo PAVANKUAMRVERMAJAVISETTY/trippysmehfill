@@ -14,6 +14,7 @@ import { Route as FeedbackRouteImport } from './routes/feedback'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedReviewsRouteImport } from './routes/_authenticated/reviews'
 import { Route as AuthenticatedOrderHistoryRouteImport } from './routes/_authenticated/order-history'
 import { Route as AuthenticatedMenuManagerRouteImport } from './routes/_authenticated/menu-manager'
 import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticated/dispatch'
@@ -43,6 +44,11 @@ const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedReviewsRoute = AuthenticatedReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOrderHistoryRoute =
   AuthenticatedOrderHistoryRouteImport.update({
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/menu-manager': typeof AuthenticatedMenuManagerRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
+  '/reviews': typeof AuthenticatedReviewsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -93,6 +100,7 @@ export interface FileRoutesByTo {
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/menu-manager': typeof AuthenticatedMenuManagerRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
+  '/reviews': typeof AuthenticatedReviewsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -106,6 +114,7 @@ export interface FileRoutesById {
   '/_authenticated/dispatch': typeof AuthenticatedDispatchRoute
   '/_authenticated/menu-manager': typeof AuthenticatedMenuManagerRoute
   '/_authenticated/order-history': typeof AuthenticatedOrderHistoryRoute
+  '/_authenticated/reviews': typeof AuthenticatedReviewsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -119,6 +128,7 @@ export interface FileRouteTypes {
     | '/dispatch'
     | '/menu-manager'
     | '/order-history'
+    | '/reviews'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -130,6 +140,7 @@ export interface FileRouteTypes {
     | '/dispatch'
     | '/menu-manager'
     | '/order-history'
+    | '/reviews'
   id:
     | '__root__'
     | '/'
@@ -142,6 +153,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dispatch'
     | '/_authenticated/menu-manager'
     | '/_authenticated/order-history'
+    | '/_authenticated/reviews'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -189,6 +201,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/reviews': {
+      id: '/_authenticated/reviews'
+      path: '/reviews'
+      fullPath: '/reviews'
+      preLoaderRoute: typeof AuthenticatedReviewsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/order-history': {
       id: '/_authenticated/order-history'
       path: '/order-history'
@@ -233,6 +252,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDispatchRoute: typeof AuthenticatedDispatchRoute
   AuthenticatedMenuManagerRoute: typeof AuthenticatedMenuManagerRoute
   AuthenticatedOrderHistoryRoute: typeof AuthenticatedOrderHistoryRoute
+  AuthenticatedReviewsRoute: typeof AuthenticatedReviewsRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -241,6 +261,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDispatchRoute: AuthenticatedDispatchRoute,
   AuthenticatedMenuManagerRoute: AuthenticatedMenuManagerRoute,
   AuthenticatedOrderHistoryRoute: AuthenticatedOrderHistoryRoute,
+  AuthenticatedReviewsRoute: AuthenticatedReviewsRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =
