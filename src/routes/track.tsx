@@ -30,7 +30,8 @@ type TrackRow = {
   items: { name: string; qty: number }[];
 };
 
-export default function noop() {}
+
+
 
 function TrackPage() {
   const [phone, setPhone] = useState("");
