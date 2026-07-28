@@ -29,8 +29,12 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 }
 
 function DashboardPage() {
+  const qc = useQueryClient();
+  useNewOrderAlerts(() => qc.invalidateQueries({ queryKey: ["dashboard-orders"] }));
+
   const { data: orders = [] } = useQuery({
     queryKey: ["dashboard-orders"],
+
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
