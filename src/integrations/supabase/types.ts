@@ -106,14 +106,19 @@ export type Database = {
           delivery_minutes: number | null
           driver_id: string | null
           food_preference: string | null
+          geo_address: string | null
           id: string
+          ip_address: string | null
           items: Json
+          latitude: number | null
+          longitude: number | null
           notes: string | null
           order_no: number
           payment_method: string
           phone: string
           status: Database["public"]["Enums"]["order_status"]
           total: number
+          user_id: string | null
         }
         Insert: {
           address: string
@@ -126,14 +131,19 @@ export type Database = {
           delivery_minutes?: number | null
           driver_id?: string | null
           food_preference?: string | null
+          geo_address?: string | null
           id?: string
+          ip_address?: string | null
           items?: Json
+          latitude?: number | null
+          longitude?: number | null
           notes?: string | null
           order_no?: number
           payment_method?: string
           phone: string
           status?: Database["public"]["Enums"]["order_status"]
           total?: number
+          user_id?: string | null
         }
         Update: {
           address?: string
@@ -146,14 +156,19 @@ export type Database = {
           delivery_minutes?: number | null
           driver_id?: string | null
           food_preference?: string | null
+          geo_address?: string | null
           id?: string
+          ip_address?: string | null
           items?: Json
+          latitude?: number | null
+          longitude?: number | null
           notes?: string | null
           order_no?: number
           payment_method?: string
           phone?: string
           status?: Database["public"]["Enums"]["order_status"]
           total?: number
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -168,26 +183,35 @@ export type Database = {
       profiles: {
         Row: {
           active: boolean
+          address: string | null
           created_at: string
+          email: string | null
           id: string
           name: string
           phone: string | null
+          status: string
           username: string
         }
         Insert: {
           active?: boolean
+          address?: string | null
           created_at?: string
+          email?: string | null
           id: string
           name: string
           phone?: string | null
+          status?: string
           username: string
         }
         Update: {
           active?: boolean
+          address?: string | null
           created_at?: string
+          email?: string | null
           id?: string
           name?: string
           phone?: string | null
+          status?: string
           username?: string
         }
         Relationships: []
@@ -223,6 +247,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_approved_customer: { Args: { _user_id: string }; Returns: boolean }
       is_staff: { Args: { _user_id: string }; Returns: boolean }
       order_summary: {
         Args: { p_order_id: string }
@@ -233,22 +258,43 @@ export type Database = {
           status: Database["public"]["Enums"]["order_status"]
         }[]
       }
-      place_order: {
-        Args: {
-          p_address: string
-          p_campus: string
-          p_food_preference: string
-          p_items: Json
-          p_name: string
-          p_notes: string
-          p_phone: string
-          p_total: number
-        }
-        Returns: {
-          id: string
-          order_no: number
-        }[]
-      }
+      place_order:
+        | {
+            Args: {
+              p_address: string
+              p_campus: string
+              p_food_preference: string
+              p_items: Json
+              p_name: string
+              p_notes: string
+              p_phone: string
+              p_total: number
+            }
+            Returns: {
+              id: string
+              order_no: number
+            }[]
+          }
+        | {
+            Args: {
+              p_address: string
+              p_campus: string
+              p_food_preference: string
+              p_geo_address?: string
+              p_ip_address?: string
+              p_items: Json
+              p_latitude?: number
+              p_longitude?: number
+              p_name: string
+              p_notes: string
+              p_phone: string
+              p_total: number
+            }
+            Returns: {
+              id: string
+              order_no: number
+            }[]
+          }
       submit_feedback: {
         Args: {
           p_comments: string
