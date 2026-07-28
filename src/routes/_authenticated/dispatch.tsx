@@ -72,6 +72,8 @@ function DispatchPage() {
     },
   });
 
+  useNewOrderAlerts(() => qc.invalidateQueries({ queryKey: ["dispatch-orders"] }));
+
   useEffect(() => {
     const channel = supabase
       .channel("dispatch-orders")
@@ -83,6 +85,7 @@ function DispatchPage() {
       supabase.removeChannel(channel);
     };
   }, [qc]);
+
 
   async function assign(order: OrderRow, driverId: string) {
     const { error } = await supabase
