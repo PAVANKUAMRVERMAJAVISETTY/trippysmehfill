@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { rupees, startOfToday, daysAgo } from "@/lib/session";
+import { useNewOrderAlerts } from "@/lib/use-order-alerts";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
@@ -27,8 +29,12 @@ function Stat({ label, value }: { label: string; value: string | number }) {
 }
 
 function DashboardPage() {
+  const qc = useQueryClient();
+  useNewOrderAlerts(() => qc.invalidateQueries({ queryKey: ["dashboard-orders"] }));
+
   const { data: orders = [] } = useQuery({
     queryKey: ["dashboard-orders"],
+
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")

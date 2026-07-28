@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { rupees } from "@/lib/session";
+import { useNewOrderAlerts } from "@/lib/use-order-alerts";
+import { mapsLink } from "@/lib/geo";
 
 export const Route = createFileRoute("/_authenticated/dispatch")({
   component: DispatchPage,
@@ -27,7 +29,12 @@ type OrderRow = {
   status: "pending" | "assigned" | "delivered" | "cancelled";
   driver_id: string | null;
   created_at: string;
+  latitude: number | null;
+  longitude: number | null;
+  geo_address: string | null;
+  ip_address: string | null;
 };
+
 
 const STATUS_STYLE: Record<string, string> = {
   pending: "bg-accent text-accent-foreground",
@@ -65,6 +72,8 @@ function DispatchPage() {
     },
   });
 
+  useNewOrderAlerts(() => qc.invalidateQueries({ queryKey: ["dispatch-orders"] }));
+
   useEffect(() => {
     const channel = supabase
       .channel("dispatch-orders")
@@ -76,6 +85,7 @@ function DispatchPage() {
       supabase.removeChannel(channel);
     };
   }, [qc]);
+
 
   async function assign(order: OrderRow, driverId: string) {
     const { error } = await supabase
@@ -148,15 +158,28 @@ function DispatchPage() {
                   {o.status}
                 </span>
               </div>
-              <p className="mt-1 text-sm">
-                {o.customer_name} · {o.phone}
+              <p className="mt-1 text-sm font-medium">
+                {o.customer_name} · <a className="underline" href={`tel:${o.phone}`}>{o.phone}</a>
               </p>
               <p className="text-sm text-muted-foreground">
                 {o.campus ? `${o.campus} · ` : ""}
                 {o.address}
               </p>
+              <p className="text-xs text-muted-foreground">IP: {o.ip_address ?? "not captured"}</p>
+              {o.geo_address && <p className="text-xs text-muted-foreground">GPS: {o.geo_address}</p>}
+              {o.latitude != null && o.longitude != null && (
+                <a
+                  href={mapsLink(o.latitude, o.longitude)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-block rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold text-secondary-foreground"
+                >
+                  📍 View Live Location
+                </a>
+              )}
               {o.food_preference && <p className="text-sm text-muted-foreground">Preference: {o.food_preference}</p>}
               {o.notes && <p className="text-sm text-muted-foreground">Notes: {o.notes}</p>}
+
               <ul className="mt-2 text-sm">
                 {(o.items ?? []).map((i, idx) => (
                   <li key={idx}>

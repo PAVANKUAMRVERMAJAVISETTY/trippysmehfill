@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { rupees, type CartLine } from "@/lib/session";
+import { rupees, useSession, type CartLine } from "@/lib/session";
+import { requestGeolocation, lookupClientIp, type GeoFix } from "@/lib/geo";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,6 +34,7 @@ export const Route = createFileRoute("/")({
 });
 
 function CustomerPage() {
+  const { loading: sessionLoading, user, role, status, name, phone, address } = useSession();
   const [cart, setCart] = useState<Record<string, CartLine>>({});
   const [form, setForm] = useState({
     name: "",
@@ -42,7 +45,29 @@ function CustomerPage() {
     notes: "",
   });
   const [placing, setPlacing] = useState(false);
+  const [geo, setGeo] = useState<GeoFix | null>(null);
+  const [locating, setLocating] = useState(false);
   const [placed, setPlaced] = useState<{ order_no: number; id: string } | null>(null);
+
+  const canOrder = !!user && (status === "approved" || !!role);
+
+  useEffect(() => {
+    if (user) setForm((f) => ({ ...f, name: f.name || name, phone: f.phone || phone, address: f.address || address }));
+  }, [user, name, phone, address]);
+
+  async function shareLocation() {
+    setLocating(true);
+    try {
+      const fix = await requestGeolocation();
+      setGeo(fix);
+      toast.success("Location captured");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not get your location");
+    } finally {
+      setLocating(false);
+    }
+  }
+
 
   const { data: menu = [], isLoading } = useQuery({
     queryKey: ["public-menu"],
@@ -71,10 +96,24 @@ function CustomerPage() {
   }
 
   async function placeOrder() {
+    if (!canOrder) return toast.error("Please Sign In or Register to Place an Order");
     if (lines.length === 0) return toast.error("Your cart is empty");
     if (!form.name.trim() || !form.phone.trim() || !form.address.trim())
       return toast.error("Name, phone and address are required");
+
     setPlacing(true);
+    let fix = geo;
+    if (!fix) {
+      try {
+        fix = await requestGeolocation();
+        setGeo(fix);
+      } catch (err) {
+        setPlacing(false);
+        return toast.error(err instanceof Error ? err.message : "Location access is required");
+      }
+    }
+    const ip = await lookupClientIp();
+
     const { data, error } = await supabase.rpc("place_order", {
       p_name: form.name,
       p_phone: form.phone,
@@ -84,6 +123,10 @@ function CustomerPage() {
       p_notes: form.notes,
       p_items: lines,
       p_total: total,
+      p_latitude: fix.latitude,
+      p_longitude: fix.longitude,
+      p_geo_address: fix.label,
+      p_ip_address: ip,
     });
     setPlacing(false);
     if (error) return toast.error(error.message);
@@ -92,6 +135,7 @@ function CustomerPage() {
     setCart({});
     toast.success(`Order #${row?.order_no} placed!`);
   }
+
 
   const specials = menu.filter((m) => m.is_special);
 
@@ -224,10 +268,39 @@ function CustomerPage() {
               <Textarea id="c-notes" maxLength={500} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
             </div>
             <p className="text-xs text-muted-foreground">Payment: Cash on Delivery</p>
-            <Button className="w-full" disabled={placing} onClick={placeOrder}>
-              {placing ? "Placing order…" : `Place order · ${rupees(total)}`}
-            </Button>
+
+            <div className="rounded-xl bg-muted p-3 text-xs">
+              <p className="font-semibold">Live location {geo ? "captured ✓" : "required"}</p>
+              <p className="mt-0.5 text-muted-foreground">
+                {geo
+                  ? geo.label
+                  : "We verify every order with your GPS location to stop fake orders."}
+              </p>
+              <Button size="sm" variant="outline" className="mt-2" disabled={locating} onClick={shareLocation}>
+                {locating ? "Getting location…" : geo ? "Refresh location" : "Allow location access"}
+              </Button>
+            </div>
+
+            {!sessionLoading && !canOrder ? (
+              <div className="rounded-xl border border-border p-3 text-center text-sm">
+                <p className="text-muted-foreground">
+                  {user && status === "pending"
+                    ? "Your registration is pending Admin Approval. You will be able to log in and order once verified by Admin."
+                    : "Please Sign In or Register to Place an Order"}
+                </p>
+                {!user && (
+                  <Button asChild className="mt-2 w-full">
+                    <Link to="/account">Sign in or register</Link>
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <Button className="w-full" disabled={placing || sessionLoading} onClick={placeOrder}>
+                {placing ? "Placing order…" : `Place order · ${rupees(total)}`}
+              </Button>
+            )}
           </div>
+
         </aside>
       </main>
 

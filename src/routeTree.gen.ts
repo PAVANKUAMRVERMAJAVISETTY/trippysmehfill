@@ -10,12 +10,15 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TrackRouteImport } from './routes/track'
+import { Route as MyOrdersRouteImport } from './routes/my-orders'
 import { Route as FeedbackRouteImport } from './routes/feedback'
 import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AuthenticatedStaffRouteImport } from './routes/_authenticated/staff'
 import { Route as AuthenticatedReviewsRouteImport } from './routes/_authenticated/reviews'
+import { Route as AuthenticatedRegistrationsRouteImport } from './routes/_authenticated/registrations'
 import { Route as AuthenticatedOrderHistoryRouteImport } from './routes/_authenticated/order-history'
 import { Route as AuthenticatedMenuManagerRouteImport } from './routes/_authenticated/menu-manager'
 import { Route as AuthenticatedDriversRouteImport } from './routes/_authenticated/drivers'
@@ -28,6 +31,11 @@ const TrackRoute = TrackRouteImport.update({
   path: '/track',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MyOrdersRoute = MyOrdersRouteImport.update({
+  id: '/my-orders',
+  path: '/my-orders',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const FeedbackRoute = FeedbackRouteImport.update({
   id: '/feedback',
   path: '/feedback',
@@ -36,6 +44,11 @@ const FeedbackRoute = FeedbackRouteImport.update({
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
   path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRoute = AccountRouteImport.update({
+  id: '/account',
+  path: '/account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
@@ -57,6 +70,12 @@ const AuthenticatedReviewsRoute = AuthenticatedReviewsRouteImport.update({
   path: '/reviews',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedRegistrationsRoute =
+  AuthenticatedRegistrationsRouteImport.update({
+    id: '/registrations',
+    path: '/registrations',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedOrderHistoryRoute =
   AuthenticatedOrderHistoryRouteImport.update({
     id: '/order-history',
@@ -92,8 +111,10 @@ const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/feedback': typeof FeedbackRoute
+  '/my-orders': typeof MyOrdersRoute
   '/track': typeof TrackRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/delivery': typeof AuthenticatedDeliveryRoute
@@ -101,13 +122,16 @@ export interface FileRoutesByFullPath {
   '/drivers': typeof AuthenticatedDriversRoute
   '/menu-manager': typeof AuthenticatedMenuManagerRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
+  '/registrations': typeof AuthenticatedRegistrationsRoute
   '/reviews': typeof AuthenticatedReviewsRoute
   '/staff': typeof AuthenticatedStaffRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/feedback': typeof FeedbackRoute
+  '/my-orders': typeof MyOrdersRoute
   '/track': typeof TrackRoute
   '/dashboard': typeof AuthenticatedDashboardRoute
   '/delivery': typeof AuthenticatedDeliveryRoute
@@ -115,6 +139,7 @@ export interface FileRoutesByTo {
   '/drivers': typeof AuthenticatedDriversRoute
   '/menu-manager': typeof AuthenticatedMenuManagerRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
+  '/registrations': typeof AuthenticatedRegistrationsRoute
   '/reviews': typeof AuthenticatedReviewsRoute
   '/staff': typeof AuthenticatedStaffRoute
 }
@@ -122,8 +147,10 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/account': typeof AccountRoute
   '/auth': typeof AuthRoute
   '/feedback': typeof FeedbackRoute
+  '/my-orders': typeof MyOrdersRoute
   '/track': typeof TrackRoute
   '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
   '/_authenticated/delivery': typeof AuthenticatedDeliveryRoute
@@ -131,6 +158,7 @@ export interface FileRoutesById {
   '/_authenticated/drivers': typeof AuthenticatedDriversRoute
   '/_authenticated/menu-manager': typeof AuthenticatedMenuManagerRoute
   '/_authenticated/order-history': typeof AuthenticatedOrderHistoryRoute
+  '/_authenticated/registrations': typeof AuthenticatedRegistrationsRoute
   '/_authenticated/reviews': typeof AuthenticatedReviewsRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRoute
 }
@@ -138,8 +166,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/account'
     | '/auth'
     | '/feedback'
+    | '/my-orders'
     | '/track'
     | '/dashboard'
     | '/delivery'
@@ -147,13 +177,16 @@ export interface FileRouteTypes {
     | '/drivers'
     | '/menu-manager'
     | '/order-history'
+    | '/registrations'
     | '/reviews'
     | '/staff'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/account'
     | '/auth'
     | '/feedback'
+    | '/my-orders'
     | '/track'
     | '/dashboard'
     | '/delivery'
@@ -161,14 +194,17 @@ export interface FileRouteTypes {
     | '/drivers'
     | '/menu-manager'
     | '/order-history'
+    | '/registrations'
     | '/reviews'
     | '/staff'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
+    | '/account'
     | '/auth'
     | '/feedback'
+    | '/my-orders'
     | '/track'
     | '/_authenticated/dashboard'
     | '/_authenticated/delivery'
@@ -176,6 +212,7 @@ export interface FileRouteTypes {
     | '/_authenticated/drivers'
     | '/_authenticated/menu-manager'
     | '/_authenticated/order-history'
+    | '/_authenticated/registrations'
     | '/_authenticated/reviews'
     | '/_authenticated/staff'
   fileRoutesById: FileRoutesById
@@ -183,8 +220,10 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AccountRoute: typeof AccountRoute
   AuthRoute: typeof AuthRoute
   FeedbackRoute: typeof FeedbackRoute
+  MyOrdersRoute: typeof MyOrdersRoute
   TrackRoute: typeof TrackRoute
 }
 
@@ -195,6 +234,13 @@ declare module '@tanstack/react-router' {
       path: '/track'
       fullPath: '/track'
       preLoaderRoute: typeof TrackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/my-orders': {
+      id: '/my-orders'
+      path: '/my-orders'
+      fullPath: '/my-orders'
+      preLoaderRoute: typeof MyOrdersRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/feedback': {
@@ -209,6 +255,13 @@ declare module '@tanstack/react-router' {
       path: '/auth'
       fullPath: '/auth'
       preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/account': {
+      id: '/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -237,6 +290,13 @@ declare module '@tanstack/react-router' {
       path: '/reviews'
       fullPath: '/reviews'
       preLoaderRoute: typeof AuthenticatedReviewsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/registrations': {
+      id: '/_authenticated/registrations'
+      path: '/registrations'
+      fullPath: '/registrations'
+      preLoaderRoute: typeof AuthenticatedRegistrationsRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/order-history': {
@@ -291,6 +351,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDriversRoute: typeof AuthenticatedDriversRoute
   AuthenticatedMenuManagerRoute: typeof AuthenticatedMenuManagerRoute
   AuthenticatedOrderHistoryRoute: typeof AuthenticatedOrderHistoryRoute
+  AuthenticatedRegistrationsRoute: typeof AuthenticatedRegistrationsRoute
   AuthenticatedReviewsRoute: typeof AuthenticatedReviewsRoute
   AuthenticatedStaffRoute: typeof AuthenticatedStaffRoute
 }
@@ -302,6 +363,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDriversRoute: AuthenticatedDriversRoute,
   AuthenticatedMenuManagerRoute: AuthenticatedMenuManagerRoute,
   AuthenticatedOrderHistoryRoute: AuthenticatedOrderHistoryRoute,
+  AuthenticatedRegistrationsRoute: AuthenticatedRegistrationsRoute,
   AuthenticatedReviewsRoute: AuthenticatedReviewsRoute,
   AuthenticatedStaffRoute: AuthenticatedStaffRoute,
 }
@@ -312,8 +374,10 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AccountRoute: AccountRoute,
   AuthRoute: AuthRoute,
   FeedbackRoute: FeedbackRoute,
+  MyOrdersRoute: MyOrdersRoute,
   TrackRoute: TrackRoute,
 }
 export const routeTree = rootRouteImport
