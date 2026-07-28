@@ -1,7 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { rupees, startOfToday, daysAgo } from "@/lib/session";
+import { useNewOrderAlerts } from "@/lib/use-order-alerts";
+
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   component: DashboardPage,
