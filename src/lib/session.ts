@@ -10,27 +10,39 @@ export type SessionState = {
   role: Role | null;
   name: string;
   username: string;
+  phone: string;
+  address: string;
+  status: "pending" | "approved" | "rejected" | null;
+};
+
+const EMPTY: SessionState = {
+  loading: false,
+  user: null,
+  role: null,
+  name: "",
+  username: "",
+  phone: "",
+  address: "",
+  status: null,
 };
 
 export function useSession(): SessionState {
-  const [state, setState] = useState<SessionState>({
-    loading: true,
-    user: null,
-    role: null,
-    name: "",
-    username: "",
-  });
+  const [state, setState] = useState<SessionState>({ ...EMPTY, loading: true });
 
   useEffect(() => {
     let cancelled = false;
 
     async function load(user: User | null) {
       if (!user) {
-        if (!cancelled) setState({ loading: false, user: null, role: null, name: "", username: "" });
+        if (!cancelled) setState({ ...EMPTY });
         return;
       }
       const [{ data: profile }, { data: roles }] = await Promise.all([
-        supabase.from("profiles").select("name, username").eq("id", user.id).maybeSingle(),
+        supabase
+          .from("profiles")
+          .select("name, username, phone, address, status")
+          .eq("id", user.id)
+          .maybeSingle(),
         supabase.from("user_roles").select("role").eq("user_id", user.id),
       ]);
       if (cancelled) return;
@@ -42,8 +54,12 @@ export function useSession(): SessionState {
         role: found,
         name: profile?.name ?? "",
         username: profile?.username ?? "",
+        phone: profile?.phone ?? "",
+        address: profile?.address ?? "",
+        status: (profile?.status as SessionState["status"]) ?? null,
       });
     }
+
 
     supabase.auth.getSession().then(({ data }) => load(data.session?.user ?? null));
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
