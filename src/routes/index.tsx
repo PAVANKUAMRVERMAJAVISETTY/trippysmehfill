@@ -1,5 +1,5 @@
-import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,7 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { rupees, type CartLine } from "@/lib/session";
+import { rupees, useSession, type CartLine } from "@/lib/session";
+import { requestGeolocation, lookupClientIp, type GeoFix } from "@/lib/geo";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,6 +34,7 @@ export const Route = createFileRoute("/")({
 });
 
 function CustomerPage() {
+  const { loading: sessionLoading, user, role, status, name, phone, address } = useSession();
   const [cart, setCart] = useState<Record<string, CartLine>>({});
   const [form, setForm] = useState({
     name: "",
@@ -42,7 +45,29 @@ function CustomerPage() {
     notes: "",
   });
   const [placing, setPlacing] = useState(false);
+  const [geo, setGeo] = useState<GeoFix | null>(null);
+  const [locating, setLocating] = useState(false);
   const [placed, setPlaced] = useState<{ order_no: number; id: string } | null>(null);
+
+  const canOrder = !!user && (status === "approved" || !!role);
+
+  useEffect(() => {
+    if (user) setForm((f) => ({ ...f, name: f.name || name, phone: f.phone || phone, address: f.address || address }));
+  }, [user, name, phone, address]);
+
+  async function shareLocation() {
+    setLocating(true);
+    try {
+      const fix = await requestGeolocation();
+      setGeo(fix);
+      toast.success("Location captured");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Could not get your location");
+    } finally {
+      setLocating(false);
+    }
+  }
+
 
   const { data: menu = [], isLoading } = useQuery({
     queryKey: ["public-menu"],
