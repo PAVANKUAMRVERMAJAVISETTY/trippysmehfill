@@ -268,10 +268,39 @@ function CustomerPage() {
               <Textarea id="c-notes" maxLength={500} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
             </div>
             <p className="text-xs text-muted-foreground">Payment: Cash on Delivery</p>
-            <Button className="w-full" disabled={placing} onClick={placeOrder}>
-              {placing ? "Placing order…" : `Place order · ${rupees(total)}`}
-            </Button>
+
+            <div className="rounded-xl bg-muted p-3 text-xs">
+              <p className="font-semibold">Live location {geo ? "captured ✓" : "required"}</p>
+              <p className="mt-0.5 text-muted-foreground">
+                {geo
+                  ? geo.label
+                  : "We verify every order with your GPS location to stop fake orders."}
+              </p>
+              <Button size="sm" variant="outline" className="mt-2" disabled={locating} onClick={shareLocation}>
+                {locating ? "Getting location…" : geo ? "Refresh location" : "Allow location access"}
+              </Button>
+            </div>
+
+            {!sessionLoading && !canOrder ? (
+              <div className="rounded-xl border border-border p-3 text-center text-sm">
+                <p className="text-muted-foreground">
+                  {user && status === "pending"
+                    ? "Your registration is pending Admin Approval. You will be able to log in and order once verified by Admin."
+                    : "Please Sign In or Register to Place an Order"}
+                </p>
+                {!user && (
+                  <Button asChild className="mt-2 w-full">
+                    <Link to="/account">Sign in or register</Link>
+                  </Button>
+                )}
+              </div>
+            ) : (
+              <Button className="w-full" disabled={placing || sessionLoading} onClick={placeOrder}>
+                {placing ? "Placing order…" : `Place order · ${rupees(total)}`}
+              </Button>
+            )}
           </div>
+
         </aside>
       </main>
 
