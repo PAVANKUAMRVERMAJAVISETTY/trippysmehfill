@@ -96,10 +96,24 @@ function CustomerPage() {
   }
 
   async function placeOrder() {
+    if (!canOrder) return toast.error("Please Sign In or Register to Place an Order");
     if (lines.length === 0) return toast.error("Your cart is empty");
     if (!form.name.trim() || !form.phone.trim() || !form.address.trim())
       return toast.error("Name, phone and address are required");
+
     setPlacing(true);
+    let fix = geo;
+    if (!fix) {
+      try {
+        fix = await requestGeolocation();
+        setGeo(fix);
+      } catch (err) {
+        setPlacing(false);
+        return toast.error(err instanceof Error ? err.message : "Location access is required");
+      }
+    }
+    const ip = await lookupClientIp();
+
     const { data, error } = await supabase.rpc("place_order", {
       p_name: form.name,
       p_phone: form.phone,
@@ -109,6 +123,10 @@ function CustomerPage() {
       p_notes: form.notes,
       p_items: lines,
       p_total: total,
+      p_latitude: fix.latitude,
+      p_longitude: fix.longitude,
+      p_geo_address: fix.label,
+      p_ip_address: ip,
     });
     setPlacing(false);
     if (error) return toast.error(error.message);
@@ -117,6 +135,7 @@ function CustomerPage() {
     setCart({});
     toast.success(`Order #${row?.order_no} placed!`);
   }
+
 
   const specials = menu.filter((m) => m.is_special);
 
