@@ -158,15 +158,28 @@ function DispatchPage() {
                   {o.status}
                 </span>
               </div>
-              <p className="mt-1 text-sm">
-                {o.customer_name} · {o.phone}
+              <p className="mt-1 text-sm font-medium">
+                {o.customer_name} · <a className="underline" href={`tel:${o.phone}`}>{o.phone}</a>
               </p>
               <p className="text-sm text-muted-foreground">
                 {o.campus ? `${o.campus} · ` : ""}
                 {o.address}
               </p>
+              <p className="text-xs text-muted-foreground">IP: {o.ip_address ?? "not captured"}</p>
+              {o.geo_address && <p className="text-xs text-muted-foreground">GPS: {o.geo_address}</p>}
+              {o.latitude != null && o.longitude != null && (
+                <a
+                  href={mapsLink(o.latitude, o.longitude)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 inline-block rounded-full bg-secondary px-3 py-1.5 text-xs font-semibold text-secondary-foreground"
+                >
+                  📍 View Live Location
+                </a>
+              )}
               {o.food_preference && <p className="text-sm text-muted-foreground">Preference: {o.food_preference}</p>}
               {o.notes && <p className="text-sm text-muted-foreground">Notes: {o.notes}</p>}
+
               <ul className="mt-2 text-sm">
                 {(o.items ?? []).map((i, idx) => (
                   <li key={idx}>
