@@ -8,6 +8,8 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { rupees } from "@/lib/session";
+import { useNewOrderAlerts } from "@/lib/use-order-alerts";
+import { mapsLink } from "@/lib/geo";
 
 export const Route = createFileRoute("/_authenticated/dispatch")({
   component: DispatchPage,
@@ -27,7 +29,12 @@ type OrderRow = {
   status: "pending" | "assigned" | "delivered" | "cancelled";
   driver_id: string | null;
   created_at: string;
+  latitude: number | null;
+  longitude: number | null;
+  geo_address: string | null;
+  ip_address: string | null;
 };
+
 
 const STATUS_STYLE: Record<string, string> = {
   pending: "bg-accent text-accent-foreground",
