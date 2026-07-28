@@ -1,11 +1,25 @@
 import logo from "@/assets/trippys-logo.png.asset.json";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { useQueryClient } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { useSession } from "@/lib/session";
 
 export function Logo({ className = "h-16" }: { className?: string }) {
   return <img src={logo.url} alt="Trippy's Mehfill — Hyderabad's Cloud Kitchen" className={className} />;
 }
 
 export function PublicHeader() {
+  const { user, name, role } = useSession();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  async function signOut() {
+    await queryClient.cancelQueries();
+    queryClient.clear();
+    await supabase.auth.signOut();
+    navigate({ to: "/account", replace: true });
+  }
+
   return (
     <header className="sticky top-0 z-30 border-b border-border/60 bg-primary text-primary-foreground">
       <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-2 px-4 py-3">
@@ -16,29 +30,59 @@ export function PublicHeader() {
           </span>
         </Link>
         <nav className="flex items-center gap-1 text-sm">
-          <Link
-            to="/"
-            className="rounded-full px-3 py-1.5 transition-colors hover:bg-primary-foreground/10"
-          >
+          <Link to="/" className="rounded-full px-3 py-1.5 transition-colors hover:bg-primary-foreground/10">
             Menu
           </Link>
-          <Link
-            to="/track"
-            className="rounded-full px-3 py-1.5 transition-colors hover:bg-primary-foreground/10"
-          >
+          <Link to="/track" className="rounded-full px-3 py-1.5 transition-colors hover:bg-primary-foreground/10">
             Track order
           </Link>
-          <Link
-            to="/auth"
-            className="rounded-full bg-accent px-3 py-1.5 font-medium text-accent-foreground transition-opacity hover:opacity-90"
-          >
-            Staff login
-          </Link>
+          {user ? (
+            <>
+              <Link
+                to="/my-orders"
+                className="rounded-full px-3 py-1.5 transition-colors hover:bg-primary-foreground/10"
+              >
+                Order History
+              </Link>
+              {role && (
+                <Link
+                  to="/dashboard"
+                  className="rounded-full px-3 py-1.5 transition-colors hover:bg-primary-foreground/10"
+                >
+                  Dashboard
+                </Link>
+              )}
+              <span className="hidden px-2 text-xs opacity-80 sm:inline">{name}</span>
+              <button
+                type="button"
+                onClick={signOut}
+                className="rounded-full bg-accent px-3 py-1.5 font-medium text-accent-foreground transition-opacity hover:opacity-90"
+              >
+                Sign out
+              </button>
+            </>
+          ) : (
+            <>
+              <Link
+                to="/account"
+                className="rounded-full bg-accent px-3 py-1.5 font-medium text-accent-foreground transition-opacity hover:opacity-90"
+              >
+                Sign in / Register
+              </Link>
+              <Link
+                to="/auth"
+                className="rounded-full px-3 py-1.5 transition-colors hover:bg-primary-foreground/10"
+              >
+                Staff
+              </Link>
+            </>
+          )}
         </nav>
       </div>
     </header>
   );
 }
+
 
 export function PublicFooter() {
   return (
