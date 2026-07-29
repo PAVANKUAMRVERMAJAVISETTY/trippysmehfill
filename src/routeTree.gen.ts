@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AccountRouteImport } from './routes/account'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PayOrderIdRouteImport } from './routes/pay.$orderId'
 import { Route as AuthenticatedStaffRouteImport } from './routes/_authenticated/staff'
 import { Route as AuthenticatedReviewsRouteImport } from './routes/_authenticated/reviews'
 import { Route as AuthenticatedRegistrationsRouteImport } from './routes/_authenticated/registrations'
@@ -58,6 +59,11 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PayOrderIdRoute = PayOrderIdRouteImport.update({
+  id: '/pay/$orderId',
+  path: '/pay/$orderId',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedStaffRoute = AuthenticatedStaffRouteImport.update({
@@ -125,6 +131,7 @@ export interface FileRoutesByFullPath {
   '/registrations': typeof AuthenticatedRegistrationsRoute
   '/reviews': typeof AuthenticatedReviewsRoute
   '/staff': typeof AuthenticatedStaffRoute
+  '/pay/$orderId': typeof PayOrderIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -142,6 +149,7 @@ export interface FileRoutesByTo {
   '/registrations': typeof AuthenticatedRegistrationsRoute
   '/reviews': typeof AuthenticatedReviewsRoute
   '/staff': typeof AuthenticatedStaffRoute
+  '/pay/$orderId': typeof PayOrderIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -161,6 +169,7 @@ export interface FileRoutesById {
   '/_authenticated/registrations': typeof AuthenticatedRegistrationsRoute
   '/_authenticated/reviews': typeof AuthenticatedReviewsRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRoute
+  '/pay/$orderId': typeof PayOrderIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -180,6 +189,7 @@ export interface FileRouteTypes {
     | '/registrations'
     | '/reviews'
     | '/staff'
+    | '/pay/$orderId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -197,6 +207,7 @@ export interface FileRouteTypes {
     | '/registrations'
     | '/reviews'
     | '/staff'
+    | '/pay/$orderId'
   id:
     | '__root__'
     | '/'
@@ -215,6 +226,7 @@ export interface FileRouteTypes {
     | '/_authenticated/registrations'
     | '/_authenticated/reviews'
     | '/_authenticated/staff'
+    | '/pay/$orderId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -225,6 +237,7 @@ export interface RootRouteChildren {
   FeedbackRoute: typeof FeedbackRoute
   MyOrdersRoute: typeof MyOrdersRoute
   TrackRoute: typeof TrackRoute
+  PayOrderIdRoute: typeof PayOrderIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -276,6 +289,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pay/$orderId': {
+      id: '/pay/$orderId'
+      path: '/pay/$orderId'
+      fullPath: '/pay/$orderId'
+      preLoaderRoute: typeof PayOrderIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/staff': {
@@ -379,6 +399,7 @@ const rootRouteChildren: RootRouteChildren = {
   FeedbackRoute: FeedbackRoute,
   MyOrdersRoute: MyOrdersRoute,
   TrackRoute: TrackRoute,
+  PayOrderIdRoute: PayOrderIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

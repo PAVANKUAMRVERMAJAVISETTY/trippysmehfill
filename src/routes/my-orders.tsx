@@ -4,13 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { PublicHeader, PublicFooter } from "@/components/brand";
 import { useSession, rupees } from "@/lib/session";
 import { Button } from "@/components/ui/button";
+import { OrderProgress, StatusBadge } from "@/components/order-progress";
 
 export const Route = createFileRoute("/my-orders")({
   ssr: false,
   head: () => ({
     meta: [
       { title: "Order history — Trippy's Mehfill" },
-      { name: "description", content: "See every Trippy's Mehfill order you have placed and its live status." },
+      { name: "description", content: "See every Trippy's Mehfill order you have placed, its payment status and live progress." },
       { property: "og:title", content: "Order history — Trippy's Mehfill" },
       { property: "og:description", content: "Track your past and active Hyderabadi biryani orders." },
       { property: "og:type", content: "website" },
@@ -20,30 +21,17 @@ export const Route = createFileRoute("/my-orders")({
   component: MyOrdersPage,
 });
 
-const STATUS_LABEL: Record<string, string> = {
-  pending: "Pending",
-  assigned: "Out for delivery",
-  delivered: "Delivered",
-  cancelled: "Cancelled",
-};
-
-const STATUS_STYLE: Record<string, string> = {
-  pending: "bg-accent text-accent-foreground",
-  assigned: "bg-secondary text-secondary-foreground",
-  delivered: "bg-primary text-primary-foreground",
-  cancelled: "bg-destructive text-destructive-foreground",
-};
-
 function MyOrdersPage() {
   const { loading, user, name } = useSession();
 
   const { data: orders = [], isLoading } = useQuery({
     queryKey: ["my-orders", user?.id],
     enabled: !!user,
+    refetchInterval: 20000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from("orders")
-        .select("id, order_no, created_at, items, total, status")
+        .select("id, order_no, created_at, items, subtotal, delivery_fee, tax, total, status, payment_status, eta_minutes")
         .eq("user_id", user!.id)
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -80,17 +68,10 @@ function MyOrdersPage() {
                 <li key={o.id} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <strong>Order #{o.order_no}</strong>
-                    <span
-                      className={`rounded-full px-3 py-1 text-xs font-semibold uppercase ${
-                        STATUS_STYLE[o.status] ?? "bg-muted"
-                      }`}
-                    >
-                      {STATUS_LABEL[o.status] ?? o.status}
-                    </span>
+                    <StatusBadge status={o.status} />
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(o.created_at).toLocaleString("en-IN")}
-                  </p>
+                  <p className="text-xs text-muted-foreground">{new Date(o.created_at).toLocaleString("en-IN")}</p>
+
                   <ul className="mt-2 text-sm">
                     {((o.items ?? []) as { name: string; qty: number }[]).map((i, idx) => (
                       <li key={idx}>
@@ -98,7 +79,28 @@ function MyOrdersPage() {
                       </li>
                     ))}
                   </ul>
-                  <p className="mt-2 font-bold">{rupees(Number(o.total))} · COD</p>
+
+                  <p className="mt-2 text-sm text-muted-foreground">
+                    {rupees(Number(o.subtotal))} + {rupees(Number(o.delivery_fee))} delivery +{" "}
+                    {rupees(Number(o.tax))} tax
+                  </p>
+                  <p className="font-bold">{rupees(Number(o.total))} · UPI</p>
+
+                  {o.status === "payment_pending" ? (
+                    <Button asChild size="sm" className="mt-3">
+                      <Link to="/pay/$orderId" params={{ orderId: o.id }}>
+                        Complete payment
+                      </Link>
+                    </Button>
+                  ) : (
+                    <OrderProgress status={o.status} />
+                  )}
+
+                  {o.status === "delivered" && (
+                    <a className="mt-2 inline-block text-sm font-medium text-primary underline" href={`/feedback?order=${o.id}`}>
+                      Rate this order
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
