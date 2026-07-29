@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      banners: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string | null
+          is_active: boolean
+          link_url: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          link_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean
+          link_url?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       feedback: {
         Row: {
           comments: string | null
@@ -51,6 +81,75 @@ export type Database = {
             columns: ["order_id"]
             isOneToOne: false
             referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      inventory_items: {
+        Row: {
+          created_at: string
+          id: string
+          low_threshold: number
+          name: string
+          quantity: number
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          low_threshold?: number
+          name: string
+          quantity?: number
+          unit?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          low_threshold?: number
+          name?: string
+          quantity?: number
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      menu_ingredients: {
+        Row: {
+          created_at: string
+          id: string
+          inventory_item_id: string
+          menu_item_id: string
+          qty_per_serving: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          inventory_item_id: string
+          menu_item_id: string
+          qty_per_serving?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          inventory_item_id?: string
+          menu_item_id?: string
+          qty_per_serving?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "menu_ingredients_inventory_item_id_fkey"
+            columns: ["inventory_item_id"]
+            isOneToOne: false
+            referencedRelation: "inventory_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "menu_ingredients_menu_item_id_fkey"
+            columns: ["menu_item_id"]
+            isOneToOne: false
+            referencedRelation: "menu_items"
             referencedColumns: ["id"]
           },
         ]
@@ -96,6 +195,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          accepted_at: string | null
           address: string
           assigned_at: string | null
           campus: string | null
@@ -103,11 +203,17 @@ export type Database = {
           created_at: string
           customer_name: string
           delivered_at: string | null
+          delivery_fee: number
           delivery_minutes: number | null
           driver_id: string | null
+          driver_lat: number | null
+          driver_lng: number | null
+          driver_location_at: string | null
+          eta_minutes: number
           food_preference: string | null
           geo_address: string | null
           id: string
+          inventory_deducted: boolean
           ip_address: string | null
           items: Json
           latitude: number | null
@@ -115,12 +221,18 @@ export type Database = {
           notes: string | null
           order_no: number
           payment_method: string
+          payment_ref: string | null
+          payment_status: string
           phone: string
+          ready_at: string | null
           status: Database["public"]["Enums"]["order_status"]
+          subtotal: number
+          tax: number
           total: number
           user_id: string | null
         }
         Insert: {
+          accepted_at?: string | null
           address: string
           assigned_at?: string | null
           campus?: string | null
@@ -128,11 +240,17 @@ export type Database = {
           created_at?: string
           customer_name: string
           delivered_at?: string | null
+          delivery_fee?: number
           delivery_minutes?: number | null
           driver_id?: string | null
+          driver_lat?: number | null
+          driver_lng?: number | null
+          driver_location_at?: string | null
+          eta_minutes?: number
           food_preference?: string | null
           geo_address?: string | null
           id?: string
+          inventory_deducted?: boolean
           ip_address?: string | null
           items?: Json
           latitude?: number | null
@@ -140,12 +258,18 @@ export type Database = {
           notes?: string | null
           order_no?: number
           payment_method?: string
+          payment_ref?: string | null
+          payment_status?: string
           phone: string
+          ready_at?: string | null
           status?: Database["public"]["Enums"]["order_status"]
+          subtotal?: number
+          tax?: number
           total?: number
           user_id?: string | null
         }
         Update: {
+          accepted_at?: string | null
           address?: string
           assigned_at?: string | null
           campus?: string | null
@@ -153,11 +277,17 @@ export type Database = {
           created_at?: string
           customer_name?: string
           delivered_at?: string | null
+          delivery_fee?: number
           delivery_minutes?: number | null
           driver_id?: string | null
+          driver_lat?: number | null
+          driver_lng?: number | null
+          driver_location_at?: string | null
+          eta_minutes?: number
           food_preference?: string | null
           geo_address?: string | null
           id?: string
+          inventory_deducted?: boolean
           ip_address?: string | null
           items?: Json
           latitude?: number | null
@@ -165,8 +295,13 @@ export type Database = {
           notes?: string | null
           order_no?: number
           payment_method?: string
+          payment_ref?: string | null
+          payment_status?: string
           phone?: string
+          ready_at?: string | null
           status?: Database["public"]["Enums"]["order_status"]
+          subtotal?: number
+          tax?: number
           total?: number
           user_id?: string | null
         }
@@ -189,8 +324,10 @@ export type Database = {
           id: string
           name: string
           phone: string | null
+          photo_url: string | null
           status: string
           username: string
+          vehicle_number: string | null
         }
         Insert: {
           active?: boolean
@@ -200,8 +337,10 @@ export type Database = {
           id: string
           name: string
           phone?: string | null
+          photo_url?: string | null
           status?: string
           username: string
+          vehicle_number?: string | null
         }
         Update: {
           active?: boolean
@@ -211,8 +350,61 @@ export type Database = {
           id?: string
           name?: string
           phone?: string | null
+          photo_url?: string | null
           status?: string
           username?: string
+          vehicle_number?: string | null
+        }
+        Relationships: []
+      }
+      store_settings: {
+        Row: {
+          close_time: string
+          closed_message: string
+          created_at: string
+          delivery_charge: number
+          eta_minutes: number
+          free_delivery_threshold: number
+          id: boolean
+          is_open: boolean
+          min_order_value: number
+          open_time: string
+          tax_percent: number
+          updated_at: string
+          upi_id: string
+          whatsapp_number: string
+        }
+        Insert: {
+          close_time?: string
+          closed_message?: string
+          created_at?: string
+          delivery_charge?: number
+          eta_minutes?: number
+          free_delivery_threshold?: number
+          id?: boolean
+          is_open?: boolean
+          min_order_value?: number
+          open_time?: string
+          tax_percent?: number
+          updated_at?: string
+          upi_id?: string
+          whatsapp_number?: string
+        }
+        Update: {
+          close_time?: string
+          closed_message?: string
+          created_at?: string
+          delivery_charge?: number
+          eta_minutes?: number
+          free_delivery_threshold?: number
+          id?: boolean
+          is_open?: boolean
+          min_order_value?: number
+          open_time?: string
+          tax_percent?: number
+          updated_at?: string
+          upi_id?: string
+          whatsapp_number?: string
         }
         Relationships: []
       }
@@ -321,7 +513,19 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "staff" | "driver"
-      order_status: "pending" | "assigned" | "delivered" | "cancelled"
+      order_status:
+        | "pending"
+        | "assigned"
+        | "delivered"
+        | "cancelled"
+        | "payment_pending"
+        | "payment_successful"
+        | "accepted"
+        | "preparing"
+        | "cooking"
+        | "packing"
+        | "ready"
+        | "out_for_delivery"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -450,7 +654,20 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "staff", "driver"],
-      order_status: ["pending", "assigned", "delivered", "cancelled"],
+      order_status: [
+        "pending",
+        "assigned",
+        "delivered",
+        "cancelled",
+        "payment_pending",
+        "payment_successful",
+        "accepted",
+        "preparing",
+        "cooking",
+        "packing",
+        "ready",
+        "out_for_delivery",
+      ],
     },
   },
 } as const
