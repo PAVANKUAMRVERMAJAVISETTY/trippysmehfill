@@ -431,6 +431,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      confirm_payment: {
+        Args: { p_order_id: string; p_reference: string }
+        Returns: undefined
+      }
       has_any_admin: { Args: never; Returns: boolean }
       has_role: {
         Args: {
@@ -450,43 +454,30 @@ export type Database = {
           status: Database["public"]["Enums"]["order_status"]
         }[]
       }
-      place_order:
-        | {
-            Args: {
-              p_address: string
-              p_campus: string
-              p_food_preference: string
-              p_items: Json
-              p_name: string
-              p_notes: string
-              p_phone: string
-              p_total: number
-            }
-            Returns: {
-              id: string
-              order_no: number
-            }[]
-          }
-        | {
-            Args: {
-              p_address: string
-              p_campus: string
-              p_food_preference: string
-              p_geo_address?: string
-              p_ip_address?: string
-              p_items: Json
-              p_latitude?: number
-              p_longitude?: number
-              p_name: string
-              p_notes: string
-              p_phone: string
-              p_total: number
-            }
-            Returns: {
-              id: string
-              order_no: number
-            }[]
-          }
+      place_order: {
+        Args: {
+          p_address: string
+          p_campus: string
+          p_food_preference: string
+          p_geo_address?: string
+          p_ip_address?: string
+          p_items: Json
+          p_latitude?: number
+          p_longitude?: number
+          p_name: string
+          p_notes: string
+          p_phone: string
+          p_total: number
+        }
+        Returns: {
+          delivery_fee: number
+          id: string
+          order_no: number
+          subtotal: number
+          tax: number
+          total: number
+        }[]
+      }
       submit_feedback: {
         Args: {
           p_comments: string
@@ -502,12 +493,21 @@ export type Database = {
         Args: { p_phone: string }
         Returns: {
           created_at: string
+          delivery_fee: number
+          driver_lat: number
+          driver_lng: number
           driver_name: string
+          driver_phone: string
+          driver_photo: string
+          eta_minutes: number
           id: string
           items: Json
           order_no: number
           status: Database["public"]["Enums"]["order_status"]
+          subtotal: number
+          tax: number
           total: number
+          vehicle_number: string
         }[]
       }
     }
