@@ -18,10 +18,13 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PayOrderIdRouteImport } from './routes/pay.$orderId'
 import { Route as AuthenticatedStaffRouteImport } from './routes/_authenticated/staff'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
 import { Route as AuthenticatedReviewsRouteImport } from './routes/_authenticated/reviews'
 import { Route as AuthenticatedRegistrationsRouteImport } from './routes/_authenticated/registrations'
 import { Route as AuthenticatedOrderHistoryRouteImport } from './routes/_authenticated/order-history'
 import { Route as AuthenticatedMenuManagerRouteImport } from './routes/_authenticated/menu-manager'
+import { Route as AuthenticatedKitchenRouteImport } from './routes/_authenticated/kitchen'
+import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
 import { Route as AuthenticatedDriversRouteImport } from './routes/_authenticated/drivers'
 import { Route as AuthenticatedDispatchRouteImport } from './routes/_authenticated/dispatch'
 import { Route as AuthenticatedDeliveryRouteImport } from './routes/_authenticated/delivery'
@@ -71,6 +74,11 @@ const AuthenticatedStaffRoute = AuthenticatedStaffRouteImport.update({
   path: '/staff',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedReviewsRoute = AuthenticatedReviewsRouteImport.update({
   id: '/reviews',
   path: '/reviews',
@@ -94,6 +102,16 @@ const AuthenticatedMenuManagerRoute =
     path: '/menu-manager',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedKitchenRoute = AuthenticatedKitchenRouteImport.update({
+  id: '/kitchen',
+  path: '/kitchen',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedInventoryRoute = AuthenticatedInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDriversRoute = AuthenticatedDriversRouteImport.update({
   id: '/drivers',
   path: '/drivers',
@@ -126,10 +144,13 @@ export interface FileRoutesByFullPath {
   '/delivery': typeof AuthenticatedDeliveryRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/drivers': typeof AuthenticatedDriversRoute
+  '/inventory': typeof AuthenticatedInventoryRoute
+  '/kitchen': typeof AuthenticatedKitchenRoute
   '/menu-manager': typeof AuthenticatedMenuManagerRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
   '/registrations': typeof AuthenticatedRegistrationsRoute
   '/reviews': typeof AuthenticatedReviewsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/staff': typeof AuthenticatedStaffRoute
   '/pay/$orderId': typeof PayOrderIdRoute
 }
@@ -144,10 +165,13 @@ export interface FileRoutesByTo {
   '/delivery': typeof AuthenticatedDeliveryRoute
   '/dispatch': typeof AuthenticatedDispatchRoute
   '/drivers': typeof AuthenticatedDriversRoute
+  '/inventory': typeof AuthenticatedInventoryRoute
+  '/kitchen': typeof AuthenticatedKitchenRoute
   '/menu-manager': typeof AuthenticatedMenuManagerRoute
   '/order-history': typeof AuthenticatedOrderHistoryRoute
   '/registrations': typeof AuthenticatedRegistrationsRoute
   '/reviews': typeof AuthenticatedReviewsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
   '/staff': typeof AuthenticatedStaffRoute
   '/pay/$orderId': typeof PayOrderIdRoute
 }
@@ -164,10 +188,13 @@ export interface FileRoutesById {
   '/_authenticated/delivery': typeof AuthenticatedDeliveryRoute
   '/_authenticated/dispatch': typeof AuthenticatedDispatchRoute
   '/_authenticated/drivers': typeof AuthenticatedDriversRoute
+  '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
+  '/_authenticated/kitchen': typeof AuthenticatedKitchenRoute
   '/_authenticated/menu-manager': typeof AuthenticatedMenuManagerRoute
   '/_authenticated/order-history': typeof AuthenticatedOrderHistoryRoute
   '/_authenticated/registrations': typeof AuthenticatedRegistrationsRoute
   '/_authenticated/reviews': typeof AuthenticatedReviewsRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/staff': typeof AuthenticatedStaffRoute
   '/pay/$orderId': typeof PayOrderIdRoute
 }
@@ -184,10 +211,13 @@ export interface FileRouteTypes {
     | '/delivery'
     | '/dispatch'
     | '/drivers'
+    | '/inventory'
+    | '/kitchen'
     | '/menu-manager'
     | '/order-history'
     | '/registrations'
     | '/reviews'
+    | '/settings'
     | '/staff'
     | '/pay/$orderId'
   fileRoutesByTo: FileRoutesByTo
@@ -202,10 +232,13 @@ export interface FileRouteTypes {
     | '/delivery'
     | '/dispatch'
     | '/drivers'
+    | '/inventory'
+    | '/kitchen'
     | '/menu-manager'
     | '/order-history'
     | '/registrations'
     | '/reviews'
+    | '/settings'
     | '/staff'
     | '/pay/$orderId'
   id:
@@ -221,10 +254,13 @@ export interface FileRouteTypes {
     | '/_authenticated/delivery'
     | '/_authenticated/dispatch'
     | '/_authenticated/drivers'
+    | '/_authenticated/inventory'
+    | '/_authenticated/kitchen'
     | '/_authenticated/menu-manager'
     | '/_authenticated/order-history'
     | '/_authenticated/registrations'
     | '/_authenticated/reviews'
+    | '/_authenticated/settings'
     | '/_authenticated/staff'
     | '/pay/$orderId'
   fileRoutesById: FileRoutesById
@@ -305,6 +341,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedStaffRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/reviews': {
       id: '/_authenticated/reviews'
       path: '/reviews'
@@ -331,6 +374,20 @@ declare module '@tanstack/react-router' {
       path: '/menu-manager'
       fullPath: '/menu-manager'
       preLoaderRoute: typeof AuthenticatedMenuManagerRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/kitchen': {
+      id: '/_authenticated/kitchen'
+      path: '/kitchen'
+      fullPath: '/kitchen'
+      preLoaderRoute: typeof AuthenticatedKitchenRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/inventory': {
+      id: '/_authenticated/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof AuthenticatedInventoryRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/drivers': {
@@ -369,10 +426,13 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDeliveryRoute: typeof AuthenticatedDeliveryRoute
   AuthenticatedDispatchRoute: typeof AuthenticatedDispatchRoute
   AuthenticatedDriversRoute: typeof AuthenticatedDriversRoute
+  AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
+  AuthenticatedKitchenRoute: typeof AuthenticatedKitchenRoute
   AuthenticatedMenuManagerRoute: typeof AuthenticatedMenuManagerRoute
   AuthenticatedOrderHistoryRoute: typeof AuthenticatedOrderHistoryRoute
   AuthenticatedRegistrationsRoute: typeof AuthenticatedRegistrationsRoute
   AuthenticatedReviewsRoute: typeof AuthenticatedReviewsRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedStaffRoute: typeof AuthenticatedStaffRoute
 }
 
@@ -381,10 +441,13 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedDeliveryRoute: AuthenticatedDeliveryRoute,
   AuthenticatedDispatchRoute: AuthenticatedDispatchRoute,
   AuthenticatedDriversRoute: AuthenticatedDriversRoute,
+  AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
+  AuthenticatedKitchenRoute: AuthenticatedKitchenRoute,
   AuthenticatedMenuManagerRoute: AuthenticatedMenuManagerRoute,
   AuthenticatedOrderHistoryRoute: AuthenticatedOrderHistoryRoute,
   AuthenticatedRegistrationsRoute: AuthenticatedRegistrationsRoute,
   AuthenticatedReviewsRoute: AuthenticatedReviewsRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedStaffRoute: AuthenticatedStaffRoute,
 }
 

@@ -28,7 +28,7 @@ type KitchenOrder = {
   payment_ref: string | null;
 };
 
-const KITCHEN_STAGES = ["payment_successful", "accepted", "preparing", "cooking", "packing", "ready"];
+const KITCHEN_STAGES = ["payment_successful", "accepted", "preparing", "cooking", "packing", "ready"] as const;
 
 function elapsed(from: string) {
   const mins = Math.max(0, Math.floor((Date.now() - new Date(from).getTime()) / 60000));
@@ -75,7 +75,7 @@ function KitchenPage() {
   async function advance(o: KitchenOrder) {
     const next = nextStage(o.status);
     if (!next) return;
-    const patch: Record<string, unknown> = { status: next };
+    const patch: { status: typeof next; accepted_at?: string; ready_at?: string } = { status: next };
     if (next === "accepted") patch.accepted_at = new Date().toISOString();
     if (next === "ready") patch.ready_at = new Date().toISOString();
     const { error } = await supabase.from("orders").update(patch).eq("id", o.id);
