@@ -10,13 +10,16 @@ type NavItem = { to: string; label: string; roles: Role[] };
 const NAV: NavItem[] = [
   { to: "/dashboard", label: "Dashboard", roles: ["admin", "staff"] },
   { to: "/dispatch", label: "Live Orders", roles: ["admin", "staff"] },
+  { to: "/kitchen", label: "Kitchen", roles: ["admin", "staff"] },
   { to: "/registrations", label: "Pending Registrations", roles: ["admin"] },
 
   { to: "/menu-manager", label: "Menu", roles: ["admin", "staff"] },
+  { to: "/inventory", label: "Inventory", roles: ["admin", "staff"] },
   { to: "/order-history", label: "Order History", roles: ["admin", "staff"] },
   { to: "/reviews", label: "Feedback", roles: ["admin", "staff"] },
   { to: "/drivers", label: "Driver Stats", roles: ["admin"] },
   { to: "/staff", label: "Staff & Drivers", roles: ["admin"] },
+  { to: "/settings", label: "Settings", roles: ["admin"] },
   { to: "/delivery", label: "My Deliveries", roles: ["driver"] },
 ];
 

@@ -67,7 +67,7 @@ function DeliveryPage() {
   const collected = (from: number) =>
     delivered.filter((o) => inRange(o, from)).reduce((s, o) => s + Number(o.total), 0);
 
-  const active = orders.filter((o) => o.status === "assigned");
+  const active = orders.filter((o) => o.status === "assigned" || o.status === "out_for_delivery" || o.status === "ready");
 
   async function markDelivered(o: OrderRow) {
     const start = o.assigned_at ? new Date(o.assigned_at).getTime() : new Date(o.created_at).getTime();
