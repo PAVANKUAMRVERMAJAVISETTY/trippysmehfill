@@ -53,7 +53,7 @@ function DispatchPage() {
       const { data, error } = await supabase
         .from("orders")
         .select("*")
-        .in("status", ["pending", "assigned", "delivered"])
+        .neq("status", "cancelled")
         .order("created_at", { ascending: false })
         .limit(200);
       if (error) throw error;
