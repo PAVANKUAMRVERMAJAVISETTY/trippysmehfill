@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Trippy's Mehfill - Order Food Online</title>
+  <title>Trippy's Mehfill - Hyderabad's Cloud Kitchen</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     .bg-swiggy { background-color: #fc8019; }
@@ -13,88 +13,76 @@
 </head>
 <body class="bg-gray-50 font-sans text-gray-800 min-h-screen">
 
-  <!-- Swiggy Signature Orange Navigation & Hero -->
-  <header class="bg-swiggy text-white pb-12 pt-4 px-4 md:px-8 shadow-md">
-    <div class="max-w-6xl mx-auto flex justify-between items-center mb-8">
-      <!-- Logo -->
+  <!-- Navigation Bar -->
+  <header class="bg-swiggy text-white py-4 px-6 shadow-md sticky top-0 z-40">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
       <div class="flex items-center space-x-3">
-        <div class="bg-white text-swiggy font-black px-3 py-1.5 rounded-2xl text-xl shadow-md">TM</div>
+        <div class="bg-white text-swiggy font-black px-3 py-1 rounded-2xl text-xl shadow-md">TM</div>
         <span class="font-extrabold text-2xl tracking-tight">TRIPPY'S MEHFILL</span>
       </div>
-
-      <!-- Header Action Links -->
-      <div class="flex items-center space-x-4">
-        <a href="/Pages/staff-login.html" class="hidden md:inline-block text-xs font-bold bg-white/20 hover:bg-white/30 px-3 py-2 rounded-xl transition">Staff Portal</a>
+      <div class="flex items-center space-x-3">
+        <a href="/Pages/gallery.html" class="text-xs font-bold bg-white/20 hover:bg-white/30 px-3 py-2 rounded-xl transition">Gallery</a>
         <button onclick="openDrawer('login')" class="bg-black hover:bg-gray-900 text-white text-xs font-extrabold px-5 py-2.5 rounded-xl shadow-md transition">
           Sign In
         </button>
       </div>
     </div>
-
-    <!-- Center Swiggy Hero Box -->
-    <div class="max-w-3xl mx-auto text-center space-y-4">
-      <h1 class="text-3xl md:text-5xl font-black tracking-tight leading-tight">
-        Order food you love. Discover Hyderabad's best biryani.
-      </h1>
-      <p class="text-amber-100 text-xs md:text-sm font-medium">Freshly cooked • Delivered hot to your hostel or desk</p>
-
-      <!-- Swiggy Dual Search Inputs -->
-      <div class="bg-white p-2 rounded-2xl shadow-xl flex flex-col md:flex-row gap-2 text-gray-800">
-        <div class="flex items-center bg-gray-100 rounded-xl px-3 py-2 flex-1">
-          <span class="text-swiggy mr-2">📍</span>
-          <input id="delivery-location" type="text" placeholder="Enter hostel, room, or landmark..." class="bg-transparent text-xs outline-none w-full font-medium">
-          <button onclick="getLiveLocation()" class="text-[10px] bg-swiggy/10 text-swiggy font-bold px-2 py-1 rounded-lg hover:bg-swiggy/20 whitespace-nowrap ml-1">
-            Use my location
-          </button>
-        </div>
-        <div class="flex items-center bg-gray-100 rounded-xl px-3 py-2 flex-1">
-          <span class="text-gray-400 mr-2">🔍</span>
-          <input id="search-dishes" type="text" placeholder="Search biryani, curries, starters..." class="bg-transparent text-xs outline-none w-full font-medium">
-        </div>
-      </div>
-    </div>
   </header>
 
-  <!-- Categories & Active Dishes Grid -->
-  <main class="max-w-6xl mx-auto p-4 md:p-8 space-y-8">
-    
-    <!-- Category Items -->
-    <div>
-      <h2 class="text-lg font-bold text-gray-900 mb-4">What's on your mind?</h2>
-      <div class="flex gap-4 overflow-x-auto pb-2 text-center">
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 min-w-[90px] cursor-pointer hover:border-swiggy transition">
-          <div class="text-2xl mb-1">🍗</div>
-          <span class="text-xs font-bold text-gray-700">Biryani</span>
-        </div>
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 min-w-[90px] cursor-pointer hover:border-swiggy transition">
-          <div class="text-2xl mb-1">🥘</div>
-          <span class="text-xs font-bold text-gray-700">Curries</span>
-        </div>
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 min-w-[90px] cursor-pointer hover:border-swiggy transition">
-          <div class="text-2xl mb-1">🍢</div>
-          <span class="text-xs font-bold text-gray-700">Starters</span>
-        </div>
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-gray-100 min-w-[90px] cursor-pointer hover:border-swiggy transition">
-          <div class="text-2xl mb-1">🫓</div>
-          <span class="text-xs font-bold text-gray-700">Breads</span>
+  <!-- CUH STYLE TOP AUTO-CHANGING HERO CAROUSEL (5 SECONDS) -->
+  <section class="relative bg-gray-900 overflow-hidden h-64 md:h-96">
+    <div id="top-slider-track" class="flex transition-transform duration-1000 ease-in-out h-full">
+      <div class="min-w-full h-full relative">
+        <img src="https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=1200&auto=format&fit=crop" class="w-full h-full object-cover opacity-80" alt="Biryani Special">
+        <div class="absolute inset-0 bg-black/40 flex flex-col justify-center items-center text-center p-4">
+          <h1 class="text-3xl md:text-5xl font-black text-white">Order food you love.</h1>
+          <p class="text-amber-300 font-bold text-sm mt-2">Discover Hyderabad's Best Biryani & Curries</p>
         </div>
       </div>
     </div>
+  </section>
 
-    <!-- Active Dishes Section -->
-    <div>
-      <h2 class="text-xl font-extrabold text-gray-900 mb-4">Active Dishes Today</h2>
-      <div id="dishes-container" class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        <p class="text-gray-400 text-xs py-8 col-span-full text-center">Fetching menu from Supabase...</p>
+  <!-- MID-PAGE AUTH & SIGNUP CARD -->
+  <section class="max-w-3xl mx-auto -mt-10 px-4 relative z-20">
+    <div class="bg-white rounded-3xl p-6 shadow-2xl border border-orange-100 text-center space-y-4">
+      <h2 class="text-2xl font-black text-gray-900">Sign Up for Order</h2>
+      <p class="text-xs text-gray-500">Create your customer account with Email OTP & GPS location verification.</p>
+      
+      <div class="flex justify-center gap-4 pt-1">
+        <button onclick="openDrawer('signup')" class="bg-swiggy hover:bg-orange-600 text-white font-black px-8 py-3 rounded-2xl text-xs uppercase shadow-lg transition">
+          Sign Up
+        </button>
+        <button onclick="openDrawer('login')" class="bg-gray-100 hover:bg-gray-200 text-gray-900 font-extrabold px-8 py-3 rounded-2xl text-xs uppercase transition">
+          Sign In
+        </button>
       </div>
+    </div>
+  </section>
+
+  <!-- CUH STYLE GALLERY HIGHLIGHTS SECTION -->
+  <section class="max-w-6xl mx-auto my-12 px-4 space-y-4">
+    <div class="border-b pb-2 border-gray-200 flex justify-between items-center">
+      <h2 class="text-xl font-black text-gray-900 uppercase">Gallery Highlights</h2>
+      <a href="/Pages/gallery.html" class="text-xs text-swiggy font-bold hover:underline">View All Photos →</a>
+    </div>
+
+    <div id="gallery-highlights-grid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <p class="text-gray-400 text-xs py-8 col-span-full text-center">Loading gallery highlights...</p>
+    </div>
+  </section>
+
+  <!-- ACTIVE DISHES -->
+  <main class="max-w-6xl mx-auto p-4 md:p-8 space-y-6">
+    <h2 class="text-xl font-extrabold text-gray-900">Active Dishes Today</h2>
+    <div id="dishes-container" class="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <p class="text-gray-400 text-xs py-8 col-span-full text-center">Fetching menu from Supabase...</p>
     </div>
   </main>
 
-  <!-- Slide-over Auth Drawer (Swiggy Style Right-side Overlay) -->
+  <!-- SLIDE-OVER AUTH DRAWER WITH OTP VERIFICATION -->
   <div id="auth-drawer" class="fixed inset-0 bg-black/60 z-50 flex justify-end hidden">
     <div class="bg-white w-full max-w-md h-full p-6 space-y-6 shadow-2xl overflow-y-auto">
       
-      <!-- Drawer Header -->
       <div class="flex justify-between items-center border-b pb-4">
         <div>
           <h3 id="drawer-title" class="text-2xl font-black text-gray-900">Login</h3>
@@ -107,7 +95,7 @@
       <form id="login-form" class="space-y-4">
         <div>
           <label class="block text-xs font-bold text-gray-700 mb-1">Email Address</label>
-          <input id="login-email" type="email" placeholder="Enter your email" required class="w-full border border-gray-200 rounded-xl p-3 text-xs outline-none focus:border-swiggy">
+          <input id="login-email" type="email" placeholder="Enter email" required class="w-full border border-gray-200 rounded-xl p-3 text-xs outline-none focus:border-swiggy">
         </div>
         <div>
           <label class="block text-xs font-bold text-gray-700 mb-1">Password</label>
@@ -116,7 +104,7 @@
         <button type="submit" class="w-full bg-swiggy hover:bg-orange-600 text-white font-black py-3 rounded-xl text-xs uppercase shadow-lg transition">LOGIN</button>
       </form>
 
-      <!-- Register Form -->
+      <!-- Registration Step 1 Form -->
       <form id="register-form" class="space-y-3 hidden">
         <div>
           <label class="block text-xs font-bold text-gray-700 mb-1">Full Name</label>
@@ -124,21 +112,31 @@
         </div>
         <div>
           <label class="block text-xs font-bold text-gray-700 mb-1">Mobile Number</label>
-          <input id="reg-phone" type="tel" pattern="[0-9]{10}" placeholder="10-digit Phone Number" required class="w-full border border-gray-200 rounded-xl p-2.5 text-xs outline-none focus:border-swiggy">
+          <input id="reg-phone" type="tel" pattern="[0-9]{10}" placeholder="10-digit Mobile" required class="w-full border border-gray-200 rounded-xl p-2.5 text-xs outline-none focus:border-swiggy">
         </div>
         <div>
           <label class="block text-xs font-bold text-gray-700 mb-1">Email Address</label>
           <input id="reg-email" type="email" placeholder="your@email.com" required class="w-full border border-gray-200 rounded-xl p-2.5 text-xs outline-none focus:border-swiggy">
         </div>
         <div>
-          <label class="block text-xs font-bold text-gray-700 mb-1">Delivery Address & Hostel details</label>
-          <textarea id="reg-address" placeholder="Hostel Block, Room No / Floor" required class="w-full border border-gray-200 rounded-xl p-2.5 text-xs outline-none focus:border-swiggy h-16 resize-none"></textarea>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Address / Hostel</label>
+          <textarea id="reg-address" placeholder="Hostel Block, Room No" required class="w-full border border-gray-200 rounded-xl p-2.5 text-xs outline-none focus:border-swiggy h-14 resize-none"></textarea>
         </div>
         <div>
           <label class="block text-xs font-bold text-gray-700 mb-1">Password</label>
           <input id="reg-password" type="password" placeholder="••••••••" required class="w-full border border-gray-200 rounded-xl p-2.5 text-xs outline-none focus:border-swiggy">
         </div>
-        <button type="submit" class="w-full bg-swiggy hover:bg-orange-600 text-white font-black py-3 rounded-xl text-xs uppercase shadow-lg transition">CONTINUE & REQUEST APPROVAL</button>
+        <button type="submit" class="w-full bg-swiggy hover:bg-orange-600 text-white font-black py-3 rounded-xl text-xs uppercase shadow-lg transition">REQUEST OTP & REGISTER</button>
+      </form>
+
+      <!-- Step 2: OTP Entry Form -->
+      <form id="otp-form" class="space-y-4 hidden">
+        <p class="text-xs text-gray-600 font-semibold">An Email Verification Code / OTP has been sent to your Gmail address. Enter it below to complete registration.</p>
+        <div>
+          <label class="block text-xs font-bold text-gray-700 mb-1">Enter 6-Digit Email OTP</label>
+          <input id="otp-token" type="text" placeholder="123456" required class="w-full border border-gray-200 rounded-xl p-3 text-center tracking-widest text-lg font-bold outline-none focus:border-swiggy">
+        </div>
+        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-3 rounded-xl text-xs uppercase shadow-lg transition">VERIFY OTP</button>
       </form>
 
     </div>
