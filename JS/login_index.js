@@ -1,107 +1,153 @@
-// ============================================================================
-// FILE: JS/login_index.js
-// PURPOSE: Handles Auth Modals, Duplicate Validation & Approval Checks
-// ============================================================================
-
 import { supabase } from './api.js';
 
-// DOM Elements
-const tabSignIn = document.getElementById('tab-signin');
-const tabRegister = document.getElementById('tab-register');
-const formSignIn = document.getElementById('form-signin');
-const formRegister = document.getElementById('form-register');
+let isSignUpMode = false;
 
-// Tab Toggle Handlers
-tabSignIn.addEventListener('click', () => {
-  tabSignIn.className = 'flex-1 py-2 rounded-xl font-bold text-sm bg-amber-500 text-white shadow-xs';
-  tabRegister.className = 'flex-1 py-2 rounded-xl font-bold text-sm text-gray-600 hover:text-gray-900';
-  formSignIn.classList.remove('hidden');
-  formRegister.classList.add('hidden');
+document.addEventListener('DOMContentLoaded', () => {
+  loadActiveDishes();
+  setupAuthHandlers();
 });
 
-tabRegister.addEventListener('click', () => {
-  tabRegister.className = 'flex-1 py-2 rounded-xl font-bold text-sm bg-amber-500 text-white shadow-xs';
-  tabSignIn.className = 'flex-1 py-2 rounded-xl font-bold text-sm text-gray-600 hover:text-gray-900';
-  formRegister.classList.remove('hidden');
-  formSignIn.classList.add('hidden');
-});
-
-// ============================================================================
-// REGISTER HANDLER WITH DUPLICATE PHONE & EMAIL PREVENTION
-// ============================================================================
-formRegister.addEventListener('submit', async (e) => {
-  e.preventDefault();
-
-  const fullName = document.getElementById('reg-name').value.trim();
-  const phone = document.getElementById('reg-phone').value.trim();
-  const email = document.getElementById('reg-email').value.trim();
-  const password = document.getElementById('reg-password').value;
-
-  try {
-    // 1. Call PL/pgSQL function to check for existing Email or Phone
-    const { data: dupCheck, error: dupErr } = await supabase
-      .rpc('check_duplicate_user', { p_email: email, p_phone: phone });
-
-    if (dupErr) throw dupErr;
-
-    if (dupCheck && dupCheck.length > 0) {
-      if (dupCheck[0].email_exists) {
-        alert("⚠️ ALERT: This Email Address is already registered! Please Sign In.");
-        return;
+// Geolocation Handler
+window.getLiveLocation = function() {
+  const locInput = document.getElementById('delivery-location');
+  if (navigator.geolocation) {
+    locInput.placeholder = "Detecting location...";
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        locInput.value = `Lat: ${pos.coords.latitude.toFixed(4)}, Lon: ${pos.coords.longitude.toFixed(4)}`;
+      },
+      (err) => {
+        alert("GPS Error: " + err.message);
+        locInput.placeholder = "Enter location manually";
       }
-      if (dupCheck[0].phone_exists) {
-        alert("❌ ERROR: This Phone Number is already linked to another account!");
-        return;
-      }
-    }
-
-    // 2. Perform Supabase Sign Up
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: { full_name: fullName, phone: phone }
-      }
-    });
-
-    if (error) throw error;
-
-    alert("✅ Registration Submitted! Your account is pending Admin approval. You will be redirected once approved.");
-    document.getElementById('auth-modal').classList.add('hidden');
-
-  } catch (err) {
-    alert("Registration Failed: " + err.message);
+    );
   }
-});
+};
 
-// ============================================================================
-// SIGN IN HANDLER & GATED ROUTING
-// ============================================================================
-formSignIn.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const email = document.getElementById('login-email').value.trim();
-  const password = document.getElementById('login-password').value;
+// Fetch Active Menu Items
+async function loadActiveDishes() {
+  const container = document.getElementById('dishes-container');
+  if (!container) return;
 
   try {
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+    const { data: dishes, error } = await supabase
+      .from('menu_items')
+      .select('*')
+      .eq('is_available', true);
+
     if (error) throw error;
 
-    // Check approval status in profiles
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('is_approved, role')
-      .eq('id', data.user.id)
-      .single();
-
-    if (profile && !profile.is_approved && profile.role !== 'admin') {
-      alert("⏳ Your registration is pending Admin Approval. Please check back soon!");
+    if (!dishes || dishes.length === 0) {
+      container.innerHTML = `<p class="text-gray-400 text-xs py-8 col-span-full text-center">No active dishes currently listed.</p>`;
       return;
     }
 
-    // Redirect approved customer to main_index.html
-    window.location.href = './main_index.html';
-
+    container.innerHTML = dishes.map(dish => `
+      <div class="bg-white rounded-2xl p-4 shadow-sm border border-gray-100 flex flex-col justify-between hover:shadow-md transition">
+        <div>
+          <h3 class="font-extrabold text-gray-900">${dish.name}</h3>
+          <p class="text-xs text-gray-500 mt-1 line-clamp-2">${dish.description || ''}</p>
+        </div>
+        <div class="flex justify-between items-center mt-4 pt-2 border-t border-gray-50">
+          <span class="text-sm font-black text-gray-900">₹${dish.price}</span>
+          <button onclick="openDrawer('login')" class="bg-swiggy/10 text-swiggy text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-swiggy hover:text-white transition">
+            Sign In to Order
+          </button>
+        </div>
+      </div>
+    `).join('');
   } catch (err) {
-    alert("Sign In Failed: " + err.message);
+    container.innerHTML = `<p class="text-red-500 text-xs py-8 col-span-full text-center">${err.message}</p>`;
   }
-});
+}
+
+// Drawer Toggle Controls
+window.openDrawer = function(mode) {
+  document.getElementById('auth-drawer').classList.remove('hidden');
+  if (mode === 'signup' && !isSignUpMode) toggleAuthMode();
+};
+
+window.closeDrawer = function() {
+  document.getElementById('auth-drawer').classList.add('hidden');
+};
+
+window.toggleAuthMode = function() {
+  isSignUpMode = !isSignUpMode;
+  document.getElementById('drawer-title').innerText = isSignUpMode ? 'Sign up' : 'Login';
+  document.getElementById('toggle-auth-mode').innerText = isSignUpMode ? 'login to your account' : 'create an account';
+  document.getElementById('login-form').classList.toggle('hidden', isSignUpMode);
+  document.getElementById('register-form').classList.toggle('hidden', !isSignUpMode);
+};
+
+// Auth Event Handling
+function setupAuthHandlers() {
+  // Login Submissions
+  document.getElementById('login-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('login-email').value.trim();
+    const password = document.getElementById('login-password').value;
+
+    const { data: { user }, error } = await supabase.auth.signInWithPassword({ email, password });
+
+    if (error) {
+      alert("Login Failed: " + error.message);
+      return;
+    }
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role, is_approved')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile) {
+      alert("Profile not found in database.");
+      return;
+    }
+
+    if (!profile.is_approved) {
+      alert("⏳ Account pending approval! Please wait for Admin confirmation.");
+      return;
+    }
+
+    if (profile.role === 'admin') {
+      window.location.href = '/Pages/admin-analytics.html';
+    } else if (profile.role === 'staff' || profile.role === 'delivery') {
+      window.location.href = '/Pages/staff-login.html';
+    } else {
+      window.location.href = '/Pages/main_index.html';
+    }
+  });
+
+  // Registration Submissions
+  document.getElementById('register-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('reg-name').value.trim();
+    const phone = document.getElementById('reg-phone').value.trim();
+    const email = document.getElementById('reg-email').value.trim();
+    const address = document.getElementById('reg-address').value.trim();
+    const password = document.getElementById('reg-password').value;
+
+    const { data: { user }, error } = await supabase.auth.signUp({ email, password });
+
+    if (error) {
+      alert("Registration failed: " + error.message);
+      return;
+    }
+
+    if (user) {
+      await supabase.from('profiles').insert([{
+        id: user.id,
+        full_name: name,
+        email: email,
+        phone: phone,
+        hostel_address: address,
+        role: 'customer',
+        is_approved: false
+      }]);
+    }
+
+    alert("🎉 Account created! Your registration is now under Pending Registrations for Admin approval.");
+    closeDrawer();
+  });
+}
