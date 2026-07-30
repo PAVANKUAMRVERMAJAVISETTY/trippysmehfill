@@ -41,6 +41,22 @@ function MenuManagerPage() {
   const qc = useQueryClient();
   const [draft, setDraft] = useState<Omit<Item, "id"> & { id?: string }>({ ...EMPTY });
   const [open, setOpen] = useState(false);
+  const [uploadingId, setUploadingId] = useState<string | null>(null); // dish currently uploading a photo
+
+  /** Sends the picked camera/gallery photo to storage and refreshes the list. */
+  async function handleUpload(itemId: string, file: File) {
+    setUploadingId(itemId);
+    try {
+      await uploadMenuImage(itemId, file);
+      toast.success("Photo updated");
+      qc.invalidateQueries({ queryKey: ["menu-manager"] });
+      qc.invalidateQueries({ queryKey: ["public-menu"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Upload failed");
+    } finally {
+      setUploadingId(null);
+    }
+  }
 
   const { data: items = [] } = useQuery({
     queryKey: ["menu-manager"],
