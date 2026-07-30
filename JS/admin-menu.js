@@ -92,4 +92,6 @@ function resetForm() {
   document.getElementById("dish-name").value = "";
   document.getElementById("dish-price").value = "";
   if (document.getElementById("dish-desc")) document.getElementById("dish-desc").value = "";
+  const fileInput = document.getElementById("dish-file");
+  if (fileInput) fileInput.value = "";
 }
