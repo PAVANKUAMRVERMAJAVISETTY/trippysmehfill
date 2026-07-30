@@ -1,8 +1,10 @@
 import logo from "@/assets/trippys-logo.png.asset.json";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/lib/session";
+import { LoginModal } from "@/components/LoginModal";
 
 export function Logo({ className = "h-16" }: { className?: string }) {
   return <img src={logo.url} alt="Trippy's Mehfill — Hyderabad's Cloud Kitchen" className={className} />;
