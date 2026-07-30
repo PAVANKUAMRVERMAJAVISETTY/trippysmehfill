@@ -1,40 +1,67 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Live Dispatch Desk - Trippy's Mehfill</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-amber-50/40 text-gray-800 font-sans min-h-screen p-4 md:p-6">
+import { supabase } from "./api.js";
+import { formatCurrency } from "./common.js";
 
-  <!-- Admin Central Navigation -->
-  <nav class="bg-amber-900 text-amber-100 p-4 rounded-2xl shadow-xl max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-2 mb-6">
-    <div class="flex items-center space-x-2">
-      <span class="text-xl font-black text-amber-400">TRIPPY'S MEHFILL</span>
-      <span class="text-xs bg-amber-800 text-amber-200 px-2.5 py-1 rounded-full font-bold">Dispatch Monitor</span>
-    </div>
-    <div class="flex space-x-2 text-xs font-bold flex-wrap gap-1">
-      <a href="admin-dispatch.html" class="px-3 py-1.5 rounded-lg bg-amber-800 text-amber-200 border border-amber-600 shadow">🛵 Dispatch Desk</a>
-      <a href="admin.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">📊 Analytics</a>
-      <a href="admin-menu.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">🍲 Menu Management</a>
-      <a href="admin-orders.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">📜 Order History</a>
-      <a href="admin-staff.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">🔑 Staff Accounts</a>
-    </div>
-  </nav>
+document.addEventListener("DOMContentLoaded", () => {
+  initDispatch();
+});
 
-  <main class="max-w-6xl mx-auto space-y-6">
-    <div class="flex justify-between items-center border-b pb-3 border-amber-200 max-w-5xl mx-auto">
-      <h1 class="text-lg font-black text-amber-950 uppercase tracking-wide">Real-time Order Stream</h1>
-      <span id="queue-badge" class="bg-amber-800 text-amber-100 font-bold px-3 py-1 rounded-full text-xs">Pending Orders: 0</span>
-    </div>
+async function initDispatch() {
+  const grid = document.getElementById("dispatch-grid");
+  if (!grid) return;
 
-    <!-- Live dispatch stream container -->
-    <div id="dispatch-grid" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-      <p class="col-span-3 text-center py-8 text-gray-400 font-bold">Loading active kitchen stream...</p>
-    </div>
-  </main>
+  // Query live non-delivered orders from Supabase
+  const { data: orders, error } = await supabase
+    .from('orders')
+    .select('*')
+    .neq('status', 'DELIVERED')
+    .order('created_at', { ascending: false });
 
-  <script type="module" src="../JS/admin-dispatch.js"></script>
-</body>
-</html>
+  if (error || !orders || orders.length === 0) {
+    grid.innerHTML = `<p class="col-span-3 text-center py-8 text-gray-400 font-bold">No active orders in queue.</p>`;
+    return;
+  }
+
+  // Update Pending badge count
+  const pendingCount = orders.filter(o => o.status === 'pending' || o.status === 'PENDING').length;
+  const queueBadge = document.getElementById("queue-badge");
+  if (queueBadge) queueBadge.innerText = `Pending Orders: ${pendingCount}`;
+
+  // Render cards
+  grid.innerHTML = orders.map(o => `
+    <div class="bg-white p-5 rounded-2xl shadow border space-y-3 text-xs md:text-sm border-l-4 border-amber-800">
+      <div class="flex justify-between items-start border-b pb-2">
+        <div>
+          <span class="bg-amber-100 text-amber-900 font-bold px-2 py-0.5 rounded text-xs">#${o.customer_phone || 'TM'}</span>
+          <h3 class="font-bold text-base mt-1 text-gray-900">${o.customer_name}</h3>
+          <p class="text-xs text-amber-900 font-bold mt-0.5">📱 Mobile: ${o.customer_phone}</p>
+        </div>
+        <span class="font-black text-amber-900 text-base">${formatCurrency(o.total_amount)}</span>
+      </div>
+
+      <div class="text-xs text-gray-600 space-y-1">
+        <p><b>Address:</b> ${o.delivery_address}</p>
+        <p><b>Notes:</b> ${o.notes || 'None'}</p>
+        <p><b>Status:</b> <span class="bg-amber-100 font-bold px-2 py-0.5 rounded text-[10px] text-amber-900">${o.status}</span></p>
+      </div>
+
+      <div class="pt-2 border-t flex gap-2">
+        <button onclick="updateOrderStatus('${o.id}', 'PREPARING')" class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-bold py-1.5 rounded-lg text-xs transition">
+          Accept & Cook
+        </button>
+        <button onclick="updateOrderStatus('${o.id}', 'OUT FOR DELIVERY')" class="flex-1 bg-green-600 hover:bg-green-700 text-white font-bold py-1.5 rounded-lg text-xs transition">
+          Dispatch
+        </button>
+      </div>
+    </div>
+  `).join("");
+}
+
+// Global Order Status Updater
+window.updateOrderStatus = async function(orderId, newStatus) {
+  const { error } = await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
+  if (error) {
+    alert("Status update failed: " + error.message);
+  } else {
+    initDispatch();
+  }
+};
