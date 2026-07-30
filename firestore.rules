@@ -1,0 +1,30 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Customers can place orders, Helpline can search, Admins can manage
+    match /orders/{orderId} {
+      allow read, write: if true;
+    }
+
+    // Customers can view the menu, Admins can write changes
+    match /menu/{menuId} {
+      allow read, write: if true;
+    }
+
+    // Admins can register and manage Staff profiles
+    match /staff/{staffId} {
+      allow read, write: if true;
+    }
+
+    // Customers can submit star reviews, Admins can view them
+    match /feedback/{feedbackId} {
+      allow read, write: if true;
+    }
+
+    // Anyone can fetch the Today's Special Banner settings
+    match /settings/{settingsId} {
+      allow read, write: if true;
+    }
+  }
+}

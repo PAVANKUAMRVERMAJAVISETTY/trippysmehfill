@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Driver Stats - Trippy's Mehfill</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-amber-50/40 text-gray-800 font-sans min-h-screen p-4 md:p-6">
+
+  <!-- Admin Central Navigation -->
+  <nav class="bg-amber-900 text-amber-100 p-4 rounded-2xl shadow-xl max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-2 mb-6">
+    <div class="flex items-center space-x-2">
+      <span class="text-xl font-black text-amber-400">TRIPPY'S MEHFILL</span>
+      <span class="text-xs bg-amber-800 text-amber-200 px-2.5 py-1 rounded-full font-bold">Admin Portal</span>
+    </div>
+    <div class="flex space-x-2 text-xs font-bold">
+      <a href="admin-dispatch.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">🛵 Dispatch Desk</a>
+      <a href="admin.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">📊 Analytics</a>
+      <a href="admin-menu.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">🍲 Menu Management</a>
+      <a href="admin-driver-stats.html" class="px-3 py-1.5 rounded-lg bg-amber-800 text-amber-200 border border-amber-600 shadow">👥 Driver Stats</a>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto space-y-6">
+    
+    <div class="bg-white p-6 rounded-2xl shadow-md border border-amber-100 space-y-4 max-w-xl mx-auto">
+      <label class="block text-sm font-bold text-gray-700">Filter Performance Sheet by Delivery Partner</label>
+      <select id="select-driver-stats" class="w-full border p-3 rounded-xl outline-none bg-white font-bold text-gray-700 focus:border-amber-800">
+        <option value="">Querying database drivers...</option>
+      </select>
+    </div>
+
+    <!-- Stats Performance Cards (Hidden until a driver is selected) -->
+    <div id="driver-stats-metrics" class="hidden max-w-4xl mx-auto space-y-6">
+      
+      <div class="text-center border-b pb-2 border-amber-200 max-w-xl mx-auto">
+        <h2 id="driver-stat-name" class="text-xl font-black text-amber-950 uppercase">Driver Profile Name</h2>
+        <p class="text-[10px] text-amber-800 font-bold uppercase tracking-wide">Live Dispatch Stats Sheet</p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div class="bg-white p-4 rounded-xl shadow border-l-4 border-amber-800 text-center">
+          <p class="text-[10px] text-gray-500 uppercase font-bold">Dispatched Today</p>
+          <p id="driver-stat-today-count" class="text-2xl font-black text-amber-950 mt-1">0</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow border-l-4 border-green-600 text-center">
+          <p class="text-[10px] text-gray-500 uppercase font-bold">Completed Today</p>
+          <p id="driver-stat-completed" class="text-2xl font-black text-green-700 mt-1">0</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow border-l-4 border-yellow-500 text-center">
+          <p class="text-[10px] text-gray-500 uppercase font-bold">Active Delivery Queue</p>
+          <p id="driver-stat-pending" class="text-2xl font-black text-yellow-700 mt-1">0</p>
+        </div>
+        <div class="bg-white p-4 rounded-xl shadow border-l-4 border-blue-600 text-center">
+          <p class="text-[10px] text-gray-500 uppercase font-bold">Avg Delivery Speed</p>
+          <p id="driver-stat-speed" class="text-sm font-black text-blue-900 mt-2">N/A</p>
+        </div>
+      </div>
+
+      <div class="bg-white p-5 rounded-2xl shadow-md border border-amber-100 text-center space-y-1 max-w-md mx-auto">
+        <p class="text-xs text-gray-500 uppercase font-bold">Total Cash Collected Today (COD)</p>
+        <p id="driver-stat-cash" class="text-2xl font-black text-green-700">₹0</p>
+      </div>
+
+    </div>
+
+  </main>
+
+  <script type="module" src="../JS/admin-driver-stats.js"></script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+# TRIPPY'S MEHFILL - Cloud Kitchen Management System
+
+An enterprise-grade, modular web application built for university campus food operations (GD Goenka, K.R. Mangalam, GLS, and Sohna).
+
+## 🚀 Key Features
+- **Customer Portal**: Instant cart calculations, campus/hostel landmark routing, and real-time special dish display.
+- **Zomato-Style Kitchen Dispatch**: Real-time Firestore order subscription (`Pending` → `Preparing` → `Out for Delivery` → `Delivered`).
+- **Driver Workspace**: Mobile-optimized COD collection counters and automated WhatsApp feedback link triggers.
+- **Modular REST API**: Asynchronous JS wrappers over Firebase v10 Modular SDK.
+
+## 🛠️ Deployment Steps (Netlify / Firebase Hosting)
+1. Clone repository to your local folder.
+2. Drag and drop the root `TRIPPYSMEHFILL` directory into the Netlify Drop box (`app.netlify.app`).
+3. Deploy instantly!

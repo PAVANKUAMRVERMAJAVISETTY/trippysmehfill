@@ -1,0 +1,28 @@
+/* ==========================================================
+ * style.css - GLOBAL FONTS & CUSTOM SCROLLBARS
+ * ========================================================== */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+
+/* Elegant scrollbar for your cart drawer, dispatch queue, and admin tables */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(251, 243, 219, 0.3); /* Matches amber-50 background */
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #78350f; /* Matches amber-900 */
+  border-radius: 8px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #451a03; /* Matches amber-950 */
+}

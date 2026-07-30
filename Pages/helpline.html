@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Helpline Desk - Trippy's Mehfill</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-amber-50/40 text-gray-800 font-sans min-h-screen p-4 flex flex-col justify-between">
+
+  <div class="w-full max-w-lg bg-white p-6 rounded-3xl shadow-xl border border-amber-100 space-y-6 mx-auto my-auto">
+    <div class="text-center space-y-1 border-b pb-4">
+      <h1 class="text-2xl font-black text-amber-950 tracking-wider">TRIPPY'S MEHFILL</h1>
+      <p class="text-xs text-amber-800 font-bold uppercase">Customer Helpline & Active Tracker</p>
+    </div>
+
+    <!-- Active phone search inputs -->
+    <div class="space-y-3 text-xs">
+      <label class="block font-bold text-gray-700">Search Live Order by Mobile Number</label>
+      <div class="flex gap-2">
+        <input id="helpline-phone-input" type="tel" placeholder="Enter your 10-digit mobile number..." class="border rounded-xl p-3 flex-1 text-sm outline-none focus:border-amber-800 font-semibold">
+        <button onclick="searchHelplineOrder()" class="bg-amber-800 hover:bg-amber-900 text-white font-bold px-4 rounded-xl text-xs transition active:scale-95">
+          Lookup Order
+        </button>
+      </div>
+    </div>
+
+    <!-- Dynamic results display container -->
+    <div id="helpline-results" class="pt-3 border-t text-xs">
+      <p class="text-gray-400 text-center py-4">Enter your registered mobile number above to search active orders and estimate your delivery time.</p>
+    </div>
+
+    <div class="text-center">
+      <a href="../index.html" class="text-xs text-amber-800 hover:underline font-semibold">← Return to Storefront</a>
+    </div>
+  </div>
+
+  <script type="module" src="../JS/support_desk.js"></script>
+</body>
+</html>

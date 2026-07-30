@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Dashboard - Trippy's Mehfill</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-amber-50/40 text-gray-800 font-sans min-h-screen p-4 md:p-6">
+
+  <!-- Admin Central Navigation -->
+  <nav class="bg-amber-900 text-amber-100 p-4 rounded-2xl shadow-xl max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-2 mb-6">
+    <div class="flex items-center space-x-2">
+      <span class="text-xl font-black text-amber-400">TRIPPY'S MEHFILL</span>
+      <span class="text-xs bg-amber-800 text-amber-200 px-2.5 py-1 rounded-full font-bold">Admin Portal</span>
+    </div>
+    <div class="flex space-x-2 text-xs font-bold">
+      <a href="admin-dispatch.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">🛵 Dispatch Desk</a>
+      <a href="admin.html" class="px-3 py-1.5 rounded-lg bg-amber-800 text-amber-200 border border-amber-600 shadow">📊 Analytics</a>
+      <a href="admin-menu.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">🍲 Menu Management</a>
+      <a href="admin-staff.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">🔑 Staff Accounts</a>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto space-y-6">
+    
+    <!-- Top Statistics Grid -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white p-4 rounded-xl shadow border-l-4 border-amber-800 text-center">
+        <p class="text-[10px] text-gray-500 uppercase font-bold">Orders Today</p>
+        <p id="stat-total-orders" class="text-2xl font-black text-amber-950 mt-1">⏳</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow border-l-4 border-green-600 text-center">
+        <p class="text-[10px] text-gray-500 uppercase font-bold">Delivered Orders</p>
+        <p id="stat-completed-orders" class="text-2xl font-black text-green-700 mt-1">⏳</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow border-l-4 border-blue-600 text-center">
+        <p class="text-[10px] text-gray-500 uppercase font-bold">Total Revenue</p>
+        <p id="stat-revenue" class="text-2xl font-black text-blue-900 mt-1">⏳</p>
+      </div>
+      <div class="bg-white p-4 rounded-xl shadow border-l-4 border-yellow-500 text-center">
+        <p class="text-[10px] text-gray-500 uppercase font-bold">Average Rating</p>
+        <p id="stat-avg-rating" class="text-lg font-black text-yellow-600 mt-2">⏳</p>
+      </div>
+    </div>
+
+    <!-- Active Analytics Sections -->
+    <div class="grid md:grid-cols-3 gap-6">
+      
+      <!-- Left sidebar displaying active statuses -->
+      <div class="space-y-4">
+        <div class="bg-white p-5 rounded-2xl shadow-md border border-amber-100 text-center space-y-2">
+          <p class="text-xs text-gray-500 uppercase font-bold">Pending Kitchen Queue</p>
+          <p id="stat-pending-orders" class="text-3xl font-black text-amber-800">⏳</p>
+          <p class="text-[10px] text-gray-400 font-semibold">Active orders waiting to be dispatched</p>
+        </div>
+      </div>
+
+      <!-- Real-time Customer Feedback Streams -->
+      <div class="md:col-span-2 bg-white p-5 rounded-2xl shadow-md border border-amber-100 space-y-4">
+        <h2 class="text-sm font-bold text-amber-950 border-b pb-2 uppercase tracking-wide">
+          ⭐ Recent Customer Reviews
+        </h2>
+        <div id="admin-feedback-feed" class="space-y-3">
+          <p class="text-gray-400 py-4 text-center text-xs">Loading reviews from database...</p>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script type="module" src="../JS/admin-analytics.js"></script>
+</body>
+</html>

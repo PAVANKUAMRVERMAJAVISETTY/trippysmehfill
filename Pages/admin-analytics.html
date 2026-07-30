@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sales Analytics - Trippy's Mehfill</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-amber-50/40 p-6 min-h-screen">
+  <div class="max-w-6xl mx-auto space-y-6">
+    <h1 class="text-2xl font-black text-amber-950">Analytics Summary</h1>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="bg-white p-4 rounded-xl shadow border-l-4 border-amber-800"><p class="text-xs text-gray-500">Total Orders</p><p id="metric-total-orders" class="text-2xl font-black">0</p></div>
+      <div class="bg-white p-4 rounded-xl shadow border-l-4 border-green-600"><p class="text-xs text-gray-500">Total Revenue</p><p id="metric-total-revenue" class="text-2xl font-black text-green-700">₹0</p></div>
+    </div>
+  </div>
+  <script type="module" src="../JS/admin-analytics.js"></script>
+</body>
+</html>

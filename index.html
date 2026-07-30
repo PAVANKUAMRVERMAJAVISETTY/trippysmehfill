@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trippy's Mehfill - Online Ordering</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-amber-50/30 text-gray-800 font-sans min-h-screen">
+
+  <nav class="bg-amber-900 text-amber-100 p-4 shadow-lg sticky top-0 z-50">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <div class="flex items-center space-x-2">
+        <span class="text-2xl font-black tracking-wider text-amber-400">TRIPPY'S MEHFILL</span>
+        <span class="text-xs bg-amber-800 text-amber-200 px-2 py-1 rounded-full font-bold">Cloud Kitchen</span>
+      </div>
+      <a href="Pages/staff-login.html" class="text-xs bg-amber-800 hover:bg-amber-700 text-amber-100 px-3 py-1.5 rounded-lg font-bold transition">🔑 Staff Portal</a>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto p-4 md:p-6 space-y-6">
+    
+    <!-- Dynamic Today's Special Banner -->
+    <div class="bg-amber-900 text-white rounded-2xl p-6 shadow-md border-b-4 border-amber-600">
+      <h1 id="banner-title" class="text-2xl md:text-3xl font-extrabold text-amber-400">Loading Today's Special...</h1>
+      <p id="banner-desc" class="text-amber-100 mt-1">Fetching premium deals from the cloud...</p>
+      <p class="text-xs text-amber-300/80 mt-2">Currently Accepting: <b>Cash on Delivery (COD)</b></p>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-6">
+      
+      <!-- Menu Grid Column -->
+      <div class="lg:col-span-2 space-y-4">
+        <h2 class="text-xl font-bold text-amber-950 border-b border-amber-200 pb-2">Select Your Feast</h2>
+        <div id="menu-container" class="grid sm:grid-cols-2 gap-4">
+          <p class="text-gray-400 py-6 text-center col-span-2">Loading today's menu from Firestore...</p>
+        </div>
+      </div>
+
+      <!-- Checkout & Cart Column -->
+      <div class="space-y-4">
+        <div class="bg-white p-5 rounded-2xl shadow-md border border-amber-100 space-y-4 sticky top-20">
+          <h2 class="text-lg font-bold text-amber-950 border-b pb-2 flex justify-between items-center">
+            <span>Your Cart</span>
+            <span id="cart-count" class="text-xs bg-amber-100 text-amber-900 px-2 py-0.5 rounded-full">0 Items</span>
+          </h2>
+
+          <!-- Cart Items List -->
+          <div id="cart-items" class="space-y-2 text-sm max-h-40 overflow-y-auto pr-1">
+            <p class="text-gray-400 text-center py-4">Your cart is empty. Add items from the menu!</p>
+          </div>
+
+          <!-- Notes -->
+          <div class="border-t pt-3 space-y-2">
+            <label class="block text-xs font-bold text-gray-700">Food Preferences & Suggestions</label>
+            <textarea id="custom-notes" placeholder="Write custom instructions (e.g. Extra Spicy, Less Oil)..." class="w-full text-xs border rounded-lg p-2 focus:ring-1 focus:ring-amber-700 outline-none h-14 resize-none"></textarea>
+          </div>
+
+          <!-- Checkout Form -->
+          <div class="border-t pt-3 space-y-3">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Mobile Number (Serves as Order ID)</label>
+              <input id="cust-phone" type="tel" placeholder="10-digit Phone Number" class="w-full border rounded-lg p-2 text-sm outline-none focus:border-amber-700">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Full Name</label>
+              <input id="cust-name" type="text" placeholder="Your Name" class="w-full border rounded-lg p-2 text-sm outline-none focus:border-amber-700">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Select Campus / Landmark</label>
+              <select id="cust-landmark" onchange="const box = document.getElementById('other-landmark-box'); if(this.value==='Other'){box.classList.remove('hidden')}else{box.classList.add('hidden')}" class="w-full border rounded-lg p-2 text-sm outline-none focus:border-amber-700 bg-white font-semibold">
+                <option value="GDGU">GD Goenka University (GDGU)</option>
+                <option value="KRMU">K.R. Mangalam University (KRMU)</option>
+                <option value="GLS">GLS Area</option>
+                <option value="Sohna">Sohna Main Market</option>
+                <option value="Other">Other Location...</option>
+              </select>
+            </div>
+
+            <div id="other-landmark-box" class="hidden">
+              <input id="cust-other-landmark" type="text" placeholder="Specify other landmark name..." class="w-full border rounded-lg p-2 text-sm outline-none focus:border-amber-700">
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 mb-1">Delivery Address</label>
+              <textarea id="cust-address" placeholder="Hostel Block, Room No / Floor / House Details" class="w-full border rounded-lg p-2 text-sm outline-none focus:border-amber-700 h-16 resize-none"></textarea>
+            </div>
+          </div>
+
+          <!-- Totals -->
+          <div class="border-t pt-3 space-y-1">
+            <div class="flex justify-between text-xs">
+              <span class="text-gray-500">Subtotal</span>
+              <span id="bill-subtotal" class="font-medium">₹0</span>
+            </div>
+            <div class="flex justify-between text-xs">
+              <span class="text-gray-500">Delivery Fee</span>
+              <span class="text-green-700 font-bold">FREE</span>
+            </div>
+            <div class="flex justify-between text-sm font-bold text-amber-950 border-t pt-1">
+              <span>Total Bill Amount</span>
+              <span id="bill-total" class="text-amber-800">₹0</span>
+            </div>
+          </div>
+
+          <!-- Checkout Button -->
+          <button id="btn-place-order" class="w-full bg-amber-800 hover:bg-amber-900 text-white font-bold py-3 rounded-xl shadow-lg transition active:scale-95 text-center text-xs">
+            Confirm & Place Order
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script type="module" src="./JS/customer.js"></script>
+</body>
+</html>

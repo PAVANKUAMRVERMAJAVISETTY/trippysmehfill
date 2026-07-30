@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rate Your Meal - Trippy's Mehfill</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-amber-50/40 text-gray-800 font-sans min-h-screen flex items-center justify-center p-4">
+
+  <div class="w-full max-w-md bg-white p-6 rounded-3xl shadow-xl border border-amber-100 space-y-6">
+    <div class="text-center space-y-1 border-b pb-4">
+      <h1 class="text-xl font-black text-amber-950">TRIPPY'S MEHFILL</h1>
+      <p class="text-[10px] text-amber-800 font-bold uppercase tracking-wide">Share Your Feedback ❤️</p>
+    </div>
+
+    <div class="space-y-6 text-center">
+      <p class="text-sm font-semibold text-gray-600">How was your Biryani or Meal today?</p>
+      
+      <!-- Interactive Star Container -->
+      <div id="star-rating" class="text-5xl text-yellow-500 flex justify-center space-x-2 cursor-pointer select-none">
+        <span data-star="1" class="transition hover:scale-115">★</span>
+        <span data-star="2" class="transition hover:scale-115">★</span>
+        <span data-star="3" class="transition hover:scale-115">★</span>
+        <span data-star="4" class="transition hover:scale-115">★</span>
+        <span data-star="5" class="transition hover:scale-115">★</span>
+      </div>
+
+      <div class="text-left space-y-2 text-xs">
+        <label class="block font-bold text-gray-700">Write Comments (Optional)</label>
+        <textarea id="feedback-comments" placeholder="Tell us how we can improve our taste, packaging, or delivery speed..." class="w-full border rounded-xl p-3 outline-none focus:border-amber-800 h-24 resize-none"></textarea>
+      </div>
+
+      <button id="btn-submit-feedback" class="w-full bg-amber-800 hover:bg-amber-900 text-white font-bold py-3.5 rounded-xl shadow transition active:scale-95 text-xs">
+        ✔ Submit Feedback
+      </button>
+    </div>
+  </div>
+
+  <script type="module" src="../JS/feedback.js"></script>
+</body>
+</html>

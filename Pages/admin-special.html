@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manage Daily Specials - Trippy's Mehfill</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-amber-50/40 text-gray-800 font-sans min-h-screen p-4 md:p-6">
+
+  <!-- Admin Central Navigation -->
+  <nav class="bg-amber-900 text-amber-100 p-4 rounded-2xl shadow-xl max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-2 mb-6">
+    <div class="flex items-center space-x-2">
+      <span class="text-xl font-black text-amber-400">TRIPPY'S MEHFILL</span>
+      <span class="text-xs bg-amber-800 text-amber-200 px-2.5 py-1 rounded-full font-bold">Admin Portal</span>
+    </div>
+    <div class="flex space-x-2 text-xs font-bold">
+      <a href="admin-dispatch.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">🛵 Dispatch Desk</a>
+      <a href="admin.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">📊 Analytics</a>
+      <a href="admin-menu.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">🍲 Menu Management</a>
+      <a href="admin-special.html" class="px-3 py-1.5 rounded-lg bg-amber-800 text-amber-200 border border-amber-600 shadow">🔥 Daily Specials</a>
+    </div>
+  </nav>
+
+  <main class="max-w-6xl mx-auto space-y-6">
+
+    <!-- Active Headline Preview -->
+    <div class="max-w-2xl mx-auto bg-amber-950 text-white rounded-2xl p-6 border-b-4 border-amber-600 shadow-md">
+      <span class="text-[10px] bg-amber-800 text-amber-100 px-2 py-0.5 rounded font-black uppercase">Live Banner Preview</span>
+      <h2 id="preview-special-title" class="text-xl md:text-2xl font-black text-amber-400 mt-2">Loading Headline...</h2>
+      <p id="preview-special-offer" class="text-xs text-amber-100/90 mt-1">Loading offer details...</p>
+    </div>
+
+    <!-- Edit Headline Inputs -->
+    <div class="bg-white p-6 rounded-2xl shadow-md border border-amber-100 space-y-4 max-w-2xl mx-auto">
+      <h2 class="font-bold text-amber-950 text-base">✏️ Edit Specials Header Banner</h2>
+      
+      <div class="space-y-3 text-xs">
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Dish Headline (Big Text)</label>
+          <input id="input-special-title" type="text" placeholder="e.g. Special Dum Biryani & Keema Combo!" class="w-full border p-3 rounded-xl outline-none focus:border-amber-800 font-semibold text-gray-800">
+        </div>
+
+        <div>
+          <label class="block font-bold text-gray-700 mb-1">Offer description (Small Text)</label>
+          <input id="input-special-offer" type="text" placeholder="e.g. Freshly Prepared • Authentic Flavors • Fast Campus Delivery" class="w-full border p-3 rounded-xl outline-none focus:border-amber-800 font-semibold text-gray-800">
+        </div>
+      </div>
+
+      <button id="btn-save-special" class="w-full bg-amber-800 hover:bg-amber-900 text-white font-bold py-3.5 rounded-xl shadow transition active:scale-95 text-xs">
+        🚀 Update Daily Special Live
+      </button>
+    </div>
+
+  </main>
+
+  <script type="module" src="../JS/admin-special.js"></script>
+</body>
+</html>

@@ -1,0 +1,50 @@
+/* TRIPPY'S MEHFILL - GLOBAL STYLES */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap');
+
+:root {
+  --primary-amber: #78350f;
+  --secondary-amber: #92400e;
+  --accent-gold: #f59e0b;
+  --bg-cream: #fffbeb;
+}
+
+body {
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  background-color: var(--bg-cream);
+  color: #1f2937;
+  overflow-x: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #fef3c7;
+}
+::-webkit-scrollbar-thumb {
+  background: #b45309;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #78350f;
+}
+
+/* Glassmorphism Card Effects */
+.glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+/* Pulsing Badge for Urgent Orders */
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.7); }
+  70% { box-shadow: 0 0 0 10px rgba(220, 38, 38, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(220, 38, 38, 0); }
+}
+
+.urgent-pulse {
+  animation: pulse-border 1.5s infinite;
+}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Staff Login - Trippy's Mehfill</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-amber-900 flex items-center justify-center min-h-screen">
+  <div class="bg-white p-8 rounded-2xl shadow-2xl w-full max-w-md text-center space-y-4">
+    <h1 class="text-2xl font-black text-amber-950">Trippy's Staff Gateway</h1>
+    <p class="text-xs text-gray-500">Log in using your Staff or Admin Credentials</p>
+    <input id="login-email" type="email" placeholder="Email Address" class="w-full border p-2.5 rounded-lg text-sm outline-none">
+    <input id="login-pass" type="password" placeholder="Password" class="w-full border p-2.5 rounded-lg text-sm outline-none">
+    <button id="btn-login" class="w-full bg-amber-800 text-white font-bold py-2.5 rounded-lg text-sm hover:bg-amber-900 transition">
+      Login to Portal
+    </button>
+  </div>
+  <script type="module">
+    import { AuthGuard } from "../JS/auth.js";
+    document.getElementById("btn-login").addEventListener("click", async () => {
+      const email = document.getElementById("login-email").value;
+      const pass = document.getElementById("login-pass").value;
+      try {
+        await AuthGuard.login(email, pass);
+        window.location.href = "admin-dispatch.html";
+      } catch(e) {
+        alert("Login failed: " + e.message);
+      }
+    });
+  </script>
+</body>
+</html>
