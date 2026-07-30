@@ -1,24 +1,30 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+/**
+ * Storefront (Index 1 / Index 2).
+ *
+ * Index 1 = guest or unapproved user: photos + descriptions only, prices and cart hidden.
+ * Index 2 = approved customer: prices, cart drawer and checkout.
+ */
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { PublicHeader, PublicFooter, Logo } from "@/components/brand";
+import { supabase } from "@/database/supabaseClient";
+import type { PaymentMethod } from "@/database/schemaDefinitions";
+import { PublicHeader, PublicFooter } from "@/components/brand";
 import { PromoBanner } from "@/components/promo-banner";
+import { SwiggyHeroHeader } from "@/components/SwiggyHeroHeader";
+import { CategoryList } from "@/components/CategoryList";
+import { FoodItemCard } from "@/components/FoodItemCard";
+import { LoginModal } from "@/components/LoginModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { rupees, useSession, type CartLine } from "@/lib/session";
 import { requestGeolocation, lookupClientIp, type GeoFix } from "@/lib/geo";
-import {
-  CATEGORY_LABEL,
-  MENU_CATEGORIES,
-  priceOrder,
-  prettyTime,
-  useStoreSettings,
-  type MenuCategory,
-} from "@/lib/store";
+import { COD_RADIUS_KM, distanceLabel, isWithinCodRadius } from "@/services/gpsService";
+import { APPROVAL_WHATSAPP_LINK, PENDING_APPROVAL_MESSAGE } from "@/services/authRoleService";
+import { priceOrder, prettyTime, useStoreSettings } from "@/lib/store";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -32,7 +38,7 @@ export const Route = createFileRoute("/")({
       { property: "og:title", content: "Trippy's Mehfill — Hyderabad's Cloud Kitchen" },
       {
         property: "og:description",
-        content: "Order authentic Hyderabadi dum biryani, khichdi and curries. Freshly cooked, delivered to your campus.",
+        content: "Order authentic Hyderabadi dum biryani, khichdi and curries. Freshly cooked, delivered hot.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -48,19 +54,25 @@ function CustomerPage() {
 
   const [cart, setCart] = useState<Record<string, CartLine>>({});
   const [search, setSearch] = useState("");
-  const [category, setCategory] = useState<MenuCategory>("all");
+  const [location, setLocation] = useState("");
+  const [category, setCategory] = useState("all");
+  const [loginOpen, setLoginOpen] = useState(false);
   const [checkoutOpen, setCheckoutOpen] = useState(false);
+  const [payment, setPayment] = useState<PaymentMethod>("UPI");
   const [form, setForm] = useState({ name: "", phone: "", campus: "", address: "", preference: "", notes: "" });
   const [placing, setPlacing] = useState(false);
   const [geo, setGeo] = useState<GeoFix | null>(null);
   const [locating, setLocating] = useState(false);
 
+  // Prices and cart are revealed only for an approved customer or a staff account.
   const canOrder = !!user && (status === "approved" || !!role);
+  const isPending = !!user && status === "pending";
 
   useEffect(() => {
     if (user) setForm((f) => ({ ...f, name: f.name || name, phone: f.phone || phone, address: f.address || address }));
   }, [user, name, phone, address]);
 
+  /** [DATABASE QUERY] Public menu — available dishes, ordered for display. */
   const { data: menu = [], isLoading } = useQuery({
     queryKey: ["public-menu"],
     queryFn: async () => {
@@ -79,13 +91,13 @@ function CustomerPage() {
   const totals = priceOrder(subtotal, settings);
 
   const specials = menu.filter((m) => m.is_special);
-  const popular = menu.slice(0, 4);
+
+  /** [DSA / ALGORITHM] Linear filter over the menu: O(n) per keystroke, fine for a single kitchen. */
   const visible = menu.filter((m) => {
-    const matchesCategory = category === "all" || (m.category ?? "").toLowerCase() === category;
+    const haystack = `${m.name} ${m.description ?? ""} ${m.category ?? ""}`.toLowerCase();
+    const matchesCategory = category === "all" || haystack.includes(category) || m.category === category;
     const q = search.trim().toLowerCase();
-    const matchesSearch =
-      !q || m.name.toLowerCase().includes(q) || (m.description ?? "").toLowerCase().includes(q);
-    return matchesCategory && matchesSearch;
+    return matchesCategory && (!q || haystack.includes(q));
   });
 
   function change(item: { id: string; name: string; price: number }, delta: number) {
@@ -98,6 +110,7 @@ function CustomerPage() {
     });
   }
 
+  /** Captures a live GPS fix — mandatory for cash on delivery. */
   async function shareLocation() {
     setLocating(true);
     try {
@@ -111,6 +124,10 @@ function CustomerPage() {
     }
   }
 
+  // COD is blocked outside the delivery radius (anti-fraud rule).
+  const codBlocked = payment === "COD" && (!geo || !isWithinCodRadius(geo));
+
+  /** [REST API] place_order RPC — server recalculates every price, we only send intent. */
   async function placeOrder() {
     if (!settings.is_open) return toast.error("The restaurant is currently closed");
     if (!canOrder) return toast.error("Please Sign In or Register to Place an Order");
@@ -130,6 +147,12 @@ function CustomerPage() {
         return toast.error(err instanceof Error ? err.message : "Location access is required");
       }
     }
+    // Cash on delivery only within the Haversine radius around the kitchen.
+    if (payment === "COD" && !isWithinCodRadius(fix)) {
+      setPlacing(false);
+      return toast.error(`Cash on delivery is only available within ${COD_RADIUS_KM} km of the kitchen`);
+    }
+
     const ip = await lookupClientIp();
 
     const { data, error } = await supabase.rpc("place_order", {
@@ -143,16 +166,23 @@ function CustomerPage() {
       p_total: totals.total,
       p_latitude: fix.latitude,
       p_longitude: fix.longitude,
-      p_geo_address: fix.label,
+      p_geo_address: fix.label || location,
       p_ip_address: ip ?? undefined,
+      p_payment_method: payment,
     });
     setPlacing(false);
     if (error) return toast.error(error.message);
     const row = Array.isArray(data) ? data[0] : data;
     setCart({});
     setCheckoutOpen(false);
-    toast.success(`Order #${row?.order_no} created — complete the payment`);
-    navigate({ to: "/pay/$orderId", params: { orderId: String(row?.id) } });
+
+    if (payment === "COD") {
+      toast.success(`Order #${row?.order_no} placed — pay cash on delivery`);
+      navigate({ to: "/my-orders" });
+    } else {
+      toast.success(`Order #${row?.order_no} created — complete the payment`);
+      navigate({ to: "/pay/$orderId", params: { orderId: String(row?.id) } });
+    }
   }
 
   const cartCount = lines.reduce((s, l) => s + l.qty, 0);
@@ -169,46 +199,37 @@ function CustomerPage() {
         </div>
       )}
 
-      <section className="bg-primary px-4 pb-10 pt-6 text-center text-primary-foreground">
-        <Logo className="mx-auto h-28 w-auto" />
-        <h1 className="mt-2 text-3xl font-bold tracking-tight sm:text-4xl">Taste the Royal Flavors of Hyderabad</h1>
-        <p className="mt-2 text-sm opacity-85">Freshly prepared • Made with love • Authentic Hyderabadi taste</p>
-        <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs font-semibold">
-          <span className="rounded-full bg-accent px-3 py-1 text-accent-foreground">
-            ⏱ {settings.eta_minutes} min delivery
-          </span>
-          <span className="rounded-full bg-primary-foreground/10 px-3 py-1">
-            Free delivery above {rupees(settings.free_delivery_threshold)}
-          </span>
-          <span className="rounded-full bg-primary-foreground/10 px-3 py-1">
-            Min order {rupees(settings.min_order_value)}
-          </span>
-        </div>
+      <SwiggyHeroHeader
+        location={location}
+        onLocationChange={setLocation}
+        search={search}
+        onSearchChange={setSearch}
+        etaMinutes={settings.eta_minutes}
+      />
 
-        <div className="mx-auto mt-5 max-w-xl">
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search biryani, curries, desserts…"
-            aria-label="Search the menu"
-            className="bg-card text-foreground"
-          />
-          <div className="mt-3 flex flex-wrap justify-center gap-2">
-            {MENU_CATEGORIES.map((c) => (
-              <button
-                key={c}
-                type="button"
-                onClick={() => setCategory(c)}
-                className={`rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
-                  category === c ? "bg-accent text-accent-foreground" : "bg-primary-foreground/10"
-                }`}
-              >
-                {CATEGORY_LABEL[c]}
-              </button>
-            ))}
+      <CategoryList active={category} onSelect={setCategory} />
+
+      {/* Index 1 gate banner */}
+      {!sessionLoading && !canOrder && (
+        <div className="mx-auto max-w-3xl px-4">
+          <div className="rounded-2xl border border-primary/30 bg-primary/5 p-5 text-center">
+            <p className="text-base font-semibold">
+              {isPending ? PENDING_APPROVAL_MESSAGE : "Sign in or Register to view prices and place an order."}
+            </p>
+            <div className="mt-3 flex flex-wrap justify-center gap-2">
+              {isPending ? (
+                <Button asChild>
+                  <a href={APPROVAL_WHATSAPP_LINK} target="_blank" rel="noopener noreferrer">
+                    Contact admin on WhatsApp
+                  </a>
+                </Button>
+              ) : (
+                <Button onClick={() => setLoginOpen(true)}>Sign In</Button>
+              )}
+            </div>
           </div>
         </div>
-      </section>
+      )}
 
       <main className="mx-auto max-w-6xl px-4 py-8">
         {specials.length > 0 && (
@@ -216,32 +237,22 @@ function CustomerPage() {
             <h2 className="mb-3 text-2xl font-bold">Today's Specials</h2>
             <div className="flex gap-3 overflow-x-auto pb-2">
               {specials.map((s) => (
-                <div key={s.id} className="w-56 shrink-0 rounded-2xl border border-accent bg-card p-3 shadow-sm">
+                <div key={s.id} className="w-56 shrink-0 rounded-2xl border border-border bg-card p-3 shadow-sm">
                   {s.image_url && (
                     <img src={s.image_url} alt={s.name} loading="lazy" className="h-28 w-full rounded-xl object-cover" />
                   )}
-                  <p className="mt-2 font-semibold text-primary">{s.name}</p>
-                  <p className="text-sm text-muted-foreground">{rupees(Number(s.price))}</p>
-                  <Button size="sm" className="mt-2 w-full" onClick={() => change(s, 1)}>
-                    Add
-                  </Button>
-                </div>
-              ))}
-            </div>
-          </section>
-        )}
-
-        {popular.length > 0 && (
-          <section className="mb-8">
-            <h2 className="mb-3 text-2xl font-bold">Bestsellers &amp; Popular Dishes</h2>
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {popular.map((s) => (
-                <div key={s.id} className="w-48 shrink-0 rounded-2xl border border-border bg-card p-3 shadow-sm">
-                  <p className="font-semibold text-primary">{s.name}</p>
-                  <p className="text-sm text-muted-foreground">{rupees(Number(s.price))}</p>
-                  <Button size="sm" variant="outline" className="mt-2 w-full" onClick={() => change(s, 1)}>
-                    Add
-                  </Button>
+                  <p className="mt-2 font-semibold">{s.name}</p>
+                  {/* Offers stay unpriced until the account is approved */}
+                  {canOrder ? (
+                    <>
+                      <p className="text-sm text-primary">{rupees(Number(s.price))}</p>
+                      <Button size="sm" className="mt-2 w-full" onClick={() => change(s, 1)}>
+                        Add
+                      </Button>
+                    </>
+                  ) : (
+                    <p className="mt-1 text-xs text-muted-foreground">Sign in to view the offer price</p>
+                  )}
                 </div>
               ))}
             </div>
@@ -249,63 +260,32 @@ function CustomerPage() {
         )}
 
         <section>
-          <h2 className="mb-4 text-2xl font-bold">
-            {category === "all" ? "Today's Menu" : CATEGORY_LABEL[category]}
-          </h2>
+          <h2 className="mb-4 text-2xl font-bold">Today's Menu</h2>
           {isLoading && <p className="text-muted-foreground">Loading menu…</p>}
           {!isLoading && visible.length === 0 && (
             <p className="text-muted-foreground">No dishes match your search. Try another category.</p>
           )}
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {visible.map((item) => {
-              const qty = cart[item.id]?.qty ?? 0;
-              return (
-                <article
-                  key={item.id}
-                  className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-sm"
-                >
-                  {item.image_url && (
-                    <img src={item.image_url} alt={item.name} loading="lazy" className="h-40 w-full object-cover" />
-                  )}
-                  <div className="flex flex-1 flex-col gap-2 p-4">
-                    <div className="flex items-start justify-between gap-2">
-                      <h3 className="font-semibold text-primary">{item.name}</h3>
-                      <span className="shrink-0 font-bold">{rupees(Number(item.price))}</span>
-                    </div>
-                    <p className="flex-1 text-sm text-muted-foreground">{item.description}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="rounded-full bg-muted px-2 py-0.5 text-xs capitalize text-muted-foreground">
-                        {CATEGORY_LABEL[item.category] ?? item.category}
-                        {item.is_special ? " · Special" : ""}
-                      </span>
-                      {qty === 0 ? (
-                        <Button size="sm" onClick={() => change(item, 1)}>
-                          Add
-                        </Button>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <Button size="sm" variant="outline" onClick={() => change(item, -1)}>
-                            −
-                          </Button>
-                          <span className="w-6 text-center font-semibold">{qty}</span>
-                          <Button size="sm" onClick={() => change(item, 1)}>
-                            +
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
+            {visible.map((item) => (
+              <FoodItemCard
+                key={item.id}
+                item={item}
+                showPrices={canOrder}
+                qty={cart[item.id]?.qty ?? 0}
+                onAdd={() => change(item, 1)}
+                onRemove={() => change(item, -1)}
+              />
+            ))}
           </div>
         </section>
       </main>
 
       <PublicFooter />
 
-      {/* Sticky cart bar */}
-      {cartCount > 0 && !checkoutOpen && (
+      <LoginModal open={loginOpen} onClose={() => setLoginOpen(false)} />
+
+      {/* Sticky cart bar (Index 2 only) */}
+      {canOrder && cartCount > 0 && !checkoutOpen && (
         <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-primary px-4 py-3 text-primary-foreground shadow-2xl">
           <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
             <div className="text-sm">
@@ -331,7 +311,7 @@ function CustomerPage() {
         </div>
       )}
 
-      {/* Checkout sheet */}
+      {/* Checkout drawer */}
       {checkoutOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/50 sm:items-center">
           <div className="max-h-[92vh] w-full max-w-lg overflow-auto rounded-t-3xl bg-card p-5 sm:rounded-3xl">
@@ -381,6 +361,26 @@ function CustomerPage() {
               </div>
             </dl>
 
+            {/* Payment method toggle */}
+            <div className="mt-4">
+              <Label>Payment method</Label>
+              <div className="mt-1 grid grid-cols-2 gap-1 rounded-full bg-muted p-1">
+                {(["UPI", "COD"] as const).map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    onClick={() => setPayment(m)}
+                    aria-pressed={payment === m}
+                    className={`rounded-full px-3 py-1.5 text-sm transition-colors ${
+                      payment === m ? "bg-primary font-semibold text-primary-foreground" : "text-muted-foreground"
+                    }`}
+                  >
+                    {m === "UPI" ? "Pay Online" : "Cash on Delivery"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
             <div className="mt-4 space-y-3">
               <div>
                 <Label htmlFor="c-name">Name *</Label>
@@ -407,43 +407,42 @@ function CustomerPage() {
                 <Textarea id="c-notes" maxLength={500} value={form.notes} onChange={(e) => setForm({ ...form, notes: e.target.value })} />
               </div>
 
-              <p className="rounded-xl bg-muted p-3 text-xs">
-                Payment is <strong>online only</strong> — UPI to <strong>{settings.upi_id}</strong> on the next step. No
-                cash on delivery.
-              </p>
-
               <div className="rounded-xl bg-muted p-3 text-xs">
-                <p className="font-semibold">Live location {geo ? "captured ✓" : "required"}</p>
-                <p className="mt-0.5 text-muted-foreground">
-                  {geo ? geo.label : "We verify every order with your GPS location to stop fake orders."}
+                <p className="font-semibold">
+                  Live location {geo ? "captured ✓" : payment === "COD" ? "required for COD" : "required"}
                 </p>
+                <p className="mt-0.5 text-muted-foreground">
+                  {geo
+                    ? `${geo.label} · ${distanceLabel(geo)}`
+                    : `We verify every order with your GPS location. Cash on delivery works within ${COD_RADIUS_KM} km of the kitchen.`}
+                </p>
+                {codBlocked && geo && (
+                  <p className="mt-1 font-semibold text-destructive">
+                    You are outside the {COD_RADIUS_KM} km cash-on-delivery zone — please pay online.
+                  </p>
+                )}
                 <Button size="sm" variant="outline" className="mt-2" disabled={locating} onClick={shareLocation}>
                   {locating ? "Getting location…" : geo ? "Refresh location" : "Allow location access"}
                 </Button>
               </div>
 
-              {!sessionLoading && !canOrder ? (
-                <div className="rounded-xl border border-border p-3 text-center text-sm">
-                  <p className="text-muted-foreground">
-                    {user && status === "pending"
-                      ? "Your registration is pending Admin Approval. You will be able to log in and order once verified by Admin."
-                      : "Please Sign In or Register to Place an Order"}
-                  </p>
-                  {!user && (
-                    <Button asChild className="mt-2 w-full">
-                      <Link to="/account">Sign in or register</Link>
-                    </Button>
-                  )}
-                </div>
-              ) : (
-                <Button
-                  className="w-full"
-                  disabled={placing || sessionLoading || !settings.is_open || totals.belowMinimum}
-                  onClick={placeOrder}
-                >
-                  {placing ? "Creating order…" : `Pay ${rupees(totals.total)} online`}
-                </Button>
+              {payment === "UPI" && (
+                <p className="rounded-xl bg-muted p-3 text-xs">
+                  You'll pay by UPI to <strong>{settings.upi_id}</strong> on the next step.
+                </p>
               )}
+
+              <Button
+                className="w-full"
+                disabled={placing || sessionLoading || !settings.is_open || totals.belowMinimum || codBlocked}
+                onClick={placeOrder}
+              >
+                {placing
+                  ? "Placing order…"
+                  : payment === "COD"
+                    ? `Place Order · Cash ${rupees(totals.total)}`
+                    : `Pay ${rupees(totals.total)} online`}
+              </Button>
             </div>
           </div>
         </div>
