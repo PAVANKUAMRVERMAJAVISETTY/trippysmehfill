@@ -7,10 +7,10 @@ document.addEventListener('DOMContentLoaded', () => {
   setupAuthHandlers();
 });
 
-// Geolocation Handler
+// Location Handler
 window.getLiveLocation = function() {
   const locInput = document.getElementById('delivery-location');
-  if (navigator.geolocation) {
+  if (navigator.geolocation && locInput) {
     locInput.placeholder = "Detecting location...";
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -61,93 +61,118 @@ async function loadActiveDishes() {
   }
 }
 
-// Drawer Toggle Controls
+// Drawer Controls
 window.openDrawer = function(mode) {
-  document.getElementById('auth-drawer').classList.remove('hidden');
+  const drawer = document.getElementById('auth-drawer');
+  if (drawer) drawer.classList.remove('hidden');
   if (mode === 'signup' && !isSignUpMode) toggleAuthMode();
 };
 
 window.closeDrawer = function() {
-  document.getElementById('auth-drawer').classList.add('hidden');
+  const drawer = document.getElementById('auth-drawer');
+  if (drawer) drawer.classList.add('hidden');
 };
 
 window.toggleAuthMode = function() {
   isSignUpMode = !isSignUpMode;
-  document.getElementById('drawer-title').innerText = isSignUpMode ? 'Sign up' : 'Login';
-  document.getElementById('toggle-auth-mode').innerText = isSignUpMode ? 'login to your account' : 'create an account';
-  document.getElementById('login-form').classList.toggle('hidden', isSignUpMode);
-  document.getElementById('register-form').classList.toggle('hidden', !isSignUpMode);
+  const title = document.getElementById('drawer-title');
+  const toggleBtn = document.getElementById('toggle-auth-mode');
+  const loginForm = document.getElementById('login-form');
+  const regForm = document.getElementById('register-form');
+
+  if (title) title.innerText = isSignUpMode ? 'Sign up' : 'Login';
+  if (toggleBtn) toggleBtn.innerText = isSignUpMode ? 'login to your account' : 'create an account';
+  if (loginForm) loginForm.classList.toggle('hidden', isSignUpMode);
+  if (regForm) regForm.classList.toggle('hidden', !isSignUpMode);
 };
 
-// Auth Event Handling
+// Setup Auth Submissions
 function setupAuthHandlers() {
-  // Login Submissions
-  document.getElementById('login-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
+  // Login Form
+  const loginForm = document.getElementById('login-form');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('login-email').value.trim();
+      const password = document.getElementById('login-password').value;
 
-    const { data: { user }, error } = await supabase.auth.signInWithPassword({ email, password });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-    if (error) {
-      alert("Login Failed: " + error.message);
-      return;
-    }
+      if (error) {
+        alert("⚠️ Login Failed: " + error.message);
+        return;
+      }
 
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('role, is_approved')
-      .eq('id', user.id)
-      .single();
+      // Query Profile Role
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('role, is_approved')
+        .eq('id', data.user.id)
+        .single();
 
-    if (!profile) {
-      alert("Profile not found in database.");
-      return;
-    }
+      if (profileError || !profile) {
+        alert("⚠️ Profile record not found. Please contact Admin.");
+        return;
+      }
 
-    if (!profile.is_approved) {
-      alert("⏳ Account pending approval! Please wait for Admin confirmation.");
-      return;
-    }
+      if (!profile.is_approved) {
+        alert("⏳ Your registration is pending approval! Admin will approve your account shortly.");
+        return;
+      }
 
-    if (profile.role === 'admin') {
-      window.location.href = '/Pages/admin-analytics.html';
-    } else if (profile.role === 'staff' || profile.role === 'delivery') {
-      window.location.href = '/Pages/staff-login.html';
-    } else {
-      window.location.href = '/Pages/main_index.html';
-    }
-  });
+      // Route by Role
+      if (profile.role === 'admin') {
+        window.location.href = '/Pages/admin-analytics.html';
+      } else if (profile.role === 'staff' || profile.role === 'delivery') {
+        window.location.href = '/Pages/staff-login.html';
+      } else {
+        window.location.href = '/Pages/main_index.html';
+      }
+    });
+  }
 
-  // Registration Submissions
-  document.getElementById('register-form')?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('reg-name').value.trim();
-    const phone = document.getElementById('reg-phone').value.trim();
-    const email = document.getElementById('reg-email').value.trim();
-    const address = document.getElementById('reg-address').value.trim();
-    const password = document.getElementById('reg-password').value;
+  // Registration Form
+  const regForm = document.getElementById('register-form');
+  if (regForm) {
+    regForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('reg-name').value.trim();
+      const phone = document.getElementById('reg-phone').value.trim();
+      const email = document.getElementById('reg-email').value.trim();
+      const address = document.getElementById('reg-address').value.trim();
+      const password = document.getElementById('reg-password').value;
 
-    const { data: { user }, error } = await supabase.auth.signUp({ email, password });
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { full_name: name, phone: phone, address: address }
+        }
+      });
 
-    if (error) {
-      alert("Registration failed: " + error.message);
-      return;
-    }
+      if (error) {
+        alert("⚠️ Signup Failed: " + error.message);
+        return;
+      }
 
-    if (user) {
-      await supabase.from('profiles').insert([{
-        id: user.id,
-        full_name: name,
-        email: email,
-        phone: phone,
-        hostel_address: address,
-        role: 'customer',
-        is_approved: false
-      }]);
-    }
+      if (data.user) {
+        const { error: dbError } = await supabase.from('profiles').insert([{
+          id: data.user.id,
+          full_name: name,
+          email: email,
+          phone: phone,
+          hostel_address: address,
+          role: 'customer',
+          is_approved: false
+        }]);
 
-    alert("🎉 Account created! Your registration is now under Pending Registrations for Admin approval.");
-    closeDrawer();
-  });
+        if (dbError) {
+          console.error("Profile creation error:", dbError);
+        }
+      }
+
+      alert("🎉 Account created successfully! Your request is now listed under Pending Registrations for Admin approval.");
+      closeDrawer();
+    });
+  }
 }
