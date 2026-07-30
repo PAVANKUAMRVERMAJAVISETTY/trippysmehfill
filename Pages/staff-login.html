@@ -14,9 +14,15 @@
     <p class="text-xs text-gray-500">Enter your credentials to access staff & admin controls</p>
     
     <form id="staff-login-form" class="space-y-4">
-      <input id="login-email" type="email" placeholder="Email Address" required class="w-full border border-gray-300 p-3 rounded-xl text-xs outline-none focus:ring-2 focus:ring-amber-800">
-      <input id="login-pass" type="password" placeholder="Password" required class="w-full border border-gray-300 p-3 rounded-xl text-xs outline-none focus:ring-2 focus:ring-amber-800">
-      <button type="submit" class="w-full bg-amber-800 hover:bg-amber-900 text-white font-extrabold py-3 rounded-xl text-xs uppercase shadow-lg transition">
+      <div class="text-left">
+        <label for="login-email" class="block text-xs font-bold text-gray-700 mb-1">Email Address</label>
+        <input id="login-email" name="login-email" type="email" placeholder="staff@email.com" required class="w-full border border-gray-300 p-3 rounded-xl text-xs outline-none focus:ring-2 focus:ring-amber-800">
+      </div>
+      <div class="text-left">
+        <label for="login-pass" class="block text-xs font-bold text-gray-700 mb-1">Password</label>
+        <input id="login-pass" name="login-pass" type="password" placeholder="••••••••" required class="w-full border border-gray-300 p-3 rounded-xl text-xs outline-none focus:ring-2 focus:ring-amber-800">
+      </div>
+      <button type="submit" class="w-full bg-amber-800 hover:bg-amber-900 text-white font-extrabold py-3 rounded-xl text-xs uppercase shadow-lg transition cursor-pointer">
         Login to Gateway
       </button>
     </form>
