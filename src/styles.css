@@ -69,8 +69,9 @@
   --card-foreground: oklch(0.26 0.06 40);
   --popover: oklch(0.995 0.008 90);
   --popover-foreground: oklch(0.26 0.06 40);
-  --primary: oklch(0.34 0.13 24);
-  --primary-foreground: oklch(0.97 0.02 90);
+  /* Swiggy-style vibrant orange #FC8019 */
+  --primary: oklch(0.7 0.181 47.5);
+  --primary-foreground: oklch(0.99 0.005 90);
   --secondary: oklch(0.93 0.05 85);
   --secondary-foreground: oklch(0.32 0.09 45);
   --muted: oklch(0.94 0.03 85);
