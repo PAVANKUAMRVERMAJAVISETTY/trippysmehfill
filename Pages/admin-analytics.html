@@ -1,18 +1,71 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Sales Analytics - Trippy's Mehfill</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-amber-50/40 p-6 min-h-screen">
-  <div class="max-w-6xl mx-auto space-y-6">
-    <h1 class="text-2xl font-black text-amber-950">Analytics Summary</h1>
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="bg-white p-4 rounded-xl shadow border-l-4 border-amber-800"><p class="text-xs text-gray-500">Total Orders</p><p id="metric-total-orders" class="text-2xl font-black">0</p></div>
-      <div class="bg-white p-4 rounded-xl shadow border-l-4 border-green-600"><p class="text-xs text-gray-500">Total Revenue</p><p id="metric-total-revenue" class="text-2xl font-black text-green-700">₹0</p></div>
+import { supabase } from "./api.js";
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadFullAnalytics();
+});
+
+async function loadFullAnalytics() {
+  try {
+    // 1. Fetch Orders and Feedbacks from Supabase
+    const { data: orders } = await supabase.from('orders').select('*');
+    const { data: feedbacks } = await supabase.from('feedback').select('*');
+
+    const ordersList = orders || [];
+    const feedbacksList = feedbacks || [];
+
+    // 2. Parse Timestamps
+    const now = new Date();
+    const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    const todayOrders = ordersList.filter(o => new Date(o.created_at) >= startOfToday);
+    const completedOrders = ordersList.filter(o => o.status === "DELIVERED" || o.status === "delivered");
+    const pendingOrders = ordersList.filter(o => o.status === "pending" || o.status === "PREPARING");
+
+    // 3. Calculate Financials
+    const totalRevenue = completedOrders.reduce((sum, o) => sum + (Number(o.total_amount) || 0), 0);
+
+    // 4. Calculate Average Rating
+    let avgRating = 5.0;
+    if (feedbacksList.length > 0) {
+      const sumRatings = feedbacksList.reduce((sum, f) => sum + (Number(f.rating) || 5), 0);
+      avgRating = (sumRatings / feedbacksList.length).toFixed(1);
+    }
+
+    // 5. Update Metrics Cards
+    updateDOM("stat-total-orders", todayOrders.length);
+    updateDOM("stat-completed-orders", completedOrders.length);
+    updateDOM("stat-pending-orders", pendingOrders.length);
+    updateDOM("stat-revenue", `₹${totalRevenue}`);
+    updateDOM("stat-avg-rating", `⭐ ${avgRating} / 5.0`);
+
+    renderRecentFeedbacks(feedbacksList);
+
+  } catch (err) {
+    console.error("Failed to load dashboard metrics:", err);
+  }
+}
+
+function renderRecentFeedbacks(feedbacks) {
+  const container = document.getElementById("admin-feedback-feed");
+  if (!container) return;
+
+  if (feedbacks.length === 0) {
+    container.innerHTML = `<p class="text-xs text-gray-400 py-4 text-center">No customer reviews yet.</p>`;
+    return;
+  }
+
+  container.innerHTML = feedbacks.slice(0, 5).map(f => `
+    <div class="p-3 bg-gray-50 rounded-xl border border-gray-100 text-xs md:text-sm space-y-1">
+      <div class="flex justify-between items-center font-bold">
+        <span class="text-amber-950">Order #${f.order_id || 'Direct'}</span>
+        <span class="text-yellow-600">${"★".repeat(f.rating || 5)}</span>
+      </div>
+      <p class="text-gray-600 font-medium">"${f.comment || 'No comment'}"</p>
     </div>
-  </div>
-  <script type="module" src="../JS/admin-analytics.js"></script>
-</body>
-</html>
+  `).join("");
+}
+
+function updateDOM(id, val) {
+  const el = document.getElementById(id);
+  if (el) el.innerText = val;
+}

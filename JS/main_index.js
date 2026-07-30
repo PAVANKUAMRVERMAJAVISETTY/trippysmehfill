@@ -1,4 +1,5 @@
 import { supabase } from './api.js';
+import './style.css';
 
 let kitchenCoords = { lat: 28.2631, lng: 77.0833, maxRadius: 15 };
 let cart = [];

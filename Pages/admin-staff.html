@@ -14,10 +14,11 @@
       <span class="text-xl font-black text-amber-400">TRIPPY'S MEHFILL</span>
       <span class="text-xs bg-amber-800 text-amber-200 px-2.5 py-1 rounded-full font-bold">Admin Portal</span>
     </div>
-    <div class="flex space-x-2 text-xs font-bold">
+    <div class="flex space-x-2 text-xs font-bold flex-wrap gap-1">
       <a href="admin-dispatch.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">🛵 Dispatch Desk</a>
       <a href="admin.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">📊 Analytics</a>
       <a href="admin-menu.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">🍲 Menu Management</a>
+      <a href="admin-orders.html" class="px-3 py-1.5 rounded-lg hover:bg-amber-800 text-amber-100 transition">📜 Order History</a>
       <a href="admin-staff.html" class="px-3 py-1.5 rounded-lg bg-amber-800 text-amber-200 border border-amber-600 shadow">🔑 Staff Accounts</a>
     </div>
   </nav>
@@ -47,8 +48,8 @@
         </div>
 
         <div>
-          <label class="block font-bold text-gray-700 mb-1">System Username (Used to Log In)</label>
-          <input id="staff-username" type="text" placeholder="e.g. chef_ravi" class="w-full border p-3 rounded-xl outline-none focus:border-amber-800 font-semibold">
+          <label class="block font-bold text-gray-700 mb-1">Email Address</label>
+          <input id="staff-email" type="email" placeholder="staff@email.com" class="w-full border p-3 rounded-xl outline-none focus:border-amber-800 font-semibold">
         </div>
 
         <div>
@@ -64,27 +65,6 @@
 
   </main>
 
-  <!-- Form integration to Auth SDK -->
-  <script type="module">
-    import { createStaffMember } from "../JS/admin-staff.js";
-
-    document.getElementById("btn-save-staff").addEventListener("click", () => {
-      const name = document.getElementById("staff-name").value.trim();
-      const user = document.getElementById("staff-username").value.trim();
-      const pass = document.getElementById("staff-password").value.trim();
-      const role = document.getElementById("staff-role").value;
-
-      if (!name || !user || !pass) {
-        alert("Please fill in all credential fields!");
-        return;
-      }
-      if (pass.length < 6) {
-        alert("Password must be at least 6 characters long!");
-        return;
-      }
-
-      createStaffMember(name, user, pass, role);
-    });
-  </script>
+  <script type="module" src="../JS/admin-staff.js"></script>
 </body>
 </html>
