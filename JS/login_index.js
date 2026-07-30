@@ -4,7 +4,7 @@ let isSignUpMode = false;
 window._pendingRegistration = null;
 
 // --- Global Window Scope Bindings for Auth Drawer ---
-window.openDrawer = function(mode) {
+window.openDrawer = function(mode = 'login') {
   const drawer = document.getElementById('auth-drawer');
   if (drawer) {
     drawer.classList.remove('hidden');
@@ -20,13 +20,17 @@ window.openDrawer = function(mode) {
 
 window.closeDrawer = function() {
   const drawer = document.getElementById('auth-drawer');
-  if (drawer) {
-    drawer.classList.add('hidden');
-  }
+  if (drawer) drawer.classList.add('hidden');
 };
 
-window.toggleAuthMode = function() {
-  isSignUpMode = !isSignUpMode;
+window.toggleAuthMode = function(forceMode) {
+  // Accept optional explicit mode: 'signup' or 'login'
+  if (typeof forceMode === 'string') {
+    isSignUpMode = (forceMode === 'signup');
+  } else {
+    isSignUpMode = !isSignUpMode;
+  }
+
   const title = document.getElementById('drawer-title');
   const toggleBtn = document.getElementById('toggle-auth-mode');
   const loginForm = document.getElementById('login-form');
@@ -40,17 +44,30 @@ window.toggleAuthMode = function() {
   if (otpForm) otpForm.classList.add('hidden');
 };
 
+// Defensive helper to get element and warn once
+function $id(id) {
+  const el = document.getElementById(id);
+  if (!el) console.warn(`Element #${id} not found in DOM`);
+  return el;
+}
+
 // --- Initialization ---
 document.addEventListener('DOMContentLoaded', () => {
   loadActiveDishes();
   initTopSlider();
   loadGalleryHighlights();
   bindAuthHandlers();
+
+  // Defensive: ensure sign-in buttons have type button and attach a console test handler
+  const signButtons = document.querySelectorAll('button');
+  signButtons.forEach(btn => {
+    if (!btn.hasAttribute('type')) btn.setAttribute('type', 'button');
+  });
 });
 
 // Helper: Escape HTML
 function escapeHtml(s = '') {
-  return s.replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+  return String(s).replace(/[&<>\"']+/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
 }
 
 // 1. Fetch IP Address
@@ -60,13 +77,14 @@ async function getUserIP() {
     const data = await res.json();
     return data.ip || '0.0.0.0';
   } catch (e) {
+    console.warn('IP fetch failed', e);
     return '0.0.0.0';
   }
 }
 
 // 2. Fetch Active Dishes
 async function loadActiveDishes() {
-  const container = document.getElementById('dishes-container');
+  const container = $id('dishes-container');
   if (!container) return;
 
   try {
@@ -90,7 +108,7 @@ async function loadActiveDishes() {
         </div>
         <div class="flex justify-between items-center mt-4 pt-2 border-t border-gray-50">
           <span class="text-sm font-black text-gray-900">₹${dish.price}</span>
-          <button type="button" onclick="window.openDrawer('login')" class="bg-swiggy/10 text-swiggy text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-swiggy hover:text-white transition cursor-pointer">
+          <button type="button" onclick="window.openDrawer('login')" class="bg-swiggy/10 text-swiggy text-xs font-bold px-3 py-1.5 rounded-lg hover:bg-swiggy hover:text-white transition">
             Sign In to Order
           </button>
         </div>
@@ -98,12 +116,13 @@ async function loadActiveDishes() {
     `).join('');
   } catch (err) {
     console.error("Dishes fetch error:", err);
+    container.innerHTML = `<p class="text-gray-400 text-xs py-8 col-span-full text-center">Failed to load dishes.</p>`;
   }
 }
 
 // 3. Top Auto-Slider (5s Interval)
 async function initTopSlider() {
-  const track = document.getElementById('top-slider-track');
+  const track = $id('top-slider-track');
   if (!track) return;
 
   try {
@@ -126,9 +145,9 @@ async function initTopSlider() {
     }
 
     let idx = 0;
-    const slidesCount = track.children.length || 1;
+    const updateCount = () => track.children.length || 1;
     setInterval(() => {
-      idx = (idx + 1) % Math.max(1, slidesCount);
+      idx = (idx + 1) % Math.max(1, updateCount());
       track.style.transform = `translateX(-${idx * 100}%)`;
     }, 5000);
   } catch (err) {
@@ -138,7 +157,7 @@ async function initTopSlider() {
 
 // 4. Gallery Highlights
 async function loadGalleryHighlights() {
-  const grid = document.getElementById('gallery-highlights-grid');
+  const grid = $id('gallery-highlights-grid');
   if (!grid) return;
 
   try {
@@ -170,129 +189,253 @@ async function loadGalleryHighlights() {
 
 // 5. Auth Handlers (OTP Registration + Profile Creation)
 function bindAuthHandlers() {
-  const regForm = document.getElementById('register-form');
-  const otpForm = document.getElementById('otp-form');
-  const loginForm = document.getElementById('login-form');
+  const regForm = $id('register-form');
+  const otpForm = $id('otp-form');
+  const loginForm = $id('login-form');
 
   // Step 1: Sign Up & OTP Request
-  regForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const name = document.getElementById('reg-name').value.trim();
-    const phone = document.getElementById('reg-phone').value.trim();
-    const email = document.getElementById('reg-email').value.trim();
-    const address = document.getElementById('reg-address').value.trim();
-    const password = document.getElementById('reg-password').value;
+  if (regForm) {
+    regForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const nameEl = $id('reg-name');
+        const phoneEl = $id('reg-phone');
+        const emailEl = $id('reg-email');
+        const addressEl = $id('reg-address');
+        const passwordEl = $id('reg-password');
 
-    let userLat = null, userLng = null;
-    if (navigator.geolocation) {
-      await new Promise((resolve) => {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => { userLat = pos.coords.latitude; userLng = pos.coords.longitude; resolve(); },
-          () => resolve(),
-          { timeout: 5000 }
-        );
-      });
-    }
+        if (!nameEl || !phoneEl || !emailEl || !addressEl || !passwordEl) {
+          return alert('Registration form is missing fields. See console.');
+        }
 
-    const ip = await getUserIP();
-    window._pendingRegistration = { name, phone, email, address, password, lat: userLat, lng: userLng, ip };
+        const name = nameEl.value.trim();
+        const phone = phoneEl.value.trim();
+        const email = emailEl.value.trim();
+        const address = addressEl.value.trim();
+        const password = passwordEl.value;
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+        let userLat = null, userLng = null;
+        if (navigator.geolocation) {
+          await new Promise((resolve) => {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => { userLat = pos.coords.latitude; userLng = pos.coords.longitude; resolve(); },
+              () => resolve(),
+              { timeout: 5000 }
+            );
+          });
+        }
 
-    if (error) return alert("Signup Failed: " + error.message);
+        const ip = await getUserIP();
+        window._pendingRegistration = { name, phone, email, address, password, lat: userLat, lng: userLng, ip };
 
-    if (data.user && data.session) {
-      // Auto-confirmed environment: Insert profile immediately
-      await supabase.from('profiles').insert([{
-        id: data.user.id,
-        full_name: name,
-        email: email,
-        phone: phone,
-        hostel_address: address,
-        live_lat: userLat,
-        live_lng: userLng,
-        ip_address: ip,
-        role: 'customer',
-        is_approved: false
-      }]);
-      alert("🎉 Account created! Your account is submitted to Pending Registrations for Admin approval.");
-      window.closeDrawer();
-    } else {
-      alert("📩 Verification code sent! Please check your email inbox.");
-      document.getElementById('register-form').classList.add('hidden');
-      document.getElementById('otp-form').classList.remove('hidden');
-      document.getElementById('drawer-title').innerText = 'Verify OTP';
-    }
-  });
+        // Try to use the modern signUp flow if available
+        if (supabase.auth && typeof supabase.auth.signUp === 'function') {
+          const { data, error } = await supabase.auth.signUp({ email, password });
+          if (error) {
+            // If signUp failed due to provider or OTP requirement, attempt OTP send fallback
+            console.warn('signUp error, attempting OTP fallback:', error);
+            await sendOtpFallback(email);
+            showOtpUI();
+            return;
+          }
+
+          // If user is returned with session -> immediate create profile
+          if (data && data.user && data.session) {
+            await supabase.from('profiles').insert([{
+              id: data.user.id,
+              full_name: name,
+              email: email,
+              phone: phone,
+              hostel_address: address,
+              live_lat: userLat,
+              live_lng: userLng,
+              ip_address: ip,
+              role: 'customer',
+              is_approved: false
+            }]);
+            alert("🎉 Account created! Your account is submitted to Pending Registrations for Admin approval.");
+            window.closeDrawer();
+            return;
+          } else {
+            // signUp succeeded but requires verification (magic link / OTP). Show OTP UI for a code-based flow.
+            await sendOtpFallback(email); // ensure an OTP/magic-link was sent
+            showOtpUI();
+            return;
+          }
+        } else {
+          // If signUp isn't available on this client, attempt OTP send for passwordless flow
+          await sendOtpFallback(email);
+          showOtpUI();
+          return;
+        }
+      } catch (err) {
+        console.error('Registration failed:', err);
+        alert('Registration failed: ' + (err.message || err));
+      }
+    });
+  } else {
+    console.warn('#register-form not found; registration disabled.');
+  }
 
   // Step 2: OTP Token Verification
-  otpForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const token = document.getElementById('otp-token').value.trim();
-    const pending = window._pendingRegistration;
+  if (otpForm) {
+    otpForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const tokenEl = $id('otp-token');
+        const pending = window._pendingRegistration;
+        if (!tokenEl || !pending) return alert('Missing OTP or registration details.');
 
-    if (!pending || !token) return alert('Missing OTP or registration details.');
+        const token = tokenEl.value.trim();
 
-    const { data, error } = await supabase.auth.verifyOtp({
-      email: pending.email,
-      token: token,
-      type: 'email'
+        // Prefer verifyOtp if present (legacy); otherwise try signInWithOtp verify patterns
+        if (supabase.auth && typeof supabase.auth.verifyOtp === 'function') {
+          const { data, error } = await supabase.auth.verifyOtp({
+            email: pending.email,
+            token: token,
+            type: 'email'
+          });
+          if (error) throw error;
+          handlePostVerification(data?.user, pending);
+        } else if (supabase.auth && typeof supabase.auth.signInWithOtp === 'function') {
+          // Modern clients: signInWithOtp usually sends OTP; some SDKs accept token to verify.
+          // We'll attempt a verify step using signInWithOtp with the token if accepted by the SDK.
+          try {
+            const maybe = await supabase.auth.signInWithOtp({ email: pending.email, token });
+            // if it returned a user, proceed
+            if (maybe?.data?.user) {
+              handlePostVerification(maybe.data.user, pending);
+            } else {
+              // If SDK does not support token verify, ask user to use magic link
+              alert('OTP verification not supported by this client SDK. Please click the magic link sent to your email to complete verification.');
+            }
+          } catch (err) {
+            console.warn('signInWithOtp verify attempt failed:', err);
+            alert('OTP verification failed: ' + (err.message || err));
+          }
+        } else {
+          alert('OTP verification is not supported by the installed supabase client. Please use the magic link that was sent to your email.');
+        }
+      } catch (err) {
+        console.error('OTP verification error:', err);
+        alert('OTP verification failed: ' + (err.message || err));
+      }
     });
+  } else {
+    console.warn('#otp-form not found; OTP verify disabled.');
+  }
 
-    if (error) return alert("OTP Verification Failed: " + error.message);
+  // Sign In Handler
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        const emailEl = $id('login-email');
+        const passwordEl = $id('login-password');
+        if (!emailEl || !passwordEl) return alert('Login form fields missing.');
 
-    if (data.user) {
-      await supabase.from('profiles').upsert([{
-        id: data.user.id,
-        full_name: pending.name,
-        email: pending.email,
-        phone: pending.phone,
-        hostel_address: pending.address,
-        live_lat: pending.lat,
-        live_lng: pending.lng,
-        ip_address: pending.ip,
-        role: 'customer',
-        is_approved: false
-      }]);
+        const email = emailEl.value.trim();
+        const password = passwordEl.value;
+
+        if (!email || !password) return alert('Please enter email and password.');
+
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+
+        if (error) {
+          console.error('Login failed:', error);
+          return alert("⚠️ Login Failed: " + error.message);
+        }
+
+        if (!data || !data.user) {
+          return alert('Login did not return a user. Please try again.');
+        }
+
+        const { data: profile, error: profileError } = await supabase
+          .from('profiles')
+          .select('role, is_approved')
+          .eq('id', data.user.id)
+          .maybeSingle();
+
+        if (profileError || !profile) {
+          alert("⚠️ Profile record not found. Please contact Admin.");
+          return;
+        }
+
+        if (!profile.is_approved) {
+          alert("⏳ Your account is listed under Pending Registrations! Please wait for Admin approval.");
+          return;
+        }
+
+        if (profile.role === 'admin') {
+          window.location.href = '/Pages/admin.html';
+        } else if (profile.role === 'staff' || profile.role === 'delivery') {
+          window.location.href = '/Pages/staff-login.html';
+        } else {
+          window.location.href = '/Pages/main_index.html';
+        }
+      } catch (err) {
+        console.error('Login handler error:', err);
+        alert('Login error: ' + (err.message || err));
+      }
+    });
+  } else {
+    console.warn('#login-form not found; login disabled.');
+  }
+}
+
+async function sendOtpFallback(email) {
+  // Send OTP / magic link using whichever method exists
+  if (supabase.auth && typeof supabase.auth.signInWithOtp === 'function') {
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    if (error) throw error;
+    return;
+  }
+
+  // Legacy SDKs: attempt signUp fallback that triggers an email
+  if (supabase.auth && typeof supabase.auth.signUp === 'function') {
+    const { error } = await supabase.auth.signUp({ email });
+    if (error) throw error;
+    return;
+  }
+
+  throw new Error('No supported OTP/magic-link method found on the Supabase client.');
+}
+
+function showOtpUI() {
+  const regForm = $id('register-form');
+  const otpForm = $id('otp-form');
+  const title = $id('drawer-title');
+  if (regForm) regForm.classList.add('hidden');
+  if (otpForm) otpForm.classList.remove('hidden');
+  if (title) title.innerText = 'Verify OTP';
+  alert('📩 Verification code / magic link sent. Please check your email (and SPAM) to complete verification.');
+}
+
+async function handlePostVerification(user, pending) {
+  try {
+    if (!user || !pending) {
+      console.warn('Post verification missing user/pending', user, pending);
+      return;
     }
+
+    await supabase.from('profiles').upsert([{
+      id: user.id,
+      full_name: pending.name,
+      email: pending.email,
+      phone: pending.phone,
+      hostel_address: pending.address,
+      live_lat: pending.lat,
+      live_lng: pending.lng,
+      ip_address: pending.ip,
+      role: 'customer',
+      is_approved: false
+    }]);
 
     alert("🎉 Email verified! Your request is submitted under Pending Registrations for Admin approval.");
     window._pendingRegistration = null;
     window.closeDrawer();
-  });
-
-  // Sign In Handler
-  loginForm?.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('login-email').value.trim();
-    const password = document.getElementById('login-password').value;
-
-    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-
-    if (error) return alert("⚠️ Login Failed: " + error.message);
-
-    const { data: profile, error: profileError } = await supabase
-      .from('profiles')
-      .select('role, is_approved')
-      .eq('id', data.user.id)
-      .maybeSingle();
-
-    if (profileError || !profile) {
-      alert("⚠️ Profile record not found. Please contact Admin.");
-      return;
-    }
-
-    if (!profile.is_approved) {
-      alert("⏳ Your account is listed under Pending Registrations! Please wait for Admin approval.");
-      return;
-    }
-
-    if (profile.role === 'admin') {
-      window.location.href = '/Pages/admin.html';
-    } else if (profile.role === 'staff' || profile.role === 'delivery') {
-      window.location.href = '/Pages/staff-login.html';
-    } else {
-      window.location.href = '/Pages/main_index.html';
-    }
-  });
+  } catch (err) {
+    console.error('Failed to save profile after verification:', err);
+    alert('Failed to finalize registration: ' + (err.message || err));
+  }
 }
