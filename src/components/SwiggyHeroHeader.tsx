@@ -40,7 +40,9 @@ export function SwiggyHeroHeader({ location, onLocationChange, search, onSearchC
         <h1 className="mt-3 text-3xl font-extrabold leading-tight tracking-tight sm:text-5xl">
           Order food you love. Discover Hyderabad's best biryani.
         </h1>
-        <p className="mt-2 text-sm opacity-90">Freshly cooked • Delivered hot in about {etaMinutes} minutes</p>
+        <p className="mt-2 text-sm opacity-90">
+          Freshly cooked • Delivered hot{etaMinutes > 0 ? ` in about ${etaMinutes} minutes` : ""}
+        </p>
 
         {/* Dual-input search bar: location | food */}
         <div className="mx-auto mt-6 flex w-full max-w-3xl flex-col gap-3 sm:flex-row">
