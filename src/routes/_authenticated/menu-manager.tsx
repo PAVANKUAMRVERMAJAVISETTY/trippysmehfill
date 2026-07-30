@@ -9,6 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { rupees } from "@/lib/session";
+import { uploadMenuImage } from "@/services/imageUploadService";
 
 export const Route = createFileRoute("/_authenticated/menu-manager")({
   component: MenuManagerPage,
