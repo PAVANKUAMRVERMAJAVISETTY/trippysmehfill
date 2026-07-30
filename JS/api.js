@@ -1,8 +1,10 @@
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
 // 1. Initialize Supabase Client Connection
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://iptjevfvuwrdbqzgrzxg.supabase.co';
-const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || 'sb_publishable_mcYrRu-GOqphMJjB2LlDuA_AABdVZ0p';
+// Use optional chaining when reading import.meta.env so the module can run in plain browsers
+// (where import.meta.env may be undefined) and during static file serving.
+const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_URL) || 'https://iptjevfvuwrdbqzgrzxg.supabase.co';
+const supabaseKey = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) || 'sb_publishable_mcYrRu-GOqphMJjB2LlDuA_AABdVZ0p';
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
