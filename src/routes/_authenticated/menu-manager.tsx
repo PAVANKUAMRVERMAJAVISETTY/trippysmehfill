@@ -109,7 +109,33 @@ function MenuManagerPage() {
       <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
         {items.map((item) => (
           <article key={item.id} className="rounded-2xl border border-border bg-card p-4 shadow-sm">
-            {item.image_url && <img src={item.image_url} alt={item.name} className="mb-3 h-32 w-full rounded-xl object-cover" />}
+            {/* Photo with a camera overlay: tapping it opens the device gallery/camera. */}
+            <div className="relative mb-3">
+              {item.image_url ? (
+                <img src={item.image_url} alt={item.name} className="h-32 w-full rounded-xl object-cover" />
+              ) : (
+                <div className="flex h-32 w-full items-center justify-center rounded-xl bg-muted text-3xl" aria-hidden>
+                  🍛
+                </div>
+              )}
+              <label
+                className="absolute bottom-2 right-2 cursor-pointer rounded-full bg-primary px-3 py-1.5 text-sm text-primary-foreground shadow"
+                title="Upload a photo"
+              >
+                {uploadingId === item.id ? "…" : "📷"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    e.target.value = "";
+                    if (file) void handleUpload(item.id, file);
+                  }}
+                />
+              </label>
+            </div>
             <div className="flex items-start justify-between gap-2">
               <h2 className="font-semibold text-primary">{item.name}</h2>
               <span className="font-bold">{rupees(Number(item.price))}</span>
