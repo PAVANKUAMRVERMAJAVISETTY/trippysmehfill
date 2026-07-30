@@ -466,6 +466,7 @@ export type Database = {
           p_longitude?: number
           p_name: string
           p_notes: string
+          p_payment_method?: string
           p_phone: string
           p_total: number
         }
@@ -473,6 +474,7 @@ export type Database = {
           delivery_fee: number
           id: string
           order_no: number
+          payment_method: string
           subtotal: number
           tax: number
           total: number
