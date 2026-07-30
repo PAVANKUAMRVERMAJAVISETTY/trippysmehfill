@@ -8,6 +8,21 @@
 </head>
 <body class="bg-amber-50/40 text-gray-800 font-sans min-h-screen p-4 md:p-6">
 
+  <!-- Admin Customers Tab -->
+<section class="max-w-6xl mx-auto my-8 p-6 bg-white rounded-2xl shadow-sm border border-amber-100">
+  <div class="flex justify-between items-center border-b pb-4 mb-6">
+    <div>
+      <h2 class="text-xl font-black text-gray-900">Registered Customers</h2>
+      <p class="text-xs text-gray-500">Manage active customer accounts, toggle status, or delete accounts.</p>
+    </div>
+    <span id="cx-count" class="bg-amber-100 text-amber-900 text-xs font-bold px-3 py-1 rounded-full">0 Customers</span>
+  </div>
+
+  <div id="customers-list-grid" class="grid sm:grid-cols-2 md:grid-cols-3 gap-4">
+    <p class="text-gray-400 text-xs text-center col-span-full py-4">Loading customer records...</p>
+  </div>
+</section>
+
   <!-- Admin Central Navigation -->
   <nav class="bg-amber-900 text-amber-100 p-4 rounded-2xl shadow-xl max-w-6xl mx-auto flex flex-wrap justify-between items-center gap-2 mb-6">
     <div class="flex items-center space-x-2">
