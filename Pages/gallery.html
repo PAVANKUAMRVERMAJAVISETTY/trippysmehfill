@@ -64,20 +64,33 @@
 
   <script type="module">
   import { supabase } from '/JS/api.js';
+  import { showToast } from '/JS/common.js';
 
-  document.addEventListener('DOMContentLoaded', loadGalleryAlbum);
+  document.addEventListener('DOMContentLoaded', () => {
+    loadGalleryAlbum();
+    const btn = document.getElementById('btn-upload-photo');
+    btn?.addEventListener('click', uploadPhotoHandler);
+  });
 
-  document.getElementById('btn-upload-photo')?.addEventListener('click', async () => {
+  async function uploadPhotoHandler() {
     const titleInput = document.getElementById('img-title');
     const fileInput = document.getElementById('img-file');
+    const sectionSelect = document.getElementById('img-section');
+    const uploadBtn = document.getElementById('btn-upload-photo');
+
+    if (!titleInput || !fileInput || !sectionSelect || !uploadBtn) return showToast('Upload form missing fields', 'error');
+
     const title = titleInput.value.trim();
-    const section = document.getElementById('img-section').value;
+    const section = sectionSelect.value;
     const file = fileInput.files[0];
 
-    if (!title || !file) return alert("Please provide a title and select an image file.");
+    if (!title || !file) return showToast('Please provide a title and select an image file.', 'error');
 
     const fileName = `${Date.now()}_${file.name}`;
     try {
+      uploadBtn.disabled = true;
+      uploadBtn.innerText = 'Uploading...';
+
       const { error: storageError } = await supabase.storage
         .from('gallery-bucket')
         .upload(fileName, file);
@@ -98,37 +111,48 @@
 
       if (dbErr) throw dbErr;
 
-      alert("🎉 Image uploaded successfully!");
+      showToast('🎉 Image uploaded successfully!');
       titleInput.value = '';
       fileInput.value = '';
       loadGalleryAlbum();
     } catch (err) {
       console.error(err);
-      alert('Upload failed: ' + (err.message || err));
+      showToast('Upload failed: ' + (err.message || err), 'error');
+    } finally {
+      uploadBtn.disabled = false;
+      uploadBtn.innerText = 'Upload Image';
     }
-  });
+  }
 
   async function loadGalleryAlbum() {
     const grid = document.getElementById('full-gallery-grid');
     if (!grid) return;
 
-    const { data: images, error } = await supabase.from('gallery_images').select('*').order('created_at', { ascending: false });
+    grid.innerHTML = `<p class="text-gray-400 text-xs py-8 col-span-full text-center">Loading gallery album...</p>`;
 
-    if (error || !images || images.length === 0) {
-      grid.innerHTML = `<p class="text-gray-400 text-xs col-span-full text-center py-8">No photos in the album yet.</p>`;
-      return;
-    }
+    try {
+      const { data: images, error } = await supabase.from('gallery_images').select('*').order('created_at', { ascending: false });
 
-    grid.innerHTML = images.map(img => `
-      <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-        <img src="${img.image_url}" class="w-full h-48 object-cover" alt="${img.title}">
-        <div class="p-3">
-          <h4 class="font-bold text-gray-900 text-xs">${img.title}</h4>
-          <span class="text-[10px] font-bold text-swiggy uppercase">${img.section_type}</span>
+      if (error || !images || images.length === 0) {
+        grid.innerHTML = `<p class="text-gray-400 text-xs col-span-full text-center py-8">No photos in the album yet.</p>`;
+        return;
+      }
+
+      grid.innerHTML = images.map(img => `
+        <div class="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
+          <img src="${img.image_url}" class="w-full h-48 object-cover" alt="${img.title}">
+          <div class="p-3">
+            <h4 class="font-bold text-gray-900 text-xs">${img.title}</h4>
+            <span class="text-[10px] font-bold text-swiggy uppercase">${img.section_type}</span>
+          </div>
         </div>
-      </div>
-    `).join('');
+      `).join('');
+    } catch (err) {
+      console.error('Gallery load failed', err);
+      grid.innerHTML = `<p class="text-gray-400 text-xs col-span-full text-center py-8">Failed to load gallery.</p>`;
+      showToast('Failed to load gallery', 'error');
+    }
   }
-</script>
+  </script>
 </body>
 </html>
