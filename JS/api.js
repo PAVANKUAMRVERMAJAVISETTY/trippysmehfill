@@ -1,10 +1,25 @@
+// JS/api.js
 import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
 
-// 1. Initialize Supabase Client Connection
-// Use optional chaining when reading import.meta.env so the module can run in plain browsers
-// (where import.meta.env may be undefined) and during static file serving.
-const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_URL) || 'https://iptjevfvuwrdbqzgrzxg.supabase.co';
-const supabaseKey = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) || 'sb_publishable_mcYrRu-GOqphMJjB2LlDuA_AABdVZ0p';
+/**
+ * Safe Supabase client bootstrap.
+ * - Requires VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY to be set in the environment.
+ * - Will throw early with a clear message if not present (prevents confusing 401 Invalid API Key errors).
+ * - NEVER use the secret/service_role key in client-side code.
+ */
+
+const supabaseUrl = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_URL) || null;
+const supabaseKey = (typeof import.meta !== 'undefined' && import.meta.env && import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY) || null;
+
+if (!supabaseUrl || !supabaseKey) {
+  const msg = 'Supabase configuration missing: set VITE_SUPABASE_URL and VITE_SUPABASE_PUBLISHABLE_KEY in your environment.';
+  console.error(msg, { supabaseUrlPresent: !!supabaseUrl, supabaseKeyPresent: !!supabaseKey });
+  if (typeof window !== 'undefined' && typeof window.alert === 'function') {
+    // Friendly site-visible message for quick debugging (remove in production if you prefer)
+    window.alert('Configuration error: Supabase settings are missing. Contact the site admin.');
+  }
+  throw new Error(msg);
+}
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
 
