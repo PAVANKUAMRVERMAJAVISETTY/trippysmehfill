@@ -113,12 +113,15 @@ a **redeploy** before the running app picks them up.
 1. **Authentication → Providers → Email**: enable Email, and enable
    "Email OTP" so a 6-digit code is sent rather than only a magic link.
 2. **Authentication → URL Configuration**: set Site URL to your Vercel domain.
-3. **Authentication → Rate Limits**: defaults are sensible; the UI surfaces the
-   retry window when a limit is hit.
-4. **`profiles` table**: must exist with RLS policies allowing a user to read and
-   insert their own row. See `supabase/schema.sql`.
-5. *(Optional)* **Authentication → Emails**: customise the OTP template. To keep
-   Resend as the sender, configure it as custom SMTP under Project Settings → Auth.
+3. **Authentication → Rate Limits**: configuring custom SMTP resets the email
+   limit to 30/hour — raise it to suit your signup volume.
+4. **Database**: run the migrations in `supabase/migrations/` in order. They
+   create every table the app queries, enable RLS and install the signup
+   trigger.
+5. **Project Settings → Authentication → SMTP Settings**: custom SMTP is
+   mandatory — without it Supabase only delivers to your organisation's members
+   and caps you at 2 emails/hour. See `supabase/README.md` for the Brevo
+   configuration.
 
 ## Local development
 

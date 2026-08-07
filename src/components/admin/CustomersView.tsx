@@ -102,7 +102,7 @@ $$;
 
 -- Privilege columns are not self-service: a customer calling PostgREST directly
 -- must not be able to set role = 'admin' on their own row.
-CREATE OR REPLACE FUNCTION public.enforce_profile_privileges()
+CREATE OR REPLACE FUNCTION public.protect_privileged_profile_columns()
 RETURNS TRIGGER
 LANGUAGE plpgsql
 SECURITY DEFINER
@@ -132,10 +132,10 @@ BEGIN
 END;
 $$;
 
-DROP TRIGGER IF EXISTS profiles_enforce_privileges ON public.profiles;
-CREATE TRIGGER profiles_enforce_privileges
+DROP TRIGGER IF EXISTS profiles_protect_privileged_columns ON public.profiles;
+CREATE TRIGGER profiles_protect_privileged_columns
   BEFORE INSERT OR UPDATE ON public.profiles
-  FOR EACH ROW EXECUTE FUNCTION public.enforce_profile_privileges();
+  FOR EACH ROW EXECUTE FUNCTION public.protect_privileged_profile_columns();
 
 DROP POLICY IF EXISTS "Public profiles read access" ON public.profiles;
 DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles;
