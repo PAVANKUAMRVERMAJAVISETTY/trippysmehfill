@@ -87,14 +87,55 @@ ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH T
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 
 CREATE OR REPLACE FUNCTION public.is_admin_or_staff()
-RETURNS BOOLEAN AS $$
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
 BEGIN
   RETURN EXISTS (
     SELECT 1 FROM public.profiles
     WHERE id = auth.uid() AND (role = 'admin' OR role = 'staff')
   );
 END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+$$;
+
+-- Privilege columns are not self-service: a customer calling PostgREST directly
+-- must not be able to set role = 'admin' on their own row.
+CREATE OR REPLACE FUNCTION public.enforce_profile_privileges()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF public.is_admin_or_staff() THEN
+    RETURN NEW;
+  END IF;
+
+  IF TG_OP = 'INSERT' THEN
+    NEW.role := CASE
+      WHEN LOWER(COALESCE(NEW.email, '')) IN ('nagapavankumarjavisetty@gmail.com', 'admin@gallery.app')
+        THEN 'admin'
+      ELSE 'customer'
+    END;
+    NEW.account_status := 'active';
+  ELSE
+    NEW.role := OLD.role;
+    NEW.account_status := OLD.account_status;
+    NEW.is_approved := OLD.is_approved;
+    NEW.is_active := OLD.is_active;
+    NEW.id := OLD.id;
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS profiles_enforce_privileges ON public.profiles;
+CREATE TRIGGER profiles_enforce_privileges
+  BEFORE INSERT OR UPDATE ON public.profiles
+  FOR EACH ROW EXECUTE FUNCTION public.enforce_profile_privileges();
 
 DROP POLICY IF EXISTS "Public profiles read access" ON public.profiles;
 DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles;
@@ -104,7 +145,7 @@ DROP POLICY IF EXISTS "Admins full control over profiles" ON public.profiles;
 
 CREATE POLICY "Users can read own profile" ON public.profiles FOR SELECT USING (auth.uid() = id);
 CREATE POLICY "Users insert own profile" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
-CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id);
+CREATE POLICY "Users can update own profile" ON public.profiles FOR UPDATE USING (auth.uid() = id) WITH CHECK (auth.uid() = id);
 CREATE POLICY "Admins full control over profiles" ON public.profiles FOR ALL USING (public.is_admin_or_staff());
 
 -- TRIGGER FUNCTION

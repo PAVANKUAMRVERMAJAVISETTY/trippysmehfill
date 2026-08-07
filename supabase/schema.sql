@@ -116,9 +116,11 @@ DROP POLICY IF EXISTS "Users access own profile" ON public.profiles;
 DROP POLICY IF EXISTS "Admins full control profiles" ON public.profiles;
 
 -- Allow users to manage their own profile (auth.uid() = id has zero subqueries, preventing recursion)
+-- Only `authenticated`: `anon` has no auth.uid(), so granting it here would only
+-- widen the surface without enabling anything.
 CREATE POLICY "Users access own profile" ON public.profiles
   FOR ALL
-  TO authenticated, anon
+  TO authenticated
   USING (auth.uid() = id)
   WITH CHECK (auth.uid() = id);
 
@@ -128,6 +130,49 @@ CREATE POLICY "Admins full control profiles" ON public.profiles
   TO authenticated
   USING (public.is_admin_or_staff())
   WITH CHECK (public.is_admin_or_staff());
+
+-- 6b. Privilege columns are not self-service.
+--
+-- The "Users access own profile" policy lets a user write their own row, and the
+-- anon key plus that row is enough to call PostgREST directly -- so without this
+-- guard any customer could set role = 'admin' on themselves. Values written by a
+-- non-admin caller are forced back to the previous (or default) value instead of
+-- raising, so ordinary profile writes that happen to include these columns keep
+-- working.
+CREATE OR REPLACE FUNCTION public.enforce_profile_privileges()
+RETURNS trigger
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  IF public.is_admin_or_staff() THEN
+    RETURN NEW;
+  END IF;
+
+  IF TG_OP = 'INSERT' THEN
+    NEW.role := CASE
+      WHEN lower(coalesce(NEW.email, '')) IN ('nagapavankumarjavisetty@gmail.com', 'admin@gallery.app')
+        THEN 'admin'
+      ELSE 'customer'
+    END;
+    NEW.account_status := 'active';
+  ELSE
+    NEW.role := OLD.role;
+    NEW.account_status := OLD.account_status;
+    NEW.is_approved := OLD.is_approved;
+    NEW.is_active := OLD.is_active;
+    NEW.id := OLD.id;
+  END IF;
+
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS profiles_enforce_privileges ON public.profiles;
+CREATE TRIGGER profiles_enforce_privileges
+  BEFORE INSERT OR UPDATE ON public.profiles
+  FOR EACH ROW EXECUTE FUNCTION public.enforce_profile_privileges();
 
 -- 7. Postgres Trigger Function for Automatic Signup Handling
 CREATE OR REPLACE FUNCTION public.handle_new_user_signup()
