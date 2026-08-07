@@ -137,14 +137,17 @@ function MainApp() {
 
     async function loadSupabaseData() {
       try {
-        const { data: menu } = await supabase.from('menu_items').select('*');
+        const { data: menu, error: menuError } = await supabase.from('menu_items').select('*');
+        if (menuError) console.error('[App] Failed to load menu items:', menuError.message);
         if (menu && menu.length > 0) setMenuItems(menu as MenuItem[]);
 
         if (user && (user.role === 'admin' || user.role === 'staff')) {
-          const { data: ords } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+          const { data: ords, error: ordsError } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+          if (ordsError) console.error('[App] Failed to load orders:', ordsError.message);
           if (ords && ords.length > 0) setOrders(ords as Order[]);
 
-          const { data: profs } = await supabase.from('profiles').select('*');
+          const { data: profs, error: profsError } = await supabase.from('profiles').select('*');
+          if (profsError) console.error('[App] Failed to load profiles:', profsError.message);
           if (profs && profs.length > 0) {
             const pending = profs.filter(p => !p.is_approved && p.role === 'customer');
             const team = profs.filter(p => p.role === 'admin' || p.role === 'staff' || p.role === 'driver');
@@ -497,10 +500,11 @@ function MainApp() {
                 customersList={customersList}
                 onAddCustomer={(c) => setCustomersList(prev => [...prev, c])}
                 onToggleActive={(id) => setCustomersList(prev => prev.map(c => c.id === id ? { ...c, is_active: !c.is_active } : c))}
-                onDeleteCustomer={(id) => {
+                onDeleteCustomer={async (id) => {
                   setCustomersList(prev => prev.filter(c => c.id !== id));
                   if (isSupabaseConfigured) {
-                    supabase.from('profiles').delete().eq('id', id);
+                    const { error } = await supabase.from('profiles').delete().eq('id', id);
+                    if (error) console.error('[App] Failed to delete customer profile:', error.message);
                   }
                 }}
               />

@@ -20,10 +20,12 @@ export const StaffDriversView: React.FC<StaffDriversViewProps> = ({
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<UserRole>('staff');
+  const [errorMsg, setErrorMsg] = useState('');
 
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!fullName) return;
+    setErrorMsg('');
 
     const newStaff: UserProfile = {
       id: 'staff-' + Date.now(),
@@ -36,10 +38,14 @@ export const StaffDriversView: React.FC<StaffDriversViewProps> = ({
     };
 
     if (isSupabaseConfigured) {
-      try {
-        await supabase.from('profiles').insert([newStaff]);
-      } catch (err) {
-        console.error('Failed to create staff in Supabase', err);
+      // supabase-js reports database failures via the returned `error`, not by
+      // throwing, so a bare try/catch would let a failed insert look like it
+      // succeeded. Check it and stop before updating the local list.
+      const { error } = await supabase.from('profiles').insert([newStaff]);
+      if (error) {
+        console.error('Failed to create staff in Supabase', error);
+        setErrorMsg(`Could not create account: ${error.message}`);
+        return;
       }
     }
 
@@ -105,6 +111,11 @@ export const StaffDriversView: React.FC<StaffDriversViewProps> = ({
             Create account
           </button>
         </form>
+        {errorMsg && (
+          <p className="text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
+            {errorMsg}
+          </p>
+        )}
       </div>
 
       {/* Admins List matching video frame 2:26 */}

@@ -22,6 +22,7 @@ export const CustomerFeedbackModal: React.FC<CustomerFeedbackModalProps> = ({
   const [deliveryRating, setDeliveryRating] = useState(5);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   if (!isOpen || !order) return null;
 
@@ -47,6 +48,7 @@ export const CustomerFeedbackModal: React.FC<CustomerFeedbackModalProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError('');
 
     const newFeedback: Feedback = {
       id: 'fb-' + Date.now(),
@@ -62,10 +64,15 @@ export const CustomerFeedbackModal: React.FC<CustomerFeedbackModalProps> = ({
     };
 
     if (isSupabaseConfigured) {
-      try {
-        await supabase.from('feedback').insert([newFeedback]);
-      } catch (err) {
-        console.error('Failed to save feedback to Supabase', err);
+      // Supabase returns errors in the result object rather than throwing, so a
+      // try/catch alone would let a failed insert pass as success. Inspect the
+      // returned error and surface it instead of silently confirming.
+      const { error } = await supabase.from('feedback').insert([newFeedback]);
+      if (error) {
+        console.error('Failed to save feedback to Supabase', error);
+        setSubmitError(`Could not submit feedback: ${error.message}`);
+        setIsSubmitting(false);
+        return;
       }
     }
 
@@ -118,6 +125,12 @@ export const CustomerFeedbackModal: React.FC<CustomerFeedbackModalProps> = ({
               className="w-full p-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-[#C5A059]"
             />
           </div>
+
+          {submitError && (
+            <p className="text-xs text-rose-400 bg-rose-500/10 border border-rose-500/30 rounded-lg px-3 py-2">
+              {submitError}
+            </p>
+          )}
 
           <button
             type="submit"
