@@ -67,11 +67,18 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const authUser = activeSession.user;
     const isAdminEmail = authUser.email?.toLowerCase() === 'nagapavankumarjavisetty@gmail.com' || authUser.email?.toLowerCase() === 'admin@gallery.app';
 
-    const { data: profile } = await supabase
+    const { data: profile, error: fetchError } = await supabase
       .from('profiles')
       .select('*')
       .eq('id', authUser.id)
       .maybeSingle();
+
+    // A read failure here is distinct from "no profile yet": surfacing it
+    // prevents falling through and creating a duplicate profile row when the
+    // existing one simply could not be fetched.
+    if (fetchError) {
+      throw new Error(`Failed to load profile: ${fetchError.message}`);
+    }
 
     if (profile) {
       if ((profile as UserProfile).account_status === 'blocked_fraud') {
@@ -79,7 +86,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return null;
       }
       if (isAdminEmail && profile.role !== 'admin') {
-        await supabase.from('profiles').update({ role: 'admin' }).eq('id', authUser.id);
+        const { error: promoteError } = await supabase.from('profiles').update({ role: 'admin' }).eq('id', authUser.id);
+        if (promoteError) console.error('[Auth] Failed to promote admin role:', promoteError.message);
         profile.role = 'admin';
       }
       return profile as UserProfile;
@@ -101,11 +109,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       created_at: new Date().toISOString()
     };
 
-    const { data: inserted } = await supabase
+    const { data: inserted, error: insertError } = await supabase
       .from('profiles')
       .upsert([newProfile], { onConflict: 'id' })
       .select()
       .maybeSingle();
+
+    if (insertError) {
+      throw new Error(`Failed to create profile: ${insertError.message}`);
+    }
 
     return (inserted as UserProfile) || newProfile;
   }, []);

@@ -25,6 +25,7 @@ export const CustomersView: React.FC<CustomersViewProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'whatsapp_pending' | 'blocked_fraud'>('all');
   const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
   const [customerToDelete, setCustomerToDelete] = useState<UserProfile | null>(null);
   const [showSqlModal, setShowSqlModal] = useState(false);
   const [isCopied, setIsCopied] = useState(false);
@@ -171,10 +172,16 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
     }
 
     if (isSupabaseConfigured) {
-      await supabase.from('profiles').update({
+      const { error } = await supabase.from('profiles').update({
         is_whatsapp_verified: newStatus,
         account_status: cust.account_status
       }).eq('id', cust.id);
+      if (error) {
+        console.error('Failed to update WhatsApp verification in Supabase:', error.message);
+        setErrorMsg(`Could not update WhatsApp status for ${cust.full_name}: ${error.message}`);
+        setTimeout(() => setErrorMsg(''), 4000);
+        return;
+      }
     }
     setSuccessMsg(`WhatsApp verification status updated for ${cust.full_name}!`);
     setTimeout(() => setSuccessMsg(''), 3000);
@@ -189,10 +196,16 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
     cust.is_active = newIsActive;
 
     if (isSupabaseConfigured) {
-      await supabase.from('profiles').update({
+      const { error } = await supabase.from('profiles').update({
         account_status: newStatus,
         is_active: newIsActive
       }).eq('id', cust.id);
+      if (error) {
+        console.error('Failed to update fraud/block status in Supabase:', error.message);
+        setErrorMsg(`Could not update status for ${cust.full_name}: ${error.message}`);
+        setTimeout(() => setErrorMsg(''), 4000);
+        return;
+      }
     }
 
     setSuccessMsg(isCurrentlyBlocked ? `Unblocked ${cust.full_name}.` : `Flagged & Suspended ${cust.full_name} for suspicious fraud.`);
@@ -222,10 +235,15 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
     };
 
     if (isSupabaseConfigured) {
-      try {
-        await supabase.from('profiles').insert([newCust]);
-      } catch (err) {
-        console.error('Failed to save customer to Supabase:', err);
+      // supabase-js surfaces DB failures via `error`, not exceptions, so the
+      // previous try/catch never fired and a failed insert still reported
+      // success. Check `error` and stop before confirming to the admin.
+      const { error } = await supabase.from('profiles').insert([newCust]);
+      if (error) {
+        console.error('Failed to save customer to Supabase:', error.message);
+        setErrorMsg(`Could not create customer account: ${error.message}`);
+        setTimeout(() => setErrorMsg(''), 4000);
+        return;
       }
     }
 
@@ -299,6 +317,13 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
         <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs rounded-2xl flex items-center justify-between">
           <span>{successMsg}</span>
           <button onClick={() => setSuccessMsg('')} className="text-emerald-400 hover:text-white">✕</button>
+        </div>
+      )}
+
+      {errorMsg && (
+        <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs rounded-2xl flex items-center justify-between">
+          <span>{errorMsg}</span>
+          <button onClick={() => setErrorMsg('')} className="text-rose-400 hover:text-white">✕</button>
         </div>
       )}
 

@@ -13,6 +13,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
   const { settings, updateSettings } = useCart();
   const [formData, setFormData] = useState<KitchenSettings>({ ...settings });
   const [isSaved, setIsSaved] = useState(false);
+  const [saveError, setSaveError] = useState('');
 
   // New banner states
   const [bannerTitle, setBannerTitle] = useState('');
@@ -21,13 +22,17 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
 
   const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSaveError('');
     updateSettings(formData);
 
     if (isSupabaseConfigured) {
-      try {
-        await supabase.from('kitchen_settings').upsert([formData]);
-      } catch (err) {
-        console.error('Failed to update kitchen settings in Supabase', err);
+      // Database failures come back in `error` rather than as thrown
+      // exceptions, so check it before showing the "saved" confirmation.
+      const { error } = await supabase.from('kitchen_settings').upsert([formData]);
+      if (error) {
+        console.error('Failed to update kitchen settings in Supabase', error);
+        setSaveError(`Could not save settings: ${error.message}`);
+        return;
       }
     }
 
@@ -203,6 +208,12 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
           {isSaved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
           <span>{isSaved ? 'Settings saved!' : 'Save settings'}</span>
         </button>
+
+        {saveError && (
+          <p className="text-xs text-rose-600 bg-rose-50 border border-rose-200 rounded-lg px-3 py-2">
+            {saveError}
+          </p>
+        )}
 
       </form>
 
