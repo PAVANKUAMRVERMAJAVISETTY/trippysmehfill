@@ -1,5 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Order, Feedback } from '../../types';
+import { formatCurrency, formatLongDate } from '../../lib/format';
+import { orderStatusBadgeClass } from '../../lib/orderStatus';
+import { averageFeedbackRating } from '../../lib/feedbackStats';
 import {
   ResponsiveContainer,
   BarChart,
@@ -86,15 +89,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ orders, feedback }
   const estimatedExpenses = Math.round(totalRevenue * 0.38);
   const estimatedProfit = Math.max(0, totalRevenue - estimatedExpenses);
 
-  const avgRating =
-    feedback.length > 0
-      ? (
-          feedback.reduce(
-            (sum, f) => sum + (f.food_rating + f.taste_rating + f.packing_rating + f.delivery_rating) / 4,
-            0
-          ) / feedback.length
-        ).toFixed(1)
-      : '4.9';
+  const avgRating = averageFeedbackRating(feedback, '4.9');
 
   // Compute Daily Aggregations for the Chart
   const chartData = useMemo(() => {
@@ -199,7 +194,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ orders, feedback }
         </div>
         <div className="flex items-center gap-2 bg-[#181818] border border-white/10 px-3.5 py-2 rounded-xl text-xs font-mono text-[#C5A059] shadow-md">
           <Calendar className="w-4 h-4 text-[#C5A059]" />
-          <span>{new Date().toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' })}</span>
+          <span>{formatLongDate()}</span>
         </div>
       </div>
 
@@ -267,7 +262,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ orders, feedback }
             <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Today's Revenue</p>
             <DollarSign className="w-4 h-4 text-[#C5A059]" />
           </div>
-          <p className="text-2xl font-black text-white mt-1">₹{todayStats.revenue}</p>
+          <p className="text-2xl font-black text-white mt-1">{formatCurrency(todayStats.revenue)}</p>
           <p className="text-[10px] text-emerald-400 font-bold mt-1">
             +18.4% vs yesterday ({todayStats.totalOrders} orders)
           </p>
@@ -278,7 +273,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ orders, feedback }
             <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Today's Net Profit</p>
             <TrendingUp className="w-4 h-4 text-emerald-400" />
           </div>
-          <p className="text-2xl font-black text-emerald-400 mt-1">₹{todayProfit}</p>
+          <p className="text-2xl font-black text-emerald-400 mt-1">{formatCurrency(todayProfit)}</p>
           <p className="text-[10px] text-gray-400 font-mono mt-1">62% profit margin after raw costs</p>
         </div>
 
@@ -287,7 +282,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ orders, feedback }
             <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Weekly Revenue</p>
             <BarChart3 className="w-4 h-4 text-[#C5A059]" />
           </div>
-          <p className="text-2xl font-black text-[#C5A059] mt-1">₹{totalRevenue}</p>
+          <p className="text-2xl font-black text-[#C5A059] mt-1">{formatCurrency(totalRevenue)}</p>
           <p className="text-[10px] text-gray-400 font-mono mt-1">Total {totalOrders} orders completed</p>
         </div>
 
@@ -296,7 +291,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ orders, feedback }
             <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Monthly Revenue</p>
             <Award className="w-4 h-4 text-purple-400" />
           </div>
-          <p className="text-2xl font-black text-white mt-1">₹{(totalRevenue * 3.4).toFixed(0)}</p>
+          <p className="text-2xl font-black text-white mt-1">{formatCurrency((totalRevenue * 3.4).toFixed(0))}</p>
           <p className="text-[10px] text-purple-400 font-bold mt-1">Target 94% achieved</p>
         </div>
       </div>
@@ -437,7 +432,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ orders, feedback }
                   tick={{ fill: '#9ca3af', fontSize: 11, fontWeight: 600 }}
                   axisLine={{ stroke: '#333333' }}
                   tickLine={false}
-                  tickFormatter={(val) => `₹${val}`}
+                  tickFormatter={(val) => formatCurrency(val)}
                 />
                 <Tooltip
                   contentStyle={{
@@ -448,7 +443,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ orders, feedback }
                     fontSize: '12px',
                     boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.5)'
                   }}
-                  formatter={(value: any) => [`₹${value}`, 'Revenue']}
+                  formatter={(value: any) => [formatCurrency(value), 'Revenue']}
                   labelStyle={{ color: '#10b981', fontWeight: 'bold', marginBottom: '4px' }}
                 />
                 <Area
@@ -482,15 +477,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ orders, feedback }
                   <span className="text-gray-300 font-semibold">{order.customer_name}</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <span className="font-bold text-white">₹{order.total_amount}</span>
+                  <span className="font-bold text-white">{formatCurrency(order.total_amount)}</span>
                   <span
-                    className={`px-2 py-0.5 rounded-full font-bold uppercase text-[10px] ${
-                      order.status === 'delivered'
-                        ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                        : order.status === 'cancelled'
-                        ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30'
-                        : 'bg-[#C5A059]/20 text-[#C5A059] border border-[#C5A059]/30'
-                    }`}
+                    className={`px-2 py-0.5 rounded-full font-bold uppercase text-[10px] border ${orderStatusBadgeClass(order.status, 'dark')}`}
                   >
                     {order.status}
                   </span>

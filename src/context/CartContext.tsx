@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
 import { CartItem, MenuItem, KitchenSettings } from '../types';
 import { initialKitchenSettings } from '../lib/initialData';
+import { usePersistentState } from '../lib/usePersistentState';
 
 interface CartContextType {
   cart: CartItem[];
@@ -20,29 +21,8 @@ interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('trippys_cart');
-    if (saved) {
-      try { return JSON.parse(saved); } catch { return []; }
-    }
-    return [];
-  });
-
-  const [settings, setSettings] = useState<KitchenSettings>(() => {
-    const saved = localStorage.getItem('trippys_settings');
-    if (saved) {
-      try { return JSON.parse(saved); } catch { return initialKitchenSettings; }
-    }
-    return initialKitchenSettings;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('trippys_cart', JSON.stringify(cart));
-  }, [cart]);
-
-  useEffect(() => {
-    localStorage.setItem('trippys_settings', JSON.stringify(settings));
-  }, [settings]);
+  const [cart, setCart] = usePersistentState<CartItem[]>('trippys_cart', []);
+  const [settings, setSettings] = usePersistentState<KitchenSettings>('trippys_settings', initialKitchenSettings);
 
   const addToCart = (menuItem: MenuItem) => {
     setCart(prev => {

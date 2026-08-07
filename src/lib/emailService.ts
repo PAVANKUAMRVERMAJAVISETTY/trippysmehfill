@@ -12,6 +12,64 @@ export interface VerifyOtpResult {
   message: string;
 }
 
+type FailureResult = { success: false; message: string };
+
+const failure = (message: string): FailureResult => ({ success: false, message });
+
+/**
+ * Normalises the address and applies the two gates every email flow shares:
+ * the address must be valid and Supabase must be configured. Returns the clean
+ * address, or the failure to hand straight back to the caller.
+ */
+function prepareEmail(email: string): { email: string } | FailureResult {
+  const cleanEmail = email.trim().toLowerCase();
+
+  const emailCheck = validateEmail(cleanEmail);
+  if (!emailCheck.valid) return failure(emailCheck.message);
+
+  if (!isSupabaseConfigured) return failure(NOT_CONFIGURED_MESSAGE);
+
+  return { email: cleanEmail };
+}
+
+/** Same gates for the verify flows, which also need a plausible OTP token. */
+function prepareOtp(email: string, enteredOtp: string): { email: string; token: string } | FailureResult {
+  const token = enteredOtp.trim();
+
+  if (!token) {
+    return failure('Please enter the verification code sent to your email.');
+  }
+  if (!/^\d{6,8}$/.test(token)) {
+    return failure('Enter the verification code from your email.');
+  }
+
+  if (!isSupabaseConfigured) return failure(NOT_CONFIGURED_MESSAGE);
+
+  return { email: email.trim().toLowerCase(), token };
+}
+
+function isFailure<T extends object>(result: T | FailureResult): result is FailureResult {
+  return 'success' in result && result.success === false;
+}
+
+/**
+ * Runs a Supabase call and maps every thrown or returned error through the
+ * shared friendly-message translation.
+ */
+async function runAuthCall(
+  operation: () => Promise<{ error: unknown } | void>,
+  successMessage: string
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const result = await operation();
+    const error = result && 'error' in result ? result.error : null;
+    if (error) return failure(toFriendlyAuthError(error).message);
+    return { success: true, message: successMessage };
+  } catch (err) {
+    return failure(toFriendlyAuthError(err).message);
+  }
+}
+
 /**
  * Sends a 6-digit email verification code using Supabase Auth.
  *
@@ -24,39 +82,23 @@ export async function sendEmailVerificationOTP(
   email: string,
   fullName: string
 ): Promise<SendOtpResult> {
-  const cleanEmail = email.trim().toLowerCase();
+  const prepared = prepareEmail(email);
+  if (isFailure(prepared)) return prepared;
+  const cleanEmail = prepared.email;
 
-  const emailCheck = validateEmail(cleanEmail);
-  if (!emailCheck.valid) {
-    return { success: false, message: emailCheck.message };
-  }
-
-  if (!isSupabaseConfigured) {
-    return { success: false, message: NOT_CONFIGURED_MESSAGE };
-  }
-
-  try {
-    const { error } = await supabase.auth.signInWithOtp({
-      email: cleanEmail,
-      options: {
-        // Create the auth user on first verification; profile rows are written
-        // once the code is confirmed.
-        shouldCreateUser: true,
-        data: fullName ? { full_name: fullName.trim() } : undefined
-      }
-    });
-
-    if (error) {
-      return { success: false, message: toFriendlyAuthError(error).message };
-    }
-
-    return {
-      success: true,
-      message: `Verification code sent to ${cleanEmail}. Check your inbox (and spam folder).`
-    };
-  } catch (err) {
-    return { success: false, message: toFriendlyAuthError(err).message };
-  }
+  return runAuthCall(
+    () =>
+      supabase.auth.signInWithOtp({
+        email: cleanEmail,
+        options: {
+          // Create the auth user on first verification; profile rows are written
+          // once the code is confirmed.
+          shouldCreateUser: true,
+          data: fullName ? { full_name: fullName.trim() } : undefined
+        }
+      }),
+    `Verification code sent to ${cleanEmail}. Check your inbox (and spam folder).`
+  );
 }
 
 /**
@@ -66,34 +108,18 @@ export async function sendEmailVerificationOTP(
  * silently registered.
  */
 export async function sendSignInOTP(email: string): Promise<SendOtpResult> {
-  const cleanEmail = email.trim().toLowerCase();
+  const prepared = prepareEmail(email);
+  if (isFailure(prepared)) return prepared;
+  const cleanEmail = prepared.email;
 
-  const emailCheck = validateEmail(cleanEmail);
-  if (!emailCheck.valid) {
-    return { success: false, message: emailCheck.message };
-  }
-
-  if (!isSupabaseConfigured) {
-    return { success: false, message: NOT_CONFIGURED_MESSAGE };
-  }
-
-  try {
-    const { error } = await supabase.auth.signInWithOtp({
-      email: cleanEmail,
-      options: { shouldCreateUser: false }
-    });
-
-    if (error) {
-      return { success: false, message: toFriendlyAuthError(error).message };
-    }
-
-    return {
-      success: true,
-      message: `Sign-in code sent to ${cleanEmail}. Check your inbox.`
-    };
-  } catch (err) {
-    return { success: false, message: toFriendlyAuthError(err).message };
-  }
+  return runAuthCall(
+    () =>
+      supabase.auth.signInWithOtp({
+        email: cleanEmail,
+        options: { shouldCreateUser: false }
+      }),
+    `Sign-in code sent to ${cleanEmail}. Check your inbox.`
+  );
 }
 
 /**
@@ -104,52 +130,27 @@ export async function verifyEmailOTPCode(
   email: string,
   enteredOtp: string
 ): Promise<VerifyOtpResult> {
-  const cleanEmail = email.trim().toLowerCase();
-  const token = enteredOtp.trim();
+  const prepared = prepareOtp(email, enteredOtp);
+  if (isFailure(prepared)) return prepared;
 
-  if (!token) {
-    return { success: false, message: 'Please enter the verification code sent to your email.' };
-  }
-
-  if (!/^\d{6,8}$/.test(token)) {
-    return { success: false, message: 'Enter the verification code from your email.' };
-  }
-
-  if (!isSupabaseConfigured) {
-    return { success: false, message: NOT_CONFIGURED_MESSAGE };
-  }
-
-  try {
-    const { error } = await supabase.auth.verifyOtp({
-      email: cleanEmail,
-      token,
-      type: 'email'
-    });
-
-    if (error) {
-      return { success: false, message: toFriendlyAuthError(error).message };
-    }
-
-    return { success: true, message: 'Email address verified successfully!' };
-  } catch (err) {
-    return { success: false, message: toFriendlyAuthError(err).message };
-  }
+  return runAuthCall(
+    () =>
+      supabase.auth.verifyOtp({
+        email: prepared.email,
+        token: prepared.token,
+        type: 'email'
+      }),
+    'Email address verified successfully!'
+  );
 }
 
 /**
  * Sends a password reset OTP code to the user's registered email.
  */
 export async function sendPasswordResetOTP(email: string): Promise<SendOtpResult> {
-  const cleanEmail = email.trim().toLowerCase();
-
-  const emailCheck = validateEmail(cleanEmail);
-  if (!emailCheck.valid) {
-    return { success: false, message: emailCheck.message };
-  }
-
-  if (!isSupabaseConfigured) {
-    return { success: false, message: NOT_CONFIGURED_MESSAGE };
-  }
+  const prepared = prepareEmail(email);
+  if (isFailure(prepared)) return prepared;
+  const cleanEmail = prepared.email;
 
   try {
     // Check if profile exists first to prevent 500 auth errors on non-existent accounts
@@ -189,23 +190,12 @@ export async function resetPasswordWithOTP(
   enteredOtp: string,
   newPassword: string
 ): Promise<VerifyOtpResult> {
-  const cleanEmail = email.trim().toLowerCase();
-  const token = enteredOtp.trim();
-
-  if (!token) {
-    return { success: false, message: 'Please enter the verification code sent to your email.' };
-  }
-
-  if (!/^\d{6,8}$/.test(token)) {
-    return { success: false, message: 'Enter the verification code from your email.' };
-  }
+  const prepared = prepareOtp(email, enteredOtp);
+  if (isFailure(prepared)) return prepared;
+  const { email: cleanEmail, token } = prepared;
 
   if (!newPassword || newPassword.length < 6) {
-    return { success: false, message: 'Password must be at least 6 characters long.' };
-  }
-
-  if (!isSupabaseConfigured) {
-    return { success: false, message: NOT_CONFIGURED_MESSAGE };
+    return failure('Password must be at least 6 characters long.');
   }
 
   try {

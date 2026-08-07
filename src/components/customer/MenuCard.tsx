@@ -3,6 +3,7 @@ import { MenuItem } from '../../types';
 import { useCart } from '../../context/CartContext';
 import { Plus, Minus, Check } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { formatCurrency } from '../../lib/format';
 
 interface MenuCardProps {
   item: MenuItem;
@@ -63,7 +64,7 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, onRequireAuth }) => {
         ) : (
           <div className="flex items-center justify-between">
             <div>
-              <span className="text-lg font-black text-white">₹{item.price}</span>
+              <span className="text-lg font-black text-white">{formatCurrency(item.price)}</span>
             </div>
 
             {!item.is_available ? (

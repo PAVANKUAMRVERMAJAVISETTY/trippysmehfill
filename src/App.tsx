@@ -53,6 +53,7 @@ import {
 } from './lib/initialData';
 import { FoodCategory, MenuItem, Order, OrderStatus, UserProfile, InventoryItem, Feedback, PromotionalBanner, GalleryItem } from './types';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
+import { usePersistentState } from './lib/usePersistentState';
 
 function MainApp() {
   const { user } = useAuth();
@@ -66,51 +67,16 @@ function MainApp() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedLocation, setSelectedLocation] = useState('Goenka University Campus - Gate 5');
 
-  // App Data States
-  const [menuItems, setMenuItems] = useState<MenuItem[]>(() => {
-    const saved = localStorage.getItem('trippys_menu');
-    return saved ? JSON.parse(saved) : initialMenuItems;
-  });
-
-  const [orders, setOrders] = useState<Order[]>(() => {
-    const saved = localStorage.getItem('trippys_orders');
-    return saved ? JSON.parse(saved) : initialOrders;
-  });
-
-  const [pendingUsers, setPendingUsers] = useState<UserProfile[]>(() => {
-    const saved = localStorage.getItem('trippys_pending');
-    return saved ? JSON.parse(saved) : initialPendingRegistrations;
-  });
-
-  const [staffList, setStaffList] = useState<UserProfile[]>(() => {
-    const saved = localStorage.getItem('trippys_staff');
-    return saved ? JSON.parse(saved) : initialStaffAndDrivers;
-  });
-
-  const [customersList, setCustomersList] = useState<UserProfile[]>(() => {
-    const saved = localStorage.getItem('trippys_customers');
-    return saved ? JSON.parse(saved) : initialCustomers;
-  });
-
-  const [galleryItems, setGalleryItems] = useState<GalleryItem[]>(() => {
-    const saved = localStorage.getItem('trippys_gallery');
-    return saved ? JSON.parse(saved) : initialGalleryItems;
-  });
-
-  const [inventory, setInventory] = useState<InventoryItem[]>(() => {
-    const saved = localStorage.getItem('trippys_inventory');
-    return saved ? JSON.parse(saved) : initialInventory;
-  });
-
-  const [feedback, setFeedback] = useState<Feedback[]>(() => {
-    const saved = localStorage.getItem('trippys_feedback');
-    return saved ? JSON.parse(saved) : initialFeedback;
-  });
-
-  const [banners, setBanners] = useState<PromotionalBanner[]>(() => {
-    const saved = localStorage.getItem('trippys_banners');
-    return saved ? JSON.parse(saved) : initialBanners;
-  });
+  // App Data States (hydrated from and mirrored to localStorage)
+  const [menuItems, setMenuItems] = usePersistentState<MenuItem[]>('trippys_menu', initialMenuItems);
+  const [orders, setOrders] = usePersistentState<Order[]>('trippys_orders', initialOrders);
+  const [pendingUsers, setPendingUsers] = usePersistentState<UserProfile[]>('trippys_pending', initialPendingRegistrations);
+  const [staffList, setStaffList] = usePersistentState<UserProfile[]>('trippys_staff', initialStaffAndDrivers);
+  const [customersList, setCustomersList] = usePersistentState<UserProfile[]>('trippys_customers', initialCustomers);
+  const [galleryItems, setGalleryItems] = usePersistentState<GalleryItem[]>('trippys_gallery', initialGalleryItems);
+  const [inventory, setInventory] = usePersistentState<InventoryItem[]>('trippys_inventory', initialInventory);
+  const [feedback, setFeedback] = usePersistentState<Feedback[]>('trippys_feedback', initialFeedback);
+  const [banners, setBanners] = usePersistentState<PromotionalBanner[]>('trippys_banners', initialBanners);
 
   // Modals
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -119,17 +85,6 @@ function MainApp() {
   const [authModalTab, setAuthModalTab] = useState<'signin' | 'register'>('signin');
   const [activeTrackingOrder, setActiveTrackingOrder] = useState<Order | null>(null);
   const [feedbackOrder, setFeedbackOrder] = useState<Order | null>(null);
-
-  // Sync to localStorage
-  useEffect(() => { localStorage.setItem('trippys_menu', JSON.stringify(menuItems)); }, [menuItems]);
-  useEffect(() => { localStorage.setItem('trippys_orders', JSON.stringify(orders)); }, [orders]);
-  useEffect(() => { localStorage.setItem('trippys_pending', JSON.stringify(pendingUsers)); }, [pendingUsers]);
-  useEffect(() => { localStorage.setItem('trippys_staff', JSON.stringify(staffList)); }, [staffList]);
-  useEffect(() => { localStorage.setItem('trippys_customers', JSON.stringify(customersList)); }, [customersList]);
-  useEffect(() => { localStorage.setItem('trippys_gallery', JSON.stringify(galleryItems)); }, [galleryItems]);
-  useEffect(() => { localStorage.setItem('trippys_inventory', JSON.stringify(inventory)); }, [inventory]);
-  useEffect(() => { localStorage.setItem('trippys_feedback', JSON.stringify(feedback)); }, [feedback]);
-  useEffect(() => { localStorage.setItem('trippys_banners', JSON.stringify(banners)); }, [banners]);
 
   // Load live data from Supabase if connected
   useEffect(() => {

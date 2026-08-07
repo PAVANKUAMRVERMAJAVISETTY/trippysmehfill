@@ -3,6 +3,8 @@ import { Order, OrderStatus, UserProfile } from '../../types';
 import { Bike, Phone, MapPin, CheckCircle2, Clock, XCircle, ChevronDown } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { formatDistanceText, getRouteDirectionsUrl } from '../../lib/geoUtils';
+import { formatCurrency } from '../../lib/format';
+import { formatOrderStatus, orderStatusBadgeClass } from '../../lib/orderStatus';
 
 interface LiveOrdersViewProps {
   orders: Order[];
@@ -43,13 +45,8 @@ export const LiveOrdersView: React.FC<LiveOrdersViewProps> = ({
                   <span className="text-lg font-black text-orange-600">{order.order_number}</span>
                   <span className="text-xs text-gray-400 ml-2 font-mono">{order.created_at}</span>
                 </div>
-                <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${
-                  order.status === 'delivered' ? 'bg-emerald-100 text-emerald-800' :
-                  order.status === 'out_for_delivery' ? 'bg-blue-100 text-blue-800' :
-                  order.status === 'cooking' ? 'bg-amber-100 text-amber-800' :
-                  order.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-orange-100 text-orange-800'
-                }`}>
-                  {order.status.replace('_', ' ')}
+                <span className={`px-3 py-1 rounded-full text-xs font-black uppercase tracking-wider ${orderStatusBadgeClass(order.status)}`}>
+                  {formatOrderStatus(order.status)}
                 </span>
               </div>
 
@@ -136,14 +133,14 @@ export const LiveOrdersView: React.FC<LiveOrdersViewProps> = ({
                 {order.items.map((it, idx) => (
                   <div key={idx} className="flex justify-between text-gray-800 font-medium">
                     <span>{it.dish_name} <strong className="text-orange-600">x{it.quantity}</strong></span>
-                    <span className="font-bold">₹{it.price * it.quantity}</span>
+                    <span className="font-bold">{formatCurrency(it.price * it.quantity)}</span>
                   </div>
                 ))}
                 <div className="flex justify-between items-center pt-2 border-t border-gray-200 font-extrabold text-sm text-gray-900">
                   <span className="bg-amber-200 text-amber-900 px-2 py-0.5 rounded text-[10px] font-mono uppercase">
                     {order.payment_method}
                   </span>
-                  <span className="text-orange-600">₹{order.total_amount}</span>
+                  <span className="text-orange-600">{formatCurrency(order.total_amount)}</span>
                 </div>
               </div>
 
