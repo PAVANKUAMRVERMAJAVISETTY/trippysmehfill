@@ -1,6 +1,7 @@
 import React from 'react';
 import { Order, OrderStatus } from '../../types';
 import { X, CheckCircle2, Clock, CookingPot, Bike, MapPin, Phone } from 'lucide-react';
+import { formatCurrency } from '../../lib/format';
 
 interface OrderTrackerModalProps {
   order: Order | null;
@@ -134,12 +135,12 @@ export const OrderTrackerModal: React.FC<OrderTrackerModalProps> = ({
               {order.items.map((item, idx) => (
                 <div key={idx} className="flex justify-between text-gray-300 font-medium py-1 border-b border-white/5">
                   <span>{item.dish_name} <strong className="text-[#C5A059]">x{item.quantity}</strong></span>
-                  <span className="font-bold text-white">₹{item.price * item.quantity}</span>
+                  <span className="font-bold text-white">{formatCurrency(item.price * item.quantity)}</span>
                 </div>
               ))}
               <div className="flex justify-between font-extrabold text-sm text-white pt-2 border-t border-white/10">
                 <span>Total Amount ({order.payment_method})</span>
-                <span className="text-[#C5A059]">₹{order.total_amount}</span>
+                <span className="text-[#C5A059]">{formatCurrency(order.total_amount)}</span>
               </div>
             </div>
           </div>

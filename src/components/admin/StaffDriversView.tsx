@@ -107,48 +107,34 @@ export const StaffDriversView: React.FC<StaffDriversViewProps> = ({
         </form>
       </div>
 
-      {/* Admins List matching video frame 2:26 */}
-      <div className="space-y-3">
-        <h2 className="text-sm font-extrabold uppercase text-gray-500 tracking-wider flex items-center gap-2">
-          <Shield className="w-4 h-4 text-orange-600" />
-          <span>Admins ({admins.length})</span>
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {admins.map((u) => (
-            <UserCard key={u.id} user={u} onToggleActive={onToggleActive} onDeleteStaff={onDeleteStaff} />
-          ))}
-        </div>
-      </div>
-
-      {/* Staffs List matching video frame 2:26 */}
-      <div className="space-y-3">
-        <h2 className="text-sm font-extrabold uppercase text-gray-500 tracking-wider flex items-center gap-2">
-          <ChefHat className="w-4 h-4 text-amber-600" />
-          <span>Staffs ({kitchenStaff.length})</span>
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {kitchenStaff.map((u) => (
-            <UserCard key={u.id} user={u} onToggleActive={onToggleActive} onDeleteStaff={onDeleteStaff} />
-          ))}
-        </div>
-      </div>
-
-      {/* Delivery Partners List matching video frame 2:28 */}
-      <div className="space-y-3">
-        <h2 className="text-sm font-extrabold uppercase text-gray-500 tracking-wider flex items-center gap-2">
-          <Bike className="w-4 h-4 text-blue-600" />
-          <span>Delivery Partners ({drivers.length})</span>
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {drivers.map((u) => (
-            <UserCard key={u.id} user={u} onToggleActive={onToggleActive} onDeleteStaff={onDeleteStaff} />
-          ))}
-        </div>
-      </div>
+      {/* Role sections matching video frames 2:26 - 2:28 */}
+      <UserGroupSection title="Admins" icon={<Shield className="w-4 h-4 text-orange-600" />} users={admins} onToggleActive={onToggleActive} onDeleteStaff={onDeleteStaff} />
+      <UserGroupSection title="Staffs" icon={<ChefHat className="w-4 h-4 text-amber-600" />} users={kitchenStaff} onToggleActive={onToggleActive} onDeleteStaff={onDeleteStaff} />
+      <UserGroupSection title="Delivery Partners" icon={<Bike className="w-4 h-4 text-blue-600" />} users={drivers} onToggleActive={onToggleActive} onDeleteStaff={onDeleteStaff} />
 
     </div>
   );
 };
+
+const UserGroupSection: React.FC<{
+  title: string;
+  icon: React.ReactNode;
+  users: UserProfile[];
+  onToggleActive: (id: string) => void;
+  onDeleteStaff: (id: string) => void;
+}> = ({ title, icon, users, onToggleActive, onDeleteStaff }) => (
+  <div className="space-y-3">
+    <h2 className="text-sm font-extrabold uppercase text-gray-500 tracking-wider flex items-center gap-2">
+      {icon}
+      <span>{title} ({users.length})</span>
+    </h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      {users.map((u) => (
+        <UserCard key={u.id} user={u} onToggleActive={onToggleActive} onDeleteStaff={onDeleteStaff} />
+      ))}
+    </div>
+  </div>
+);
 
 const UserCard: React.FC<{
   user: UserProfile;

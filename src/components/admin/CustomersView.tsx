@@ -3,6 +3,7 @@ import { UserProfile } from '../../types';
 import { UserCheck, Search, Plus, Mail, Phone, MapPin, Key, Trash2, CheckCircle, XCircle, ShieldAlert, User, Calendar, Database, Copy, Check, MessageSquare, Lock, ShieldCheck } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { formatDistanceText, getRouteDirectionsUrl } from '../../lib/geoUtils';
+import { currentTimestamp } from '../../lib/format';
 
 interface CustomersViewProps {
   customersList: UserProfile[];
@@ -218,7 +219,7 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
       ip_address: '103.211.14.82',
       latitude: 17.3850,
       longitude: 78.4867,
-      created_at: new Date().toLocaleString()
+      created_at: currentTimestamp()
     };
 
     if (isSupabaseConfigured) {

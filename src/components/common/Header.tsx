@@ -6,6 +6,8 @@ import { AuthModal } from './AuthModal';
 import { SupportModal } from './SupportModal';
 import { UserRole } from '../../types';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
+import { formatClockTime, formatCurrency } from '../../lib/format';
+import { orderStatusBadgeClass } from '../../lib/orderStatus';
 
 interface OrderNotificationItem {
   id: string;
@@ -18,6 +20,29 @@ interface OrderNotificationItem {
   deliveryAddress: string;
   time: string;
   event: 'NEW_ORDER' | 'STATUS_CHANGE';
+}
+
+/**
+ * Maps an orders row (initial fetch or realtime payload) onto the notification
+ * shape, applying the same fallbacks in every case.
+ */
+function toOrderNotification(
+  row: any,
+  event: OrderNotificationItem['event'],
+  overrides: { id: string; address?: string; time?: string }
+): OrderNotificationItem {
+  return {
+    id: overrides.id,
+    orderId: row.id,
+    orderNumber: row.order_number || `#${String(row.id).slice(0, 6)}`,
+    customerName: row.customer_name || 'Customer',
+    customerPhone: row.customer_phone || '',
+    totalAmount: row.total_amount || 0,
+    status: row.status || 'pending',
+    deliveryAddress: row.delivery_address || overrides.address || '',
+    time: overrides.time ?? formatClockTime(),
+    event
+  };
 }
 
 interface HeaderProps {
@@ -62,18 +87,13 @@ export const Header: React.FC<HeaderProps> = ({
           .limit(8);
 
         if (recentOrders && recentOrders.length > 0) {
-          const items: OrderNotificationItem[] = recentOrders.map((ord: any) => ({
-            id: 'ord-notif-' + ord.id,
-            orderId: ord.id,
-            orderNumber: ord.order_number || `#${ord.id.slice(0, 6)}`,
-            customerName: ord.customer_name || 'Customer',
-            customerPhone: ord.customer_phone || '',
-            totalAmount: ord.total_amount || 0,
-            status: ord.status || 'pending',
-            deliveryAddress: ord.delivery_address || 'Delivery Address',
-            time: ord.created_at ? new Date(ord.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Live',
-            event: 'NEW_ORDER'
-          }));
+          const items: OrderNotificationItem[] = recentOrders.map((ord: any) =>
+            toOrderNotification(ord, 'NEW_ORDER', {
+              id: 'ord-notif-' + ord.id,
+              address: 'Delivery Address',
+              time: ord.created_at ? formatClockTime(ord.created_at) : 'Live'
+            })
+          );
           setOrderNotifications(items);
           setUnreadCount(items.filter(i => i.status === 'pending').length);
         }
@@ -92,18 +112,9 @@ export const Header: React.FC<HeaderProps> = ({
         { event: 'INSERT', schema: 'public', table: 'orders' },
         (payload) => {
           const newOrd = payload.new as any;
-          const item: OrderNotificationItem = {
-            id: 'ord-notif-ins-' + newOrd.id + '-' + Date.now(),
-            orderId: newOrd.id,
-            orderNumber: newOrd.order_number || `#${newOrd.id.slice(0, 6)}`,
-            customerName: newOrd.customer_name || 'Customer',
-            customerPhone: newOrd.customer_phone || '',
-            totalAmount: newOrd.total_amount || 0,
-            status: newOrd.status || 'pending',
-            deliveryAddress: newOrd.delivery_address || '',
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            event: 'NEW_ORDER'
-          };
+          const item = toOrderNotification(newOrd, 'NEW_ORDER', {
+            id: 'ord-notif-ins-' + newOrd.id + '-' + Date.now()
+          });
           setOrderNotifications((prev) => [item, ...prev.slice(0, 9)]);
           setUnreadCount((prev) => prev + 1);
         }
@@ -113,18 +124,9 @@ export const Header: React.FC<HeaderProps> = ({
         { event: 'UPDATE', schema: 'public', table: 'orders' },
         (payload) => {
           const updatedOrd = payload.new as any;
-          const item: OrderNotificationItem = {
-            id: 'ord-notif-upd-' + updatedOrd.id + '-' + Date.now(),
-            orderId: updatedOrd.id,
-            orderNumber: updatedOrd.order_number || `#${updatedOrd.id.slice(0, 6)}`,
-            customerName: updatedOrd.customer_name || 'Customer',
-            customerPhone: updatedOrd.customer_phone || '',
-            totalAmount: updatedOrd.total_amount || 0,
-            status: updatedOrd.status || 'pending',
-            deliveryAddress: updatedOrd.delivery_address || '',
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            event: 'STATUS_CHANGE'
-          };
+          const item = toOrderNotification(updatedOrd, 'STATUS_CHANGE', {
+            id: 'ord-notif-upd-' + updatedOrd.id + '-' + Date.now()
+          });
           setOrderNotifications((prev) => [item, ...prev.filter(i => i.orderId !== updatedOrd.id).slice(0, 8)]);
         }
       )
@@ -328,17 +330,12 @@ export const Header: React.FC<HeaderProps> = ({
 
                               <div className="flex items-center justify-between text-[11px] text-gray-300">
                                 <span className="font-bold truncate">{notif.customerName}</span>
-                                <span className="font-extrabold text-emerald-400">₹{notif.totalAmount}</span>
+                                <span className="font-extrabold text-emerald-400">{formatCurrency(notif.totalAmount)}</span>
                               </div>
 
                               <div className="flex items-center justify-between pt-1 text-[10px]">
                                 <span className="text-gray-400 truncate max-w-[200px]">{notif.deliveryAddress}</span>
-                                <span className={`px-2 py-0.5 rounded-md font-mono font-bold uppercase text-[9px] ${
-                                  notif.status === 'delivered' ? 'bg-emerald-500/20 text-emerald-400' :
-                                  notif.status === 'cooking' ? 'bg-amber-500/20 text-amber-400' :
-                                  notif.status === 'out_for_delivery' ? 'bg-blue-500/20 text-blue-400' :
-                                  'bg-orange-500/20 text-orange-400'
-                                }`}>
+                                <span className={`px-2 py-0.5 rounded-md font-mono font-bold uppercase text-[9px] ${orderStatusBadgeClass(notif.status, 'dark')}`}>
                                   {notif.status}
                                 </span>
                               </div>

@@ -1,4 +1,5 @@
 import { Order } from '../types';
+import { currentTimestamp, formatCurrency, formatRating } from './format';
 
 export function exportOrdersToExcel(orders: Order[], filename = 'Order_History.csv') {
   if (!orders || orders.length === 0) {
@@ -19,7 +20,7 @@ export function exportOrdersToExcel(orders: Order[], filename = 'Order_History.c
     `"${o.payment_method}"`,
     `"${o.status}"`,
     `"${o.driver_name || 'N/A'}"`,
-    o.rating ? o.rating.toFixed(1) : 'N/A'
+    formatRating(o.rating, 'N/A')
   ]);
 
   const csvContent = [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
@@ -62,7 +63,7 @@ export function exportOrdersToPDF(orders: Order[]) {
       </head>
       <body>
         <h1>Trippy's Mehfill — Order History Report</h1>
-        <div class="subtitle">${orders.length} orders listed • Generated on ${new Date().toLocaleString()}</div>
+        <div class="subtitle">${orders.length} orders listed • Generated on ${currentTimestamp()}</div>
         <table>
           <thead>
             <tr>
@@ -86,7 +87,7 @@ export function exportOrdersToPDF(orders: Order[]) {
                 <td>${o.customer_phone}</td>
                 <td>${o.delivery_address}</td>
                 <td>${o.items.map(i => `${i.dish_name} (x${i.quantity})`).join('<br/>')}</td>
-                <td>₹${o.total_amount}</td>
+                <td>${formatCurrency(o.total_amount)}</td>
                 <td><span class="badge ${o.status}">${o.status}</span></td>
                 <td>${o.driver_name || '-'}</td>
               </tr>

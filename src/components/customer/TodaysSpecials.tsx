@@ -3,6 +3,7 @@ import { MenuItem } from '../../types';
 import { Sparkles, Plus, Check } from 'lucide-react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
+import { formatCurrency } from '../../lib/format';
 
 interface TodaysSpecialsProps {
   specials: MenuItem[];
@@ -70,7 +71,7 @@ export const TodaysSpecials: React.FC<TodaysSpecialsProps> = ({ specials, onRequ
                 ) : (
                   <div className="flex items-center justify-between">
                     <div className="text-base font-black text-white">
-                      ₹{item.price}
+                      {formatCurrency(item.price)}
                     </div>
 
                     <button

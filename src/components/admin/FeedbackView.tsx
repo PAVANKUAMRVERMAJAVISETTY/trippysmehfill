@@ -1,15 +1,14 @@
 import React from 'react';
 import { Feedback } from '../../types';
 import { Star, MessageSquare } from 'lucide-react';
+import { averageFeedbackRating } from '../../lib/feedbackStats';
 
 interface FeedbackViewProps {
   feedback: Feedback[];
 }
 
 export const FeedbackView: React.FC<FeedbackViewProps> = ({ feedback }) => {
-  const avgRating = feedback.length > 0
-    ? (feedback.reduce((sum, f) => sum + (f.food_rating + f.taste_rating + f.packing_rating + f.delivery_rating) / 4, 0) / feedback.length).toFixed(1)
-    : '5.0';
+  const avgRating = averageFeedbackRating(feedback, '5.0');
 
   return (
     <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">

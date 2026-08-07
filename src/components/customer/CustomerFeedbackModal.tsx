@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Order, Feedback } from '../../types';
 import { X, Star, Check } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
+import { currentTimestamp } from '../../lib/format';
 
 interface CustomerFeedbackModalProps {
   order: Order | null;
@@ -58,7 +59,7 @@ export const CustomerFeedbackModal: React.FC<CustomerFeedbackModalProps> = ({
       delivery_rating: deliveryRating,
       driver_name: order.driver_name,
       comment,
-      created_at: new Date().toLocaleString()
+      created_at: currentTimestamp()
     };
 
     if (isSupabaseConfigured) {

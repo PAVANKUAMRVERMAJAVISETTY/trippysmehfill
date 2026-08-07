@@ -6,6 +6,7 @@ import { UserProfile } from '../../types';
 import { sendEmailVerificationOTP, verifyEmailOTPCode, sendPasswordResetOTP, resetPasswordWithOTP } from '../../lib/emailService';
 import { validateRegistration, validateEmail, validateFullName, validatePhone, validateAddress } from '../../lib/validation';
 import { requestValidatedLocation, KITCHEN_LAT, KITCHEN_LNG, MAX_SERVICE_RADIUS_KM } from '../../lib/geoUtils';
+import { currentTimestamp } from '../../lib/format';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -312,7 +313,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       latitude: latitude || KITCHEN_LAT,
       longitude: longitude || KITCHEN_LNG,
       location_city: locationCity,
-      created_at: new Date().toLocaleString()
+      created_at: currentTimestamp()
     };
 
     if (onRegisterSuccess) {
@@ -435,7 +436,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         latitude: latitude || 17.3850,
         longitude: longitude || 78.4867,
         location_city: locationCity,
-        created_at: new Date().toLocaleString()
+        created_at: currentTimestamp()
       };
 
       if (onRegisterSuccess) {

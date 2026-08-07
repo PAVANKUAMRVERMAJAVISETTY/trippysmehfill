@@ -3,6 +3,8 @@ import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
 import { Order, MenuItem } from '../../types';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
+import { formatCurrency } from '../../lib/format';
+import { formatOrderStatus, isActiveOrderStatus, orderStatusBadgeClass } from '../../lib/orderStatus';
 import {
   User,
   ShoppingBag,
@@ -391,7 +393,7 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
           <div className="flex items-center justify-between border-b border-white/10 pb-4">
             <div>
               <h2 className="text-xl sm:text-2xl font-black text-white font-serif tracking-tight capitalize">
-                {activeTab === 'orders' ? 'Order History & Reorder' : activeTab.replace('_', ' ')}
+                {activeTab === 'orders' ? 'Order History & Reorder' : activeTab.replace(/_/g, ' ')}
               </h2>
               <p className="text-xs text-gray-400">
                 {activeTab === 'orders'
@@ -506,7 +508,7 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                         <img src={dish.image_url} alt="" className="w-14 h-14 rounded-xl object-cover shrink-0" />
                         <div>
                           <h4 className="font-bold text-white text-xs line-clamp-1">{dish.name}</h4>
-                          <span className="text-xs font-black text-[#C5A059]">₹{dish.price}</span>
+                          <span className="text-xs font-black text-[#C5A059]">{formatCurrency(dish.price)}</span>
                         </div>
                       </div>
 
@@ -600,11 +602,8 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                         </div>
 
                         <div className="flex items-center gap-2">
-                          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
-                            ord.status === 'delivered' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
-                            ord.status === 'cancelled' ? 'bg-rose-500/20 text-rose-400 border-rose-500/30' : 'bg-amber-500/20 text-amber-400 border-amber-500/30 animate-pulse'
-                          }`}>
-                            {ord.status.replace('_', ' ')}
+                          <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${orderStatusBadgeClass(ord.status, 'dark')} ${isActiveOrderStatus(ord.status) ? 'animate-pulse' : ''}`}>
+                            {formatOrderStatus(ord.status)}
                           </span>
                           <span className="text-xs font-mono text-gray-400">{ord.created_at || 'Today'}</span>
                         </div>
@@ -632,7 +631,7 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                                 </div>
 
                                 <span className="font-mono text-gray-300">
-                                  ₹{(item.price || (item as any).menuItem?.price || 0) * item.quantity}
+                                  {formatCurrency((item.price || (item as any).menuItem?.price || 0) * item.quantity)}
                                 </span>
                               </div>
                             );
@@ -648,7 +647,7 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
 
                           <div className="flex items-center gap-2">
                             <span className="text-gray-400">Total Paid:</span>
-                            <span className="text-base font-black text-[#C5A059] font-mono">₹{ord.total_amount}</span>
+                            <span className="text-base font-black text-[#C5A059] font-mono">{formatCurrency(ord.total_amount)}</span>
                             <span className="text-[10px] px-2 py-0.5 rounded bg-white/10 text-gray-300 font-bold uppercase">
                               {ord.payment_method || 'UPI'}
                             </span>
@@ -1159,7 +1158,7 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                 {selectedInvoiceOrder.items?.map((it, idx) => (
                   <div key={idx} className="flex justify-between font-medium">
                     <span>{it.quantity}x {it.dish_name || (it as any).menuItem?.name || 'Dish'}</span>
-                    <span className="font-mono font-bold">₹{(it.price || 150) * it.quantity}</span>
+                    <span className="font-mono font-bold">{formatCurrency((it.price || 150) * it.quantity)}</span>
                   </div>
                 ))}
               </div>
@@ -1168,7 +1167,7 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
               <div className="border-t pt-3 space-y-1.5 text-gray-600 text-xs">
                 <div className="flex justify-between">
                   <span>Item Subtotal</span>
-                  <span className="font-mono">₹{selectedInvoiceOrder.total_amount - 20}</span>
+                  <span className="font-mono">{formatCurrency(selectedInvoiceOrder.total_amount - 20)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span>GST & Restaurant Taxes (5%)</span>
@@ -1180,7 +1179,7 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                 </div>
                 <div className="flex justify-between font-black text-sm text-gray-900 border-t pt-2">
                   <span>Total Amount Paid</span>
-                  <span className="font-mono text-orange-600">₹{selectedInvoiceOrder.total_amount}</span>
+                  <span className="font-mono text-orange-600">{formatCurrency(selectedInvoiceOrder.total_amount)}</span>
                 </div>
               </div>
 

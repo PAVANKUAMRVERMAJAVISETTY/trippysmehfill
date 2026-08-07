@@ -5,6 +5,7 @@ import { ShoppingBag, Trash2, Plus, Minus, MapPin, QrCode, DollarSign, CheckCirc
 import { Order, PaymentMethod } from '../../types';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { playKitchenAlertSound } from '../../lib/sound';
+import { currentTimestamp, formatCurrency } from '../../lib/format';
 
 import { captureFullSecurityContext } from '../../lib/geoUtils';
 
@@ -50,7 +51,9 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
     }
 
     if (!isMinOrderMet) {
-      setErrorMsg(`Minimum order value is ₹${settings.min_order_value}. Add ₹${settings.min_order_value - subtotal} more.`);
+      setErrorMsg(
+        `Minimum order value is ${formatCurrency(settings.min_order_value)}. Add ${formatCurrency(settings.min_order_value - subtotal)} more.`
+      );
       return;
     }
 
@@ -110,7 +113,7 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
       google_maps_url: sec.googleMapsUrl,
       fraud_risk_level: sec.fraudRiskLevel,
       fraud_risk_reasons: sec.fraudRiskReasons,
-      created_at: new Date().toLocaleString()
+      created_at: currentTimestamp()
     };
 
     if (isSupabaseConfigured) {
@@ -264,8 +267,8 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
                     </div>
 
                     <div className="text-right font-mono">
-                      <span className="text-gray-400 text-[11px] mr-1">₹{item.menuItem.price} x {item.quantity} =</span>
-                      <span className="font-extrabold text-white text-xs">₹{item.menuItem.price * item.quantity}</span>
+                      <span className="text-gray-400 text-[11px] mr-1">{formatCurrency(item.menuItem.price)} x {item.quantity} =</span>
+                      <span className="font-extrabold text-white text-xs">{formatCurrency(item.menuItem.price * item.quantity)}</span>
                     </div>
                   </div>
                 </div>
@@ -333,7 +336,7 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
               {paymentMethod === 'UPI' && (
                 <div className="p-3 bg-[#181818] rounded-xl border border-white/10 text-center space-y-2">
                   <p className="text-xs font-bold text-[#C5A059]">
-                    Scan & Pay ₹{grandTotal}
+                    Scan & Pay {formatCurrency(grandTotal)}
                   </p>
                   <div className="bg-white p-2 rounded-xl inline-block border border-white/20">
                     <img
@@ -363,7 +366,7 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
             <div className="pt-3 border-t border-white/10 text-xs space-y-1">
               <div className="flex justify-between text-gray-400">
                 <span>Items Subtotal</span>
-                <span className="font-bold text-white">₹{subtotal}</span>
+                <span className="font-bold text-white">{formatCurrency(subtotal)}</span>
               </div>
               <div className="flex justify-between text-gray-400">
                 <span>Delivery Charge</span>
@@ -374,12 +377,12 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
               {taxAmount > 0 && (
                 <div className="flex justify-between text-gray-400">
                   <span>GST ({settings.tax_percent}%)</span>
-                  <span className="font-bold text-white">₹{taxAmount}</span>
+                  <span className="font-bold text-white">{formatCurrency(taxAmount)}</span>
                 </div>
               )}
               <div className="flex justify-between text-sm font-black text-white pt-2 border-t border-white/10">
                 <span>Grand Total</span>
-                <span className="text-[#C5A059] text-base">₹{grandTotal}</span>
+                <span className="text-[#C5A059] text-base">{formatCurrency(grandTotal)}</span>
               </div>
             </div>
 
@@ -393,7 +396,7 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
         <div className="pt-3 border-t border-white/10">
           {!isMinOrderMet && (
             <p className="text-[11px] text-[#C5A059] font-semibold mb-2 text-center bg-[#181818] p-1.5 rounded-xl border border-white/10">
-              Add ₹{settings.min_order_value - subtotal} more for min order value (₹{settings.min_order_value})
+              Add {formatCurrency(settings.min_order_value - subtotal)} more for min order value ({formatCurrency(settings.min_order_value)})
             </p>
           )}
 
@@ -415,7 +418,7 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
               ) : (
                 <>
                   <CheckCircle2 className="w-4 h-4" />
-                  <span>Place Order • ₹{grandTotal}</span>
+                  <span>Place Order • {formatCurrency(grandTotal)}</span>
                 </>
               )}
             </button>

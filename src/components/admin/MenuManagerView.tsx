@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { MenuItem } from '../../types';
+import { formatCurrency } from '../../lib/format';
 import {
   Plus,
   Edit3,
@@ -221,7 +222,7 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                     }`}>
                       {dish.is_veg ? 'VEG' : 'NON VEG'}
                     </span>
-                    <span className="text-base font-black text-gray-900">₹{dish.price}</span>
+                    <span className="text-base font-black text-gray-900">{formatCurrency(dish.price)}</span>
                   </div>
                   <h3 className="font-extrabold text-gray-900 text-sm line-clamp-1">{dish.name}</h3>
                   <p className="text-xs text-gray-500 line-clamp-2 mt-1">{dish.description}</p>

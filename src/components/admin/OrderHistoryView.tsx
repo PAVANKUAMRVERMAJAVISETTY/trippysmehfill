@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Order, UserProfile } from '../../types';
 import { exportOrdersToExcel, exportOrdersToPDF } from '../../lib/exportUtils';
 import { Search, FileText, Download } from 'lucide-react';
+import { formatCurrency, formatRating } from '../../lib/format';
+import { orderStatusBadgeClass } from '../../lib/orderStatus';
 
 interface OrderHistoryViewProps {
   orders: Order[];
@@ -143,18 +145,15 @@ export const OrderHistoryView: React.FC<OrderHistoryViewProps> = ({ orders, driv
                   <td className="p-3 text-gray-700">
                     {order.items.map((i) => `${i.dish_name} (x${i.quantity})`).join(', ')}
                   </td>
-                  <td className="p-3 font-black text-gray-900">₹{order.total_amount}</td>
+                  <td className="p-3 font-black text-gray-900">{formatCurrency(order.total_amount)}</td>
                   <td className="p-3">
-                    <span className={`px-2 py-0.5 rounded-full font-bold uppercase text-[10px] ${
-                      order.status === 'delivered' ? 'bg-emerald-100 text-emerald-800' :
-                      order.status === 'cancelled' ? 'bg-red-100 text-red-800' : 'bg-amber-100 text-amber-800'
-                    }`}>
+                    <span className={`px-2 py-0.5 rounded-full font-bold uppercase text-[10px] ${orderStatusBadgeClass(order.status)}`}>
                       {order.status}
                     </span>
                   </td>
                   <td className="p-3 text-gray-700 font-medium">{order.driver_name || '-'}</td>
                   <td className="p-3 text-amber-500 font-bold">
-                    {order.rating ? `${order.rating.toFixed(1)} ★` : '-'}
+                    {order.rating ? `${formatRating(order.rating)} ★` : '-'}
                   </td>
                 </tr>
               ))

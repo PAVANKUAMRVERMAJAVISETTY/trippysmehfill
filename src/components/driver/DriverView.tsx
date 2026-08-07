@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Order, OrderStatus } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 import { Bike, MapPin, Phone, CheckCircle2, Navigation, Clock } from 'lucide-react';
+import { formatCurrency } from '../../lib/format';
+import { formatOrderStatus } from '../../lib/orderStatus';
 
 interface DriverViewProps {
   orders: Order[];
@@ -64,7 +66,7 @@ export const DriverView: React.FC<DriverViewProps> = ({ orders, onUpdateOrderSta
                   <span className="text-xs text-gray-400 font-mono ml-2">{order.created_at}</span>
                 </div>
                 <span className="px-3 py-1 bg-[#C5A059]/10 border border-[#C5A059]/30 text-[#C5A059] font-extrabold text-xs rounded-full uppercase">
-                  {order.status.replace('_', ' ')}
+                  {formatOrderStatus(order.status)}
                 </span>
               </div>
 
@@ -91,7 +93,7 @@ export const DriverView: React.FC<DriverViewProps> = ({ orders, onUpdateOrderSta
                       {order.payment_method === 'COD' ? 'Collect cash on doorstep' : 'Already paid via UPI'}
                     </p>
                   </div>
-                  <span className="text-lg font-black text-white">₹{order.total_amount}</span>
+                  <span className="text-lg font-black text-white">{formatCurrency(order.total_amount)}</span>
                 </div>
               </div>
 
