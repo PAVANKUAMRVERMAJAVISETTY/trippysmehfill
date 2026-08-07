@@ -1,6 +1,6 @@
 import React from 'react';
 import { ShieldAlert, Lock, ArrowLeft, LogIn } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth, DEMO_ROLE_SWITCH_ENABLED } from '../../context/AuthContext';
 
 interface AdminGuardViewProps {
   onRequireAuth: () => void;
@@ -64,7 +64,8 @@ export const AdminGuardView: React.FC<AdminGuardViewProps> = ({
           </button>
         </div>
 
-        {/* Quick Demo Switcher Hint */}
+        {/* Quick Demo Switcher Hint -- development builds only. */}
+        {DEMO_ROLE_SWITCH_ENABLED && (
         <div className="pt-4 border-t border-white/10 space-y-2">
           <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
             Demo Environment Quick Switch
@@ -77,6 +78,7 @@ export const AdminGuardView: React.FC<AdminGuardViewProps> = ({
             <span>Switch Role to Admin</span>
           </button>
         </div>
+        )}
 
       </div>
     </div>

@@ -233,9 +233,6 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
         }
       }
 
-      // 2. Update user profile state
-      await updateProfile({ password: newPassInput });
-
       setPassUpdateSuccess('✅ Password updated successfully! Your account is secured with the new password.');
       setCurrentPassInput('');
       setNewPassInput('');
@@ -267,7 +264,6 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
   };
 
   const strength = getPasswordStrength(newPassInput);
-  const currentDisplayedPassword = user.password || 'TrippyPass2026!';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-6 overflow-y-auto">
@@ -397,7 +393,7 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                 {activeTab === 'orders'
                   ? 'Swiggy/Zomato style order tracking, repeat order & tax receipts.'
                   : activeTab === 'profile'
-                  ? 'View login password, update password & manage personal details.'
+                  ? 'Update your password & manage personal details.'
                   : 'Manage your orders, rewards, addresses & account security.'}
               </p>
             </div>
@@ -898,30 +894,15 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                     <span className="text-white font-mono font-bold text-xs truncate block">{user.email || 'Not attached'}</span>
                   </div>
 
-                  {/* CURRENT PASSWORD VIEW / HIDE TOGGLE CARD */}
+                  {/* PASSWORD INFO CARD */}
                   <div className="bg-[#0d0d0d] p-3.5 rounded-2xl border border-orange-500/30 sm:col-span-2 space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-orange-400 uppercase font-black tracking-wider block">
-                        Account Password Credentials
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                        className="text-xs text-gray-300 hover:text-white flex items-center gap-1 font-bold underline"
-                      >
-                        {showCurrentPassword ? <EyeOff className="w-3.5 h-3.5 text-orange-400" /> : <Eye className="w-3.5 h-3.5 text-orange-400" />}
-                        <span>{showCurrentPassword ? 'Hide Password' : 'Show Password'}</span>
-                      </button>
-                    </div>
-
-                    <div className="flex items-center justify-between gap-3 bg-black/60 p-2.5 rounded-xl border border-white/10 font-mono">
-                      <span className="text-sm font-black text-amber-300 tracking-wider">
-                        {showCurrentPassword ? currentDisplayedPassword : '••••••••••••'}
-                      </span>
-                      <span className="text-[10px] text-gray-400">
-                        {user.password ? 'Custom Password Saved' : 'Default Credentials'}
-                      </span>
-                    </div>
+                    <span className="text-[10px] text-orange-400 uppercase font-black tracking-wider block">
+                      Account Password
+                    </span>
+                    <p className="text-[11px] text-gray-400 leading-relaxed">
+                      Your password is stored only as a salted hash by the authentication
+                      provider and can never be displayed. Use the form below to change it.
+                    </p>
                   </div>
 
                 </div>

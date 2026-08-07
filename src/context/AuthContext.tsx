@@ -49,7 +49,16 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
  * Role switching bypasses authentication entirely, so it is a development aid
  * only and is compiled out of production builds.
  */
-const DEMO_ROLE_SWITCH_ENABLED = Boolean((import.meta as any).env?.DEV);
+export const DEMO_ROLE_SWITCH_ENABLED = Boolean((import.meta as any).env?.DEV);
+
+/** Profile columns a signed-in user may change about themselves. */
+const SELF_EDITABLE_PROFILE_FIELDS = [
+  'full_name',
+  'phone',
+  'hostel_address',
+  'avatar_url',
+  'username'
+] as const satisfies readonly (keyof UserProfile)[];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(null);
@@ -77,10 +86,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if ((profile as UserProfile).account_status === 'blocked_fraud') {
         await supabase.auth.signOut();
         return null;
-      }
-      if (isAdminEmail && profile.role !== 'admin') {
-        await supabase.from('profiles').update({ role: 'admin' }).eq('id', authUser.id);
-        profile.role = 'admin';
       }
       return profile as UserProfile;
     }
@@ -176,10 +181,22 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       // If identifier is not an email (e.g. phone number or username), find email from profiles
       if (!email.includes('@')) {
+        const lookup = identifier.trim();
+
+        // PostgREST parses `.or()` as a filter expression, so an identifier is
+        // only ever interpolated after it is restricted to characters that carry
+        // no meaning there.
+        if (!/^[A-Za-z0-9+._-]{1,64}$/.test(lookup)) {
+          return {
+            success: false,
+            message: 'Enter a valid email address, phone number or username.'
+          };
+        }
+
         const { data: foundProfile } = await supabase
           .from('profiles')
           .select('email')
-          .or(`phone.eq.${identifier.trim()},username.eq.${identifier.trim().toLowerCase()}`)
+          .or(`phone.eq.${lookup},username.eq.${lookup.toLowerCase()}`)
           .maybeSingle();
 
         if (foundProfile && foundProfile.email) {
@@ -444,11 +461,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const updateProfile = async (data: Partial<UserProfile>) => {
     if (!user) return;
-    const updated = { ...user, ...data };
-    setUser(updated);
+
+    // Only self-serve fields are writable here. `role`, `is_approved` and
+    // `account_status` decide what the account may do, so they are administered
+    // elsewhere and are additionally rejected by the database.
+    const editable: Partial<UserProfile> = {};
+    for (const field of SELF_EDITABLE_PROFILE_FIELDS) {
+      if (field in data) (editable as any)[field] = (data as any)[field];
+    }
+
+    if (!Object.keys(editable).length) return;
+
+    setUser({ ...user, ...editable });
 
     if (isSupabaseConfigured) {
-      const { error } = await supabase.from('profiles').update(data).eq('id', user.id);
+      const { error } = await supabase.from('profiles').update(editable).eq('id', user.id);
       if (error) console.error('[Auth] Profile update failed:', error);
     }
   };

@@ -1,5 +1,24 @@
 import { Order } from '../types';
 
+/** Escapes text before it is interpolated into an HTML string. */
+const escapeHtml = (value: unknown): string =>
+  String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+
+/**
+ * Quotes a CSV field, doubling embedded quotes and prefixing anything a
+ * spreadsheet would evaluate as a formula.
+ */
+const csvCell = (value: unknown): string => {
+  const raw = String(value ?? '');
+  const safe = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
+  return `"${safe.replace(/"/g, '""')}"`;
+};
+
 export function exportOrdersToExcel(orders: Order[], filename = 'Order_History.csv') {
   if (!orders || orders.length === 0) {
     alert('No orders available to export.');
@@ -9,16 +28,16 @@ export function exportOrdersToExcel(orders: Order[], filename = 'Order_History.c
   const headers = ['Order #', 'Date', 'Customer Name', 'Phone', 'Campus/Address', 'Items', 'Total Amount', 'Payment Method', 'Status', 'Driver', 'Rating'];
   
   const rows = orders.map(o => [
-    `"${o.order_number}"`,
-    `"${o.created_at}"`,
-    `"${o.customer_name}"`,
-    `"${o.customer_phone}"`,
-    `"${o.delivery_address}"`,
-    `"${o.items.map(i => `${i.dish_name} x${i.quantity}`).join(', ')}"`,
+    csvCell(o.order_number),
+    csvCell(o.created_at),
+    csvCell(o.customer_name),
+    csvCell(o.customer_phone),
+    csvCell(o.delivery_address),
+    csvCell(o.items.map(i => `${i.dish_name} x${i.quantity}`).join(', ')),
     o.total_amount,
-    `"${o.payment_method}"`,
-    `"${o.status}"`,
-    `"${o.driver_name || 'N/A'}"`,
+    csvCell(o.payment_method),
+    csvCell(o.status),
+    csvCell(o.driver_name || 'N/A'),
     o.rating ? o.rating.toFixed(1) : 'N/A'
   ]);
 
@@ -80,15 +99,15 @@ export function exportOrdersToPDF(orders: Order[]) {
           <tbody>
             ${orders.map(o => `
               <tr>
-                <td><b>${o.order_number}</b></td>
-                <td>${o.created_at}</td>
-                <td>${o.customer_name}</td>
-                <td>${o.customer_phone}</td>
-                <td>${o.delivery_address}</td>
-                <td>${o.items.map(i => `${i.dish_name} (x${i.quantity})`).join('<br/>')}</td>
-                <td>₹${o.total_amount}</td>
-                <td><span class="badge ${o.status}">${o.status}</span></td>
-                <td>${o.driver_name || '-'}</td>
+                <td><b>${escapeHtml(o.order_number)}</b></td>
+                <td>${escapeHtml(o.created_at)}</td>
+                <td>${escapeHtml(o.customer_name)}</td>
+                <td>${escapeHtml(o.customer_phone)}</td>
+                <td>${escapeHtml(o.delivery_address)}</td>
+                <td>${o.items.map(i => escapeHtml(`${i.dish_name} (x${i.quantity})`)).join('<br/>')}</td>
+                <td>₹${escapeHtml(o.total_amount)}</td>
+                <td><span class="badge ${escapeHtml(o.status)}">${escapeHtml(o.status)}</span></td>
+                <td>${escapeHtml(o.driver_name || '-')}</td>
               </tr>
             `).join('')}
           </tbody>
