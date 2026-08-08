@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider, useCart } from './context/CartContext';
 import { ToastProvider, useToast } from './context/ToastContext';
+import { PresenceProvider, usePresence } from './context/PresenceContext';
 import { Header } from './components/common/Header';
 import { NotificationBanner } from './components/common/NotificationBanner';
 import { HeroSection } from './components/customer/HeroSection';
@@ -12,6 +13,7 @@ import { CartDrawer } from './components/customer/CartDrawer';
 import { OrderTrackerModal } from './components/customer/OrderTrackerModal';
 import { CustomerFeedbackModal } from './components/customer/CustomerFeedbackModal';
 import { CustomerDashboardModal } from './components/customer/CustomerDashboardModal';
+import { LiveCustomersModal } from './components/admin/LiveCustomersModal';
 import { AuthModal } from './components/common/AuthModal';
 import { ConfigErrorScreen, RequireRole } from './components/common/ProtectedRoute';
 
@@ -118,6 +120,19 @@ function MainApp() {
   const [inventory, setInventory] = useState<InventoryItem[]>(initialInventory);
   const [feedback, setFeedback] = useState<Feedback[]>([]);
   const [banners, setBanners] = useState<PromotionalBanner[]>(initialBanners);
+
+  // Presence Context Hook
+  const { liveCount, setIsLiveModalOpen, updateCurrentActivity } = usePresence();
+
+  // Keep presence activity aligned with activeSection
+  useEffect(() => {
+    const activityMap: Record<string, string> = {
+      menu: 'Browsing Menu',
+      checkout: 'Checkout',
+      orders: 'Order Tracking'
+    };
+    updateCurrentActivity(activityMap[activeSection] || 'Active on website');
+  }, [activeSection, updateCurrentActivity]);
 
   // Modals
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -627,6 +642,8 @@ function MainApp() {
           pendingPaymentsCount={
             orders.filter(o => o.payment_method === 'UPI' && o.payment_status === 'pending').length
           }
+          liveCount={liveCount}
+          onOpenLiveCustomers={() => setIsLiveModalOpen(true)}
         />
       )}
 
@@ -777,7 +794,14 @@ function MainApp() {
       {activeSection === 'admin' && (
         user?.role === 'admin' ? (
           <main className="flex-1 pb-16">
-            {adminTab === 'dashboard' && <DashboardView orders={orders} feedback={feedback} />}
+            {adminTab === 'dashboard' && (
+              <DashboardView
+                orders={orders}
+                feedback={feedback}
+                drivers={drivers}
+                inventory={inventory}
+              />
+            )}
             {adminTab === 'live_orders' && (
               <LiveOrdersView orders={orders} drivers={drivers} onUpdateOrderStatus={handleUpdateOrderStatus} />
             )}
@@ -940,6 +964,9 @@ function MainApp() {
         }}
       />
 
+      {/* Live Customers Presence Panel Modal for Admin */}
+      <LiveCustomersModal />
+
       {/* Global Fullscreen Closed Restaurant Popup Modal */}
       <ClosedRestaurantModal
         isOpen={isClosedModalOpen}
@@ -1033,12 +1060,14 @@ function AppGate() {
 export default function App() {
   return (
     <AuthProvider>
-      <CartProvider>
-        <ToastProvider>
-          <AppGate />
-          <ToastHost />
-        </ToastProvider>
-      </CartProvider>
+      <PresenceProvider>
+        <CartProvider>
+          <ToastProvider>
+            <AppGate />
+            <ToastHost />
+          </ToastProvider>
+        </CartProvider>
+      </PresenceProvider>
     </AuthProvider>
   );
 }

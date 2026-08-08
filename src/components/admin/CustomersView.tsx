@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { UserProfile } from '../../types';
-import { UserCheck, Search, Plus, Mail, Phone, MapPin, Key, Trash2, CheckCircle, XCircle, ShieldAlert, User, Calendar, Database, Copy, Check, MessageSquare, Lock, ShieldCheck } from 'lucide-react';
+import { UserCheck, Search, Plus, Mail, Phone, MapPin, Key, Trash2, CheckCircle, XCircle, ShieldAlert, User, Calendar, Database, Copy, Check, MessageSquare, Lock, ShieldCheck, ExternalLink } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { formatDistanceText, getRouteDirectionsUrl } from '../../lib/geoUtils';
+import { usePresence } from '../../context/PresenceContext';
 
 interface CustomersViewProps {
   customersList: UserProfile[];
@@ -17,13 +18,16 @@ export const CustomersView: React.FC<CustomersViewProps> = ({
   onToggleActive,
   onDeleteCustomer
 }) => {
+  const { liveCustomers, liveCount, setIsLiveModalOpen } = usePresence();
+  const liveUserIdSet = React.useMemo(() => new Set(liveCustomers.map((s) => s.user_id)), [liveCustomers]);
+
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [hostelAddress, setHostelAddress] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive' | 'whatsapp_pending' | 'blocked_fraud'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'live' | 'active' | 'inactive' | 'whatsapp_pending' | 'blocked_fraud'>('all');
   const [successMsg, setSuccessMsg] = useState('');
   const [customerToDelete, setCustomerToDelete] = useState<UserProfile | null>(null);
   const [showSqlModal, setShowSqlModal] = useState(false);
@@ -253,6 +257,7 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
 
     const matchesStatus =
       statusFilter === 'all' ? true :
+      statusFilter === 'live' ? liveUserIdSet.has(c.id) :
       statusFilter === 'active' ? c.is_active && c.account_status !== 'blocked_fraud' :
       statusFilter === 'whatsapp_pending' ? !c.is_whatsapp_verified :
       statusFilter === 'blocked_fraud' ? c.account_status === 'blocked_fraud' :
@@ -274,7 +279,7 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
             <span>Registered Customers & Anti-Fraud Security</span>
           </h1>
           <p className="text-xs text-[#5F6368] mt-0.5">
-            Monitor real hardware GPS coordinates, security IPs, WhatsApp verification, and anti-fraud accounts.
+            Monitor real hardware GPS coordinates, security IPs, WhatsApp verification, and live customer presence.
           </p>
         </div>
 
@@ -293,9 +298,19 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
             <span className="text-[#1F2933] font-extrabold text-sm">{customersList.length}</span>
           </div>
           <div className="bg-white border border-[#DDD6C8] px-3.5 py-2 rounded-2xl flex items-center gap-2 shadow-sm">
-            <span className="text-[#5F6368] font-medium">Active:</span>
+            <span className="text-[#5F6368] font-medium">Active Accounts:</span>
             <span className="text-[#146C43] font-extrabold text-sm">{activeCount}</span>
           </div>
+          <button
+            onClick={() => setIsLiveModalOpen(true)}
+            className="bg-[#D1FAE5] border border-[#86EFAC] px-3.5 py-2 rounded-2xl flex items-center gap-2 shadow-sm cursor-pointer hover:bg-[#A7F3D0] transition"
+          >
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#198754] opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-[#198754]"></span>
+            </span>
+            <span className="text-[#146C43] font-extrabold text-xs">🟢 Live Now: {liveCount}</span>
+          </button>
         </div>
       </div>
 
@@ -389,6 +404,17 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
             All ({customersList.length})
           </button>
           <button
+            onClick={() => setStatusFilter('live')}
+            className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer border flex items-center gap-1.5 ${
+              statusFilter === 'live'
+                ? 'bg-[#146C43] text-white border-[#146C43]'
+                : 'bg-white text-[#146C43] border-[#86EFAC] hover:bg-[#D1FAE5]'
+            }`}
+          >
+            <span className="w-2 h-2 rounded-full bg-[#198754] animate-pulse" />
+            <span>Live Now ({liveCount})</span>
+          </button>
+          <button
             onClick={() => setStatusFilter('active')}
             className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer border ${
               statusFilter === 'active'
@@ -434,6 +460,11 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           {filteredCustomers.map((cust) => {
             const isBlocked = cust.account_status === 'blocked_fraud';
+            const isLiveNow = liveUserIdSet.has(cust.id);
+            const sanitizedPhone = cust.phone ? cust.phone.replace(/[^0-9]/g, '') : '';
+            const whatsappUrl = sanitizedPhone
+              ? `https://wa.me/91${sanitizedPhone.startsWith('91') ? sanitizedPhone.slice(2) : sanitizedPhone}`
+              : null;
 
             return (
               <div
@@ -441,6 +472,8 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
                 className={`bg-white rounded-2xl p-5 border shadow-sm transition space-y-4 flex flex-col justify-between ${
                   isBlocked
                     ? 'border-[#F5A6A1] bg-[#FDE2E1]/20'
+                    : isLiveNow
+                    ? 'border-[#86EFAC] ring-2 ring-[#86EFAC]/40'
                     : 'border-[#DDD6C8] hover:border-[#B8862D]'
                 }`}
               >
@@ -448,12 +481,17 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
                   {/* Header info */}
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <div className={`w-10 h-10 rounded-2xl font-black flex items-center justify-center text-base ${
+                      <div className={`relative w-10 h-10 rounded-2xl font-black flex items-center justify-center text-base ${
                         isBlocked
                           ? 'bg-[#FDE2E1] text-[#922B21] border border-[#F5A6A1]'
+                          : isLiveNow
+                          ? 'bg-[#D1FAE5] border border-[#86EFAC] text-[#146C43]'
                           : 'bg-[#FFF0CC] border border-[#E8C66A] text-[#8A5A00]'
                       }`}>
                         {cust.full_name ? cust.full_name.charAt(0).toUpperCase() : 'C'}
+                        {isLiveNow && (
+                          <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-[#198754] border-2 border-white animate-pulse" />
+                        )}
                       </div>
                       <div>
                         <h3 className="font-extrabold text-[#1F2933] text-sm line-clamp-1">{cust.full_name}</h3>
@@ -474,32 +512,48 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
                       </div>
                     </div>
 
-                    <span
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase flex items-center gap-1 border ${
-                        isBlocked
-                          ? 'bg-[#FDE2E1] border-[#F5A6A1] text-[#922B21] font-extrabold'
-                          : cust.is_active
-                          ? 'bg-[#D1FAE5] border-[#86EFAC] text-[#146C43]'
-                          : 'bg-[#FDE2E1] border-[#F5A6A1] text-[#922B21]'
-                      }`}
-                    >
-                      {isBlocked ? (
-                        <>
-                          <ShieldAlert className="w-3 h-3 text-[#922B21]" />
-                          <span>BLOCKED FRAUD</span>
-                        </>
-                      ) : cust.is_active ? (
-                        <>
-                          <CheckCircle className="w-3 h-3" />
-                          <span>Active</span>
-                        </>
+                    <div className="flex flex-col items-end gap-1">
+                      {/* Presence Badge (Live Now vs Offline) */}
+                      {isLiveNow ? (
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase flex items-center gap-1 bg-[#D1FAE5] border border-[#86EFAC] text-[#146C43] shadow-xs">
+                          <span className="w-2 h-2 rounded-full bg-[#198754] animate-pulse" />
+                          <span>🟢 LIVE NOW</span>
+                        </span>
                       ) : (
-                        <>
-                          <XCircle className="w-3 h-3" />
-                          <span>Disabled</span>
-                        </>
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase flex items-center gap-1 bg-[#F3F4F6] border border-[#DDD6C8] text-[#5F6368]">
+                          <span className="w-2 h-2 rounded-full bg-[#9CA3AF]" />
+                          <span>⚪ OFFLINE</span>
+                        </span>
                       )}
-                    </span>
+
+                      {/* Account Status Badge */}
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-[9px] font-extrabold uppercase flex items-center gap-1 border ${
+                          isBlocked
+                            ? 'bg-[#FDE2E1] border-[#F5A6A1] text-[#922B21]'
+                            : cust.is_active
+                            ? 'bg-[#F7F4EC] border-[#DDD6C8] text-[#146C43]'
+                            : 'bg-[#FDE2E1] border-[#F5A6A1] text-[#922B21]'
+                        }`}
+                      >
+                        {isBlocked ? (
+                          <>
+                            <ShieldAlert className="w-3 h-3 text-[#922B21]" />
+                            <span>BLOCKED</span>
+                          </>
+                        ) : cust.is_active ? (
+                          <>
+                            <CheckCircle className="w-3 h-3" />
+                            <span>ACCOUNT ACTIVE</span>
+                          </>
+                        ) : (
+                          <>
+                            <XCircle className="w-3 h-3" />
+                            <span>DISABLED</span>
+                          </>
+                        )}
+                      </span>
+                    </div>
                   </div>
 
                   {/* Details */}
@@ -619,6 +673,19 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
 
                 {/* Anti-Fraud Action Buttons */}
                 <div className="pt-3 border-t border-[#DDD6C8] space-y-2 text-xs">
+                  {whatsappUrl && (
+                    <a
+                      href={whatsappUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-2 rounded-xl bg-[#25D366] hover:bg-[#20BA5A] text-white font-extrabold text-xs flex items-center justify-center gap-1.5 transition shadow-xs cursor-pointer"
+                    >
+                      <MessageSquare className="w-4 h-4" />
+                      <span>Contact on WhatsApp</span>
+                      <ExternalLink className="w-3 h-3 opacity-80" />
+                    </a>
+                  )}
+
                   <div className="flex items-center gap-2">
                     {/* Toggle WhatsApp Approval */}
                     <button
