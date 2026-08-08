@@ -118,31 +118,31 @@ export const GalleryView: React.FC<GalleryViewProps> = ({
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-8 text-gray-200">
+    <div className="min-h-screen p-4 sm:p-6 max-w-7xl mx-auto space-y-8 text-[#1F2933]" style={{ backgroundColor: '#F4F1EA' }}>
       
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white font-serif tracking-wide flex items-center gap-2">
-            <Image className="w-7 h-7 text-[#C5A059]" />
+          <h1 className="text-2xl font-black text-[#252525] font-serif tracking-wide flex items-center gap-2">
+            <Image className="w-7 h-7 text-[#B8862D]" />
             <span>Gallery Management</span>
           </h1>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <p className="text-xs text-[#5F6368] mt-0.5">
             Manage public landing page image gallery with local upload & camera capture. Real-time updates.
           </p>
         </div>
 
-        <div className="bg-[#121212] border border-white/10 px-4 py-2 rounded-2xl flex items-center gap-2 text-xs">
-          <Sparkles className="w-4 h-4 text-[#C5A059]" />
-          <span className="text-gray-400">Total Gallery Photos:</span>
-          <span className="text-white font-extrabold text-sm">{galleryItems.length}</span>
+        <div className="bg-white border border-[#DDD6C8] px-4 py-2 rounded-2xl flex items-center gap-2 text-xs shadow-sm">
+          <Sparkles className="w-4 h-4 text-[#B8862D]" />
+          <span className="text-[#5F6368]">Total Gallery Photos:</span>
+          <span className="text-[#1F2933] font-extrabold text-sm">{galleryItems.length}</span>
         </div>
       </div>
 
       {/* Add New Gallery Image Panel */}
-      <div className="bg-[#121212] p-6 rounded-2xl border border-white/10 shadow-xl space-y-5">
-        <h2 className="text-sm font-bold text-white font-serif flex items-center gap-2">
-          <Plus className="w-4 h-4 text-[#C5A059]" />
+      <div className="bg-white p-6 rounded-2xl border border-[#DDD6C8] shadow-sm space-y-5">
+        <h2 className="text-sm font-bold text-[#1F2933] font-serif flex items-center gap-2">
+          <Plus className="w-4 h-4 text-[#D95F0A]" />
           <span>Upload New Gallery Image</span>
         </h2>
 
@@ -151,30 +151,30 @@ export const GalleryView: React.FC<GalleryViewProps> = ({
             
             {/* Left Column: Image Pick / Camera Capture */}
             <div className="space-y-3">
-              <label className="block text-xs font-bold text-gray-300">Image Source</label>
+              <label className="block text-xs font-bold text-[#1F2933]">Image Source</label>
               
               {imageUrl ? (
-                <div className="relative group rounded-xl overflow-hidden border border-white/10 bg-[#181818] aspect-video">
+                <div className="relative group rounded-xl overflow-hidden border border-[#DDD6C8] bg-[#F7F4EC] aspect-video">
                   <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
                   <button
                     type="button"
                     onClick={() => setImageUrl('')}
-                    className="absolute top-2 right-2 p-1.5 rounded-full bg-black/80 text-white hover:text-rose-400"
+                    className="absolute top-2 right-2 p-1.5 rounded-full bg-black/70 text-white hover:text-[#922B21] cursor-pointer"
                     title="Remove Image"
                   >
                     <X className="w-4 h-4" />
                   </button>
                 </div>
               ) : (
-                <div className="border-2 border-dashed border-white/10 rounded-2xl p-5 text-center bg-[#181818] space-y-3">
+                <div className="border-2 border-dashed border-[#9F988A] rounded-2xl p-5 text-center bg-[#F8F6F0] space-y-3">
                   <div className="flex justify-center gap-3">
                     {/* Local File Selector */}
                     <button
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
-                      className="px-4 py-2.5 bg-[#121212] border border-white/10 hover:border-[#C5A059] text-gray-200 font-bold text-xs rounded-xl flex items-center gap-2 transition"
+                      className="px-4 py-2.5 bg-white border border-[#9F988A] hover:bg-[#F0E8D8] text-[#1F2933] font-bold text-xs rounded-xl flex items-center gap-2 transition cursor-pointer"
                     >
-                      <Upload className="w-4 h-4 text-[#C5A059]" />
+                      <Upload className="w-4 h-4 text-[#B8862D]" />
                       <span>Choose File</span>
                     </button>
 
@@ -182,14 +182,14 @@ export const GalleryView: React.FC<GalleryViewProps> = ({
                     <button
                       type="button"
                       onClick={startLiveCamera}
-                      className="px-4 py-2.5 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold text-xs rounded-xl flex items-center gap-2 shadow-lg shadow-[#C5A059]/20 transition"
+                      className="px-4 py-2.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold text-xs rounded-xl flex items-center gap-2 shadow-sm border border-[#B94D00] transition cursor-pointer"
                     >
                       <Camera className="w-4 h-4" />
                       <span>Capture Photo</span>
                     </button>
                   </div>
 
-                  <p className="text-[11px] text-gray-500">
+                  <p className="text-[11px] text-[#5F6368]">
                     Supports JPG, PNG, WEBP from file gallery or live camera feed.
                   </p>
 
@@ -218,7 +218,7 @@ export const GalleryView: React.FC<GalleryViewProps> = ({
                   placeholder="Or paste external image URL..."
                   value={imageUrl}
                   onChange={(e) => setImageUrl(e.target.value)}
-                  className="w-full p-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-[#C5A059]"
+                  className="w-full p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-xs text-[#1F2933] placeholder-[#6B6B63] outline-none focus:border-[#D95F0A]"
                 />
               </div>
             </div>
@@ -227,25 +227,25 @@ export const GalleryView: React.FC<GalleryViewProps> = ({
             <div className="lg:col-span-2 space-y-3 flex flex-col justify-between">
               <div className="space-y-3">
                 <div>
-                  <label className="block text-xs font-bold text-gray-300 mb-1">Title / Dish Name</label>
+                  <label className="block text-xs font-bold text-[#1F2933] mb-1">Title / Dish Name</label>
                   <input
                     type="text"
                     placeholder="e.g. Special Hyderabadi Dum Handi Biryani"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     required
-                    className="w-full p-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-[#C5A059]"
+                    className="w-full p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-xs text-[#1F2933] placeholder-[#6B6B63] outline-none focus:border-[#D95F0A]"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-gray-300 mb-1">Caption / Description</label>
+                  <label className="block text-xs font-bold text-[#1F2933] mb-1">Caption / Description</label>
                   <textarea
                     rows={3}
                     placeholder="e.g. Prepared with authentic spices, slow cooked on dum."
                     value={caption}
                     onChange={(e) => setCaption(e.target.value)}
-                    className="w-full p-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-[#C5A059]"
+                    className="w-full p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-xs text-[#1F2933] placeholder-[#6B6B63] outline-none focus:border-[#D95F0A]"
                   />
                 </div>
               </div>
@@ -253,7 +253,7 @@ export const GalleryView: React.FC<GalleryViewProps> = ({
               <div className="pt-2">
                 <button
                   type="submit"
-                  className="py-3 px-6 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold rounded-xl shadow-lg shadow-[#C5A059]/20 transition flex items-center justify-center gap-2 text-xs"
+                  className="py-3 px-6 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold rounded-xl shadow-sm border border-[#B94D00] transition flex items-center justify-center gap-2 text-xs cursor-pointer"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Publish to Gallery</span>
@@ -267,19 +267,19 @@ export const GalleryView: React.FC<GalleryViewProps> = ({
 
       {/* Live Camera Stream Modal */}
       {isCameraOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4">
-          <div className="bg-[#121212] rounded-3xl p-5 max-w-lg w-full border border-white/10 space-y-4 text-center">
-            <div className="flex justify-between items-center border-b border-white/10 pb-3">
-              <h3 className="font-bold text-white text-sm flex items-center gap-2">
-                <Camera className="w-4 h-4 text-[#C5A059]" />
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white rounded-3xl p-5 max-w-lg w-full border border-[#DDD6C8] space-y-4 text-center text-[#1F2933] shadow-2xl">
+            <div className="flex justify-between items-center border-b border-[#DDD6C8] pb-3">
+              <h3 className="font-bold text-[#1F2933] text-sm flex items-center gap-2">
+                <Camera className="w-4 h-4 text-[#D95F0A]" />
                 <span>Live Camera Photo Capture</span>
               </h3>
-              <button onClick={stopCamera} className="text-gray-400 hover:text-white">
+              <button onClick={stopCamera} className="text-[#5F6368] hover:text-[#1F2933] cursor-pointer">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="relative rounded-2xl overflow-hidden bg-black aspect-video border border-white/10">
+            <div className="relative rounded-2xl overflow-hidden bg-black aspect-video border border-[#DDD6C8]">
               <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
               <canvas ref={canvasRef} className="hidden" />
             </div>
@@ -288,7 +288,7 @@ export const GalleryView: React.FC<GalleryViewProps> = ({
               <button
                 type="button"
                 onClick={captureCameraPhoto}
-                className="py-2.5 px-6 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold rounded-xl shadow-lg transition flex items-center gap-2 text-xs"
+                className="py-2.5 px-6 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold rounded-xl shadow-sm border border-[#B94D00] transition flex items-center gap-2 text-xs cursor-pointer"
               >
                 <Camera className="w-4 h-4" />
                 <span>Snap Photo</span>
@@ -297,7 +297,7 @@ export const GalleryView: React.FC<GalleryViewProps> = ({
               <button
                 type="button"
                 onClick={stopCamera}
-                className="py-2.5 px-4 bg-[#181818] border border-white/10 text-gray-300 font-bold rounded-xl text-xs hover:text-white"
+                className="py-2.5 px-4 bg-white border border-[#9F988A] text-[#1F2933] font-bold rounded-xl text-xs hover:bg-[#F0E8D8] cursor-pointer"
               >
                 Cancel
               </button>
@@ -308,25 +308,25 @@ export const GalleryView: React.FC<GalleryViewProps> = ({
 
       {/* Existing Gallery Grid */}
       <div className="space-y-4">
-        <h2 className="text-lg font-bold text-white font-serif tracking-wide">
+        <h2 className="text-lg font-bold text-[#1F2933] font-serif tracking-wide">
           Live Public Gallery Grid ({galleryItems.length})
         </h2>
 
         {galleryItems.length === 0 ? (
-          <div className="bg-[#121212] rounded-2xl p-10 text-center border border-white/10">
-            <Image className="w-12 h-12 text-gray-600 mx-auto mb-2" />
-            <p className="text-white font-bold">No gallery images published yet.</p>
-            <p className="text-xs text-gray-400 mt-1">Upload photos above to display them on the public gallery.</p>
+          <div className="bg-white rounded-2xl p-10 text-center border border-[#DDD6C8] shadow-sm">
+            <Image className="w-12 h-12 text-[#5F6368] mx-auto mb-2" />
+            <p className="text-[#1F2933] font-bold">No gallery images published yet.</p>
+            <p className="text-xs text-[#5F6368] mt-1">Upload photos above to display them on the public gallery.</p>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {galleryItems.map((item) => (
               <div
                 key={item.id}
-                className="bg-[#121212] rounded-2xl overflow-hidden border border-white/10 hover:border-[#C5A059]/40 shadow-xl transition flex flex-col justify-between"
+                className="bg-white rounded-2xl overflow-hidden border border-[#DDD6C8] hover:border-[#B8862D] shadow-sm transition flex flex-col justify-between"
               >
                 <div>
-                  <div className="relative aspect-video overflow-hidden bg-[#181818]">
+                  <div className="relative aspect-video overflow-hidden bg-[#F7F4EC]">
                     <img
                       src={item.image_url}
                       alt={item.title}
@@ -341,31 +341,31 @@ export const GalleryView: React.FC<GalleryViewProps> = ({
                           type="text"
                           value={editTitle}
                           onChange={(e) => setEditTitle(e.target.value)}
-                          className="w-full p-2 bg-[#181818] border border-[#C5A059] rounded-lg text-xs text-white"
+                          className="w-full p-2 bg-[#F8F6F0] border border-[#B8862D] rounded-lg text-xs text-[#1F2933]"
                         />
                         <textarea
                           rows={2}
                           value={editCaption}
                           onChange={(e) => setEditCaption(e.target.value)}
-                          className="w-full p-2 bg-[#181818] border border-[#C5A059] rounded-lg text-xs text-white"
+                          className="w-full p-2 bg-[#F8F6F0] border border-[#B8862D] rounded-lg text-xs text-[#1F2933]"
                         />
                         <button
                           onClick={() => saveEdit(item)}
-                          className="w-full py-1.5 bg-[#C5A059] text-black font-extrabold text-xs rounded-lg flex items-center justify-center gap-1"
+                          className="w-full py-1.5 bg-[#B8862D] text-white font-extrabold text-xs rounded-lg flex items-center justify-center gap-1 cursor-pointer"
                         >
                           <Check className="w-3.5 h-3.5" /> Save Changes
                         </button>
                       </div>
                     ) : (
                       <>
-                        <h3 className="font-bold text-white text-sm">{item.title}</h3>
-                        {item.caption && <p className="text-xs text-gray-400 line-clamp-2">{item.caption}</p>}
+                        <h3 className="font-bold text-[#1F2933] text-sm">{item.title}</h3>
+                        {item.caption && <p className="text-xs text-[#5F6368] line-clamp-2">{item.caption}</p>}
                       </>
                     )}
                   </div>
                 </div>
 
-                <div className="p-4 pt-0 flex items-center justify-between border-t border-white/10 text-xs text-gray-500 mt-2">
+                <div className="p-4 pt-0 flex items-center justify-between border-t border-[#DDD6C8] text-xs text-[#5F6368] mt-2">
                   <span>{item.created_at}</span>
                   <div className="flex items-center gap-2">
                     <button
@@ -374,7 +374,7 @@ export const GalleryView: React.FC<GalleryViewProps> = ({
                         setEditTitle(item.title);
                         setEditCaption(item.caption || '');
                       }}
-                      className="p-1.5 rounded-lg bg-[#181818] text-gray-300 hover:text-[#C5A059] border border-white/10"
+                      className="p-1.5 rounded-lg bg-white text-[#1F2933] hover:text-[#D95F0A] border border-[#9F988A] cursor-pointer"
                       title="Edit Title / Caption"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
@@ -385,7 +385,7 @@ export const GalleryView: React.FC<GalleryViewProps> = ({
                           onDeleteGalleryItem(item.id);
                         }
                       }}
-                      className="p-1.5 rounded-lg bg-[#181818] text-gray-300 hover:text-rose-400 border border-white/10"
+                      className="p-1.5 rounded-lg bg-white text-[#1F2933] hover:text-[#922B21] border border-[#9F988A] cursor-pointer"
                       title="Delete Image"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

@@ -11,10 +11,10 @@ import { estimatedDeliveryLabel } from '../../lib/checkout';
 import { openWhatsAppSupport } from '../../lib/whatsapp';
 
 const PAYMENT_TONE_CLASS: Record<string, string> = {
-  success: 'text-emerald-400',
-  pending: 'text-amber-400',
-  error: 'text-rose-400',
-  neutral: 'text-[#C5A059]'
+  success: 'text-[#146C43]',
+  pending: 'text-[#8A5A00]',
+  error: 'text-[#922B21]',
+  neutral: 'text-[#B8862D]'
 };
 
 interface OrderTrackerModalProps {
@@ -39,24 +39,22 @@ export const OrderTrackerModal: React.FC<OrderTrackerModalProps> = ({
     : order.status === 'cancelled'
       ? '—'
       : Number.isNaN(placedAt.getTime())
-        // created_at is text in one of the two schemas, so it will not always
-        // parse. A duration alone is still true; an invented clock time is not.
         ? '30 mins'
         : estimatedDeliveryLabel(placedAt, 30);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-      <div className="bg-[#121212] rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-white/10 text-gray-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+      <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-[#DDD6C8] text-[#1F2933]">
         
         {/* Header */}
-        <div className="p-5 bg-[#0d0d0d] border-b border-white/10 text-white flex items-center justify-between">
+        <div className="p-5 bg-[#F7F4EC] border-b border-[#DDD6C8] text-[#1F2933] flex items-center justify-between">
           <div>
-            <div className="text-xs text-[#C5A059] font-bold uppercase tracking-wider">Live Tracking</div>
+            <div className="text-xs text-[#B8862D] font-black uppercase tracking-wider">Live Tracking</div>
             <h2 className="text-xl font-extrabold font-serif">Order {order.order_number}</h2>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 transition"
+            className="p-1.5 rounded-full bg-white hover:bg-[#F0E8D8] text-[#5F6368] transition border border-[#DDD6C8] cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
@@ -64,63 +62,62 @@ export const OrderTrackerModal: React.FC<OrderTrackerModalProps> = ({
 
         <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
 
-          {/* At-a-glance facts, before the timeline. Someone opening this wants
-              to know where the order stands without reading a diagram. */}
+          {/* At-a-glance facts */}
           <dl className="grid grid-cols-2 gap-3">
-            <div className="bg-[#181818] rounded-2xl p-3.5 border border-white/10">
-              <dt className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Order Status</dt>
-              <dd className="text-sm font-black text-white mt-1">{statusLabel(order.status)}</dd>
+            <div className="bg-[#F7F4EC] rounded-2xl p-3.5 border border-[#DDD6C8]">
+              <dt className="text-[10px] font-bold text-[#5F6368] uppercase tracking-wider">Order Status</dt>
+              <dd className="text-sm font-black text-[#1F2933] mt-1">{statusLabel(order.status)}</dd>
             </div>
 
-            <div className="bg-[#181818] rounded-2xl p-3.5 border border-white/10">
-              <dt className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Payment Status</dt>
+            <div className="bg-[#F7F4EC] rounded-2xl p-3.5 border border-[#DDD6C8]">
+              <dt className="text-[10px] font-bold text-[#5F6368] uppercase tracking-wider">Payment Status</dt>
               <dd className={`text-sm font-black mt-1 ${PAYMENT_TONE_CLASS[paymentTone(order)]}`}>
                 {paymentLabel(order)}
               </dd>
             </div>
 
-            <div className="bg-[#181818] rounded-2xl p-3.5 border border-white/10 col-span-2">
-              <dt className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Estimated Delivery</dt>
-              <dd className="text-sm font-black text-white mt-1">{deliveryEstimate}</dd>
+            <div className="bg-[#F7F4EC] rounded-2xl p-3.5 border border-[#DDD6C8] col-span-2">
+              <dt className="text-[10px] font-bold text-[#5F6368] uppercase tracking-wider">Estimated Delivery</dt>
+              <dd className="text-sm font-black text-[#1F2933] mt-1">{deliveryEstimate}</dd>
             </div>
           </dl>
 
           {note && (
             <p className={`text-xs -mt-3 ${
               order.payment_status === 'rejected' || order.payment_status === 'failed'
-                ? 'text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl p-3'
-                : 'text-gray-400'
+                ? 'text-[#922B21] bg-[#FDE2E1] border border-[#F5A6A1] rounded-xl p-3 font-medium'
+                : 'text-[#5F6368]'
             }`}>
               {note}
             </p>
           )}
 
-          {/* Animated progress timeline (handles the cancelled state itself) */}
+          {/* Animated progress timeline */}
           <OrderProgressTimeline order={order} />
 
           {/* Delivery Details */}
-          <div className="bg-[#181818] rounded-2xl p-4 border border-white/10 space-y-2 text-xs">
-            <div className="flex items-start gap-2 text-gray-300">
-              <MapPin className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
+          <div className="bg-[#F7F4EC] rounded-2xl p-4 border border-[#DDD6C8] space-y-2 text-xs">
+            <div className="flex items-start gap-2 text-[#1F2933]">
+              <MapPin className="w-4 h-4 text-[#B8862D] shrink-0 mt-0.5" />
               <div>
-                <p className="font-bold text-white">Delivery Address</p>
-                <p className="text-gray-300">{order.delivery_address}</p>
-                {order.landmark && <p className="text-gray-400">Landmark: {order.landmark}</p>}
+                <p className="font-bold text-[#1F2933]">Delivery Address</p>
+                <p className="text-[#1F2933]">{order.delivery_address}</p>
+                {order.landmark && <p className="text-[#5F6368]">Landmark: {order.landmark}</p>}
               </div>
             </div>
 
             {order.driver_name && (
-              <div className="pt-2 border-t border-white/10 flex items-center justify-between">
+              <div className="pt-2 border-t border-[#DDD6C8] flex items-center justify-between">
                 <div>
-                  <p className="font-bold text-white">Assigned Delivery Partner</p>
-                  <p className="text-gray-300 font-semibold">{order.driver_name}</p>
+                  <p className="font-bold text-[#1F2933]">Assigned Delivery Partner</p>
+                  <p className="text-[#1F2933] font-semibold">{order.driver_name}</p>
                 </div>
                 {order.driver_phone && (
                   <a
                     href={`tel:${order.driver_phone}`}
-                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold rounded-xl transition text-xs shadow-md"
+                    className="flex items-center gap-1.5 px-3 py-1.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold rounded-xl transition text-xs shadow-sm border border-[#B94D00]"
                   >
-                    <Phone className="w-3.5 h-3.5" />
+                    <Phone className="w-3.5 h-3.5 text-white" />
                     <span>Call</span>
                   </a>
                 )}
@@ -130,17 +127,17 @@ export const OrderTrackerModal: React.FC<OrderTrackerModalProps> = ({
 
           {/* Items Summary */}
           <div>
-            <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Order Items</h3>
+            <h3 className="text-xs font-bold text-[#5F6368] uppercase tracking-wider mb-2">Order Items</h3>
             <div className="space-y-1.5 text-xs">
               {order.items.map((item, idx) => (
-                <div key={idx} className="flex justify-between text-gray-300 font-medium py-1 border-b border-white/5">
-                  <span>{item.dish_name} <strong className="text-[#C5A059]">x{item.quantity}</strong></span>
-                  <span className="font-bold text-white">₹{item.price * item.quantity}</span>
+                <div key={idx} className="flex justify-between text-[#1F2933] font-medium py-1 border-b border-[#DDD6C8]">
+                  <span>{item.dish_name} <strong className="text-[#D95F0A]">x{item.quantity}</strong></span>
+                  <span className="font-bold text-[#1F2933]">₹{item.price * item.quantity}</span>
                 </div>
               ))}
-              <div className="flex justify-between font-extrabold text-sm text-white pt-2 border-t border-white/10">
+              <div className="flex justify-between font-extrabold text-sm text-[#1F2933] pt-2 border-t border-[#DDD6C8]">
                 <span>Total Amount ({order.payment_method})</span>
-                <span className="text-[#C5A059]">₹{order.total_amount}</span>
+                <span className="text-[#D95F0A]">₹{order.total_amount}</span>
               </div>
             </div>
           </div>
@@ -148,9 +145,9 @@ export const OrderTrackerModal: React.FC<OrderTrackerModalProps> = ({
           {/* WhatsApp Support Action */}
           <button
             onClick={() => openWhatsAppSupport({ name: order.customer_name, phone: order.customer_phone, orderNumber: order.order_number })}
-            className="w-full py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-xl shadow-md transition text-xs flex items-center justify-center gap-2"
+            className="w-full py-2.5 bg-[#198754] hover:bg-[#146C43] text-white font-extrabold rounded-xl shadow-sm transition text-xs flex items-center justify-center gap-2 border border-[#146C43] cursor-pointer"
           >
-            <Phone className="w-4 h-4" />
+            <Phone className="w-4 h-4 text-white" />
             <span>Need Help? Chat on WhatsApp</span>
           </button>
 
@@ -158,7 +155,7 @@ export const OrderTrackerModal: React.FC<OrderTrackerModalProps> = ({
           {order.status === 'delivered' && onLeaveFeedback && (
             <button
               onClick={() => { onClose(); onLeaveFeedback(order); }}
-              className="w-full py-3 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold rounded-xl shadow-lg shadow-[#C5A059]/20 transition text-xs"
+              className="w-full py-3 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold rounded-xl shadow-sm border border-[#B94D00] transition text-xs cursor-pointer"
             >
               ★ Leave Feedback & Rating
             </button>

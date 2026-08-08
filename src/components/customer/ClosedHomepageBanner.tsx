@@ -11,18 +11,18 @@ export const ClosedHomepageBanner: React.FC<ClosedHomepageBannerProps> = ({ sett
   if (settings.is_open) return null;
 
   return (
-    <div className="bg-gradient-to-r from-blue-700 via-indigo-700 to-blue-800 text-white px-4 py-3 border-b border-blue-400/30 shadow-md">
+    <div className="bg-[#E8F1FA] text-[#1E4F7A] px-4 py-3 border-b border-[#8FB6D9] shadow-sm">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs">
         <div className="flex items-center gap-2.5 text-center sm:text-left">
-          <div className="p-1.5 rounded-full bg-blue-500/40 text-blue-200 shrink-0">
-            <Info className="w-4 h-4 text-blue-200" />
+          <div className="p-1.5 rounded-full bg-[#2563A6]/15 text-[#2563A6] shrink-0">
+            <Info className="w-4 h-4 text-[#2563A6]" />
           </div>
           <div>
-            <span className="font-extrabold tracking-wide text-amber-300 uppercase mr-2">
-              ℹ️ Restaurant is currently closed
+            <span className="font-extrabold tracking-wide text-[#2563A6] uppercase mr-2 font-serif">
+              Restaurant Closed
             </span>
-            <span className="text-blue-100 font-medium">
-              Opening Time: <strong className="text-white font-mono">{settings.opening_time || '09:00 AM'}</strong> | Closing Time: <strong className="text-white font-mono">{settings.closing_time || '10:00 PM'}</strong> — Please come back during business hours.
+            <span className="text-[#1E4F7A] font-medium">
+              Opening Time: <strong className="text-[#1E4F7A] font-mono">{settings.opening_time || '09:00 AM'}</strong> | Closing Time: <strong className="text-[#1E4F7A] font-mono">{settings.closing_time || '10:00 PM'}</strong> — Please come back during business hours.
             </span>
           </div>
         </div>
@@ -30,7 +30,7 @@ export const ClosedHomepageBanner: React.FC<ClosedHomepageBannerProps> = ({ sett
         {onOpenClosedModal && (
           <button
             onClick={onOpenClosedModal}
-            className="px-3.5 py-1 bg-white/20 hover:bg-white/30 text-white font-bold rounded-xl text-[11px] transition shrink-0 border border-white/20 shadow-sm"
+            className="px-3.5 py-1 bg-white hover:bg-[#F0E8D8] text-[#2563A6] font-bold rounded-xl text-[11px] transition shrink-0 border border-[#8FB6D9] shadow-sm cursor-pointer"
           >
             View Details
           </button>

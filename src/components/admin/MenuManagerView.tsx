@@ -148,7 +148,7 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
   };
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-6">
+    <div className="min-h-screen p-4 sm:p-6 max-w-7xl mx-auto space-y-6 text-[#1F2933]" style={{ backgroundColor: '#FFF5E8' }}>
       
       {/* Hidden File Inputs for Gallery & Camera Capture */}
       <input
@@ -168,17 +168,17 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
       />
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-gray-200 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#D8D2C5] pb-4">
         <div>
-          <h1 className="text-2xl font-black text-gray-900 font-serif">Menu & Dishes Manager</h1>
-          <p className="text-xs text-gray-500">
+          <h1 className="text-2xl font-black text-[#252525] font-serif">Menu & Dishes Manager</h1>
+          <p className="text-xs text-[#5F6368]">
             Add new dishes, upload photos from your device gallery or camera, and manage prices.
           </p>
         </div>
 
         <button
           onClick={handleOpenAdd}
-          className="px-4 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-extrabold rounded-2xl text-xs flex items-center justify-center gap-2 shadow-lg shadow-orange-600/20 transition"
+          className="px-4 py-2.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold rounded-2xl text-xs flex items-center justify-center gap-2 border border-[#B94D00] shadow-sm transition cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Add New Dish</span>
@@ -190,13 +190,13 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
         {menuItems.map((dish) => (
           <div
             key={dish.id}
-            className="bg-white rounded-2xl p-5 border border-orange-100 shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition relative group"
+            className="bg-white rounded-2xl p-5 border border-[#DDD6C8] shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition relative group"
           >
             <div>
               <div className="flex gap-3 mb-2">
                 
                 {/* Dish Thumbnail with Quick Image Edit Badge */}
-                <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-gray-200 shadow-sm group/img">
+                <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-[#DDD6C8] shadow-sm group/img">
                   <img
                     src={dish.image_url}
                     alt={dish.name}
@@ -206,36 +206,36 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                     onClick={() => {
                       handleOpenEdit(dish);
                     }}
-                    className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 transition flex flex-col items-center justify-center text-white text-[9px] font-bold gap-0.5"
+                    className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 transition flex flex-col items-center justify-center text-white text-[9px] font-bold gap-0.5 cursor-pointer"
                     title="Change Photo"
                   >
-                    <Camera className="w-4 h-4 text-orange-400" />
+                    <Camera className="w-4 h-4 text-[#D95F0A]" />
                     <span>Change</span>
                   </button>
                 </div>
 
                 <div className="flex-1">
                   <div className="flex items-center justify-between mb-1">
-                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded ${
-                      dish.is_veg ? 'bg-emerald-100 text-emerald-800' : 'bg-red-100 text-red-800'
+                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded border ${
+                      dish.is_veg ? 'bg-[#D1FAE5] text-[#146C43] border-[#86EFAC]' : 'bg-[#FDE2E1] text-[#922B21] border-[#F5A6A1]'
                     }`}>
                       {dish.is_veg ? 'VEG' : 'NON VEG'}
                     </span>
-                    <span className="text-base font-black text-gray-900">₹{dish.price}</span>
+                    <span className="text-base font-black text-[#1F2933]">₹{dish.price}</span>
                   </div>
-                  <h3 className="font-extrabold text-gray-900 text-sm line-clamp-1">{dish.name}</h3>
-                  <p className="text-xs text-gray-500 line-clamp-2 mt-1">{dish.description}</p>
+                  <h3 className="font-extrabold text-[#1F2933] text-sm line-clamp-1">{dish.name}</h3>
+                  <p className="text-xs text-[#5F6368] line-clamp-2 mt-1">{dish.description}</p>
                 </div>
               </div>
 
               {/* Toggles Bar */}
-              <div className="pt-3 border-t border-gray-100 space-y-2 text-xs">
+              <div className="pt-3 border-t border-[#DDD6C8] space-y-2 text-xs">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-gray-700">Available</span>
+                  <span className="font-bold text-[#1F2933]">Available</span>
                   <button
                     onClick={() => onToggleAvailable(dish.id)}
-                    className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors ${
-                      dish.is_available ? 'bg-emerald-500 justify-end' : 'bg-gray-300 justify-start'
+                    className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
+                      dish.is_available ? 'bg-[#198754] justify-end' : 'bg-[#DDD6C8] justify-start'
                     }`}
                   >
                     <span className="bg-white w-4 h-4 rounded-full shadow-md" />
@@ -243,11 +243,11 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-gray-700">Today's special</span>
+                  <span className="font-bold text-[#1F2933]">Today's special</span>
                   <button
                     onClick={() => onToggleSpecial(dish.id)}
-                    className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors ${
-                      dish.is_todays_special ? 'bg-orange-600 justify-end' : 'bg-gray-300 justify-start'
+                    className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
+                      dish.is_todays_special ? 'bg-[#D95F0A] justify-end' : 'bg-[#DDD6C8] justify-start'
                     }`}
                   >
                     <span className="bg-white w-4 h-4 rounded-full shadow-md" />
@@ -257,17 +257,17 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
             </div>
 
             {/* Card Footer Actions */}
-            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-gray-100">
+            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#DDD6C8]">
               <button
                 onClick={() => handleOpenEdit(dish)}
-                className="py-2 bg-gray-100 hover:bg-gray-200 text-gray-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition"
+                className="py-2 bg-white hover:bg-[#F0E8D8] text-[#1F2933] border border-[#9F988A] font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
               >
-                <Edit3 className="w-3.5 h-3.5 text-orange-600" />
+                <Edit3 className="w-3.5 h-3.5 text-[#D95F0A]" />
                 <span>Edit Dish</span>
               </button>
               <button
                 onClick={() => onDeleteDish(dish.id)}
-                className="py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition"
+                className="py-2 bg-[#C0392B] hover:bg-[#922B21] text-white border border-[#922B21] font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
               >
                 <Trash2 className="w-3.5 h-3.5" />
                 <span>Delete</span>
@@ -279,14 +279,14 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
 
       {/* Edit / Add Dish Modal with Camera & Gallery Upload */}
       {isModalOpen && editingDish && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-orange-100 my-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl border border-[#DDD6C8] my-auto text-[#1F2933]">
             
             {/* Modal Header */}
-            <div className="p-5 border-b border-gray-100 flex items-center justify-between bg-orange-50/50">
+            <div className="p-5 border-b border-[#DDD6C8] flex items-center justify-between bg-[#F7F4EC]">
               <div className="flex items-center gap-2">
-                <ImageIcon className="w-5 h-5 text-orange-600" />
-                <h2 className="text-lg font-extrabold text-gray-900 font-serif">
+                <ImageIcon className="w-5 h-5 text-[#D95F0A]" />
+                <h2 className="text-lg font-extrabold text-[#1F2933] font-serif">
                   {editingDish.id?.startsWith('m-') ? 'Add New Dish' : 'Edit Dish Details'}
                 </h2>
               </div>
@@ -295,7 +295,7 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                   stopLiveCamera();
                   setIsModalOpen(false);
                 }}
-                className="p-1.5 text-gray-400 hover:text-gray-700 rounded-full hover:bg-gray-200/50 transition"
+                className="p-1.5 text-[#5F6368] hover:text-[#1F2933] rounded-full hover:bg-[#F0E8D8] transition cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -305,15 +305,15 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
             <form onSubmit={handleFormSubmit} className="p-5 sm:p-6 space-y-4 max-h-[80vh] overflow-y-auto text-xs">
               
               {/* IMAGE UPLOAD SECTION (CAMERA & GALLERY) */}
-              <div className="bg-gray-50 p-4 rounded-2xl border border-orange-200/80 space-y-3">
-                <label className="font-extrabold text-gray-900 text-xs flex items-center justify-between">
+              <div className="bg-[#F7F4EC] p-4 rounded-2xl border border-[#DDD6C8] space-y-3">
+                <label className="font-extrabold text-[#1F2933] text-xs flex items-center justify-between">
                   <span>Dish Photo & Media</span>
-                  <span className="text-[10px] text-orange-600 font-bold uppercase">Camera or Gallery</span>
+                  <span className="text-[10px] text-[#D95F0A] font-bold uppercase">Camera or Gallery</span>
                 </label>
 
                 {/* Live Camera Viewfinder Overlay if Active */}
                 {isCameraActive ? (
-                  <div className="relative rounded-2xl overflow-hidden bg-black aspect-video flex flex-col items-center justify-center border-2 border-orange-500 shadow-xl">
+                  <div className="relative rounded-2xl overflow-hidden bg-black aspect-video flex flex-col items-center justify-center border-2 border-[#D95F0A] shadow-xl">
                     <video
                       ref={videoRef}
                       autoPlay
@@ -324,7 +324,7 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                       <button
                         type="button"
                         onClick={capturePhotoFromStream}
-                        className="px-4 py-2 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-xl shadow-lg flex items-center gap-1.5 text-xs"
+                        className="px-4 py-2 bg-[#198754] hover:bg-[#146C43] text-white font-extrabold rounded-xl shadow-lg flex items-center gap-1.5 text-xs cursor-pointer border border-[#146C43]"
                       >
                         <Camera className="w-4 h-4" />
                         <span>Snap Photo</span>
@@ -332,7 +332,7 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                       <button
                         type="button"
                         onClick={stopLiveCamera}
-                        className="px-3 py-2 bg-gray-900/80 hover:bg-black text-white font-bold rounded-xl text-xs"
+                        className="px-3 py-2 bg-gray-900/80 hover:bg-black text-white font-bold rounded-xl text-xs cursor-pointer"
                       >
                         Cancel
                       </button>
@@ -341,7 +341,7 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                 ) : (
                   /* Current Image Preview & Dual Buttons */
                   <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <div className="relative w-28 h-28 rounded-2xl overflow-hidden border-2 border-orange-300 bg-gray-200 shrink-0 shadow-md">
+                    <div className="relative w-28 h-28 rounded-2xl overflow-hidden border-2 border-[#DDD6C8] bg-white shrink-0 shadow-md">
                       <img
                         src={editingDish.image_url || sampleFoodImages[0].url}
                         alt="Preview"
@@ -353,7 +353,7 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                     </div>
 
                     <div className="flex-1 w-full space-y-2">
-                      <p className="text-[11px] text-gray-500">
+                      <p className="text-[11px] text-[#5F6368]">
                         Upload high quality dish photo using your camera or phone gallery.
                       </p>
 
@@ -366,7 +366,7 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                               cameraInputRef.current.click();
                             }
                           }}
-                          className="py-2.5 px-3 bg-orange-600 hover:bg-orange-700 text-white font-extrabold rounded-xl flex items-center justify-center gap-1.5 shadow-md shadow-orange-600/20 transition text-xs"
+                          className="py-2.5 px-3 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold rounded-xl flex items-center justify-center gap-1.5 border border-[#B94D00] shadow-sm transition text-xs cursor-pointer"
                         >
                           <Camera className="w-4 h-4" />
                           <span>Take Photo</span>
@@ -380,9 +380,9 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                               galleryInputRef.current.click();
                             }
                           }}
-                          className="py-2.5 px-3 bg-gray-900 hover:bg-black text-white font-extrabold rounded-xl flex items-center justify-center gap-1.5 shadow-md transition text-xs"
+                          className="py-2.5 px-3 bg-[#1F2933] hover:bg-black text-white font-extrabold rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition text-xs cursor-pointer"
                         >
-                          <FileImage className="w-4 h-4 text-orange-400" />
+                          <FileImage className="w-4 h-4 text-[#B8862D]" />
                           <span>Choose Gallery</span>
                         </button>
                       </div>
@@ -391,9 +391,9 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                       <button
                         type="button"
                         onClick={startLiveCamera}
-                        className="w-full py-1.5 bg-orange-100 hover:bg-orange-200 text-orange-800 font-bold rounded-lg text-[11px] flex items-center justify-center gap-1 transition"
+                        className="w-full py-1.5 bg-[#FFF0CC] hover:bg-[#FFE5A3] text-[#8A5A00] border border-[#E8C66A] font-bold rounded-lg text-[11px] flex items-center justify-center gap-1 transition cursor-pointer"
                       >
-                        <Sparkles className="w-3.5 h-3.5 text-orange-600" />
+                        <Sparkles className="w-3.5 h-3.5 text-[#D95F0A]" />
                         <span>Open Live Web Cam Viewfinder</span>
                       </button>
                     </div>
@@ -401,8 +401,8 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                 )}
 
                 {/* Preset Photo Library Quick Selector */}
-                <div className="pt-2 border-t border-gray-200">
-                  <span className="text-[10px] font-extrabold text-gray-600 uppercase block mb-1.5">
+                <div className="pt-2 border-t border-[#DDD6C8]">
+                  <span className="text-[10px] font-extrabold text-[#5F6368] uppercase block mb-1.5">
                     Or pick sample food photo:
                   </span>
                   <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
@@ -411,8 +411,8 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                         key={idx}
                         type="button"
                         onClick={() => setEditingDish({ ...editingDish, image_url: sample.url })}
-                        className={`relative shrink-0 w-12 h-12 rounded-xl overflow-hidden border-2 transition ${
-                          editingDish.image_url === sample.url ? 'border-orange-600 scale-105 shadow-md' : 'border-gray-200 opacity-60 hover:opacity-100'
+                        className={`relative shrink-0 w-12 h-12 rounded-xl overflow-hidden border-2 transition cursor-pointer ${
+                          editingDish.image_url === sample.url ? 'border-[#D95F0A] scale-105 shadow-md' : 'border-[#DDD6C8] opacity-60 hover:opacity-100'
                         }`}
                         title={sample.label}
                       >
@@ -424,7 +424,7 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
 
                 {/* Direct Image URL input */}
                 <div>
-                  <label className="font-bold text-gray-600 text-[10px] block mb-1">
+                  <label className="font-bold text-[#5F6368] text-[10px] block mb-1">
                     Or custom Image URL string:
                   </label>
                   <input
@@ -432,55 +432,55 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                     value={editingDish.image_url || ''}
                     onChange={(e) => setEditingDish({ ...editingDish, image_url: e.target.value })}
                     placeholder="https://..."
-                    className="w-full p-2 bg-white border border-gray-200 rounded-xl outline-none focus:border-orange-500 font-mono text-[11px]"
+                    className="w-full p-2 bg-[#F8F6F0] border border-[#9F988A] rounded-xl outline-none focus:border-[#D95F0A] font-mono text-[11px] text-[#1F2933]"
                   />
                 </div>
               </div>
 
               {/* NAME */}
               <div>
-                <label className="font-extrabold text-gray-700 block mb-1">Dish Name</label>
+                <label className="font-extrabold text-[#1F2933] block mb-1">Dish Name</label>
                 <input
                   type="text"
                   value={editingDish.name || ''}
                   onChange={(e) => setEditingDish({ ...editingDish, name: e.target.value })}
                   placeholder="e.g. Special Hyderabadi Dum Biryani"
                   required
-                  className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-orange-500 text-xs font-bold"
+                  className="w-full p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl outline-none focus:border-[#D95F0A] text-xs font-bold text-[#1F2933] placeholder-[#6B6B63]"
                 />
               </div>
 
               {/* DESCRIPTION */}
               <div>
-                <label className="font-extrabold text-gray-700 block mb-1">Description</label>
+                <label className="font-extrabold text-[#1F2933] block mb-1">Description</label>
                 <textarea
                   rows={2}
                   value={editingDish.description || ''}
                   onChange={(e) => setEditingDish({ ...editingDish, description: e.target.value })}
                   placeholder="Aromatic basmati rice cooked with authentic spices..."
-                  className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-orange-500 text-xs"
+                  className="w-full p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl outline-none focus:border-[#D95F0A] text-xs text-[#1F2933] placeholder-[#6B6B63]"
                 />
               </div>
 
               {/* PRICE & CATEGORY */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-extrabold text-gray-700 block mb-1">Price (₹)</label>
+                  <label className="font-extrabold text-[#1F2933] block mb-1">Price (₹)</label>
                   <input
                     type="number"
                     value={editingDish.price || 0}
                     onChange={(e) => setEditingDish({ ...editingDish, price: Number(e.target.value) })}
                     required
-                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-orange-500 font-mono text-xs font-bold"
+                    className="w-full p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl outline-none focus:border-[#D95F0A] font-mono text-xs font-bold text-[#1F2933]"
                   />
                 </div>
 
                 <div>
-                  <label className="font-extrabold text-gray-700 block mb-1">Category</label>
+                  <label className="font-extrabold text-[#1F2933] block mb-1">Category</label>
                   <select
                     value={editingDish.category || 'Biryani'}
                     onChange={(e) => setEditingDish({ ...editingDish, category: e.target.value })}
-                    className="w-full p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none focus:border-orange-500 text-xs font-bold"
+                    className="w-full p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl outline-none focus:border-[#D95F0A] text-xs font-bold text-[#1F2933]"
                   >
                     <option value="Biryani">Biryani</option>
                     <option value="South Indian">South Indian</option>
@@ -494,42 +494,42 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
 
               {/* CHECKBOXES */}
               <div className="flex items-center gap-6 pt-2">
-                <label className="flex items-center gap-2 font-bold text-gray-800 cursor-pointer">
+                <label className="flex items-center gap-2 font-bold text-[#1F2933] cursor-pointer">
                   <input
                     type="checkbox"
                     checked={editingDish.is_veg || false}
                     onChange={(e) => setEditingDish({ ...editingDish, is_veg: e.target.checked })}
-                    className="w-4 h-4 text-orange-600 rounded accent-orange-600"
+                    className="w-4 h-4 text-[#D95F0A] rounded accent-[#D95F0A]"
                   />
                   <span>Vegetarian Dish</span>
                 </label>
 
-                <label className="flex items-center gap-2 font-bold text-gray-800 cursor-pointer">
+                <label className="flex items-center gap-2 font-bold text-[#1F2933] cursor-pointer">
                   <input
                     type="checkbox"
                     checked={editingDish.is_todays_special || false}
                     onChange={(e) => setEditingDish({ ...editingDish, is_todays_special: e.target.checked })}
-                    className="w-4 h-4 text-orange-600 rounded accent-orange-600"
+                    className="w-4 h-4 text-[#D95F0A] rounded accent-[#D95F0A]"
                   />
                   <span>Today's Special</span>
                 </label>
               </div>
 
               {/* MODAL BUTTONS */}
-              <div className="pt-4 border-t border-gray-100 flex gap-3">
+              <div className="pt-4 border-t border-[#DDD6C8] flex gap-3">
                 <button
                   type="button"
                   onClick={() => {
                     stopLiveCamera();
                     setIsModalOpen(false);
                   }}
-                  className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-extrabold rounded-2xl transition"
+                  className="flex-1 py-3 bg-white hover:bg-[#F0E8D8] text-[#1F2933] border border-[#9F988A] font-extrabold rounded-2xl transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="flex-1 py-3 bg-orange-600 hover:bg-orange-700 text-white font-extrabold rounded-2xl shadow-lg shadow-orange-600/30 transition flex items-center justify-center gap-1.5"
+                  className="flex-1 py-3 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold rounded-2xl border border-[#B94D00] shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Save Dish</span>

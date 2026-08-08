@@ -320,22 +320,22 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
           type="button"
           onClick={onBack}
           aria-label="Go back"
-          className="w-11 h-11 shrink-0 rounded-2xl bg-[#181818] border border-white/10 text-gray-400 hover:text-white transition flex items-center justify-center"
+          className="w-11 h-11 shrink-0 rounded-2xl bg-white border border-[#DDD6C8] text-[#5F6368] hover:text-[#1F2933] hover:bg-[#F0E8D8] transition flex items-center justify-center cursor-pointer shadow-sm"
         >
           <ArrowLeft className="w-4 h-4" />
         </button>
       )}
       <div className="min-w-0">
-        <h1 className="text-xl sm:text-2xl font-black text-white font-serif tracking-tight">{title}</h1>
-        <p className="text-[11px] sm:text-xs text-gray-400">{blurb}</p>
+        <h1 className="text-xl sm:text-2xl font-black text-[#1F2933] font-serif tracking-tight">{title}</h1>
+        <p className="text-[11px] sm:text-xs text-[#5F6368]">{blurb}</p>
       </div>
     </header>
   );
 
   const ErrorBox = () =>
     errorMsg ? (
-      <div className="p-4 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs rounded-2xl flex items-start gap-2.5">
-        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+      <div className="p-4 bg-[#FDE2E1] border border-[#F5A6A1] text-[#922B21] text-xs rounded-2xl flex items-start gap-2.5 shadow-sm font-medium">
+        <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#C0392B]" />
         <span className="break-words">{errorMsg}</span>
       </div>
     ) : null;
@@ -348,13 +348,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
         <div className="max-w-lg mx-auto space-y-4 sm:space-y-5">
 
           {/* The order is already safe. Say so before asking for money. */}
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl flex items-start gap-3">
-            <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+          <div className="p-4 bg-[#D1FAE5] border border-[#86EFAC] rounded-2xl flex items-start gap-3 shadow-sm">
+            <CheckCircle2 className="w-5 h-5 text-[#146C43] shrink-0 mt-0.5" />
             <div className="min-w-0">
-              <p className="text-xs font-black text-emerald-300">
+              <p className="text-xs font-black text-[#146C43]">
                 Order {placedOrder.order_number} saved
               </p>
-              <p className="text-[11px] text-emerald-400/80 mt-0.5">
+              <p className="text-[11px] text-[#146C43]/90 mt-0.5 font-medium">
                 Your order is with the kitchen. Complete the payment below.
               </p>
             </div>
@@ -362,36 +362,36 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
 
           <PageHeader title="⚡ Instant UPI Payment" blurb="Pay now using any UPI app." />
 
-          <section className="bg-[#121212] border border-white/10 rounded-3xl p-5 sm:p-6 space-y-5">
+          <section className="bg-white border border-[#DDD6C8] rounded-3xl p-5 sm:p-6 space-y-5 shadow-sm">
 
             {/* Amount */}
             <div className="text-center">
-              <p className="text-[11px] uppercase tracking-wider text-gray-500 font-bold">Amount to pay</p>
-              <p className="text-4xl font-black text-[#C5A059] mt-1">₹{placedOrder.total_amount}</p>
+              <p className="text-[11px] uppercase tracking-wider text-[#5F6368] font-bold">Amount to pay</p>
+              <p className="text-4xl font-black text-[#D95F0A] mt-1">₹{placedOrder.total_amount}</p>
             </div>
 
             {/* QR — scales with the viewport instead of a fixed pixel box */}
-            <div className="bg-white p-3 sm:p-4 rounded-2xl w-full max-w-[260px] mx-auto">
+            <div className="bg-[#F7F4EC] p-3 sm:p-4 rounded-2xl w-full max-w-[260px] mx-auto border border-[#DDD6C8] shadow-sm">
               <img
                 src={`https://api.qrserver.com/v1/create-qr-code/?size=400x400&data=${encodeURIComponent(upiUri)}`}
                 alt={`UPI QR code to pay ₹${placedOrder.total_amount}`}
-                className="w-full aspect-square object-contain"
+                className="w-full aspect-square object-contain rounded-xl"
               />
             </div>
 
             {/* UPI ID — full width, easy to hit, one tap to copy */}
             <div className="space-y-2">
-              <p className="text-[11px] uppercase tracking-wider text-gray-500 font-bold text-center">UPI ID</p>
+              <p className="text-[11px] uppercase tracking-wider text-[#5F6368] font-bold text-center">UPI ID</p>
               <div className="flex items-stretch gap-2">
-                <code className="flex-1 min-w-0 min-h-[52px] px-4 bg-[#181818] border border-white/10 rounded-2xl font-mono text-sm text-white flex items-center justify-center truncate">
+                <code className="flex-1 min-w-0 min-h-[52px] px-4 bg-[#F8F6F0] border border-[#9F988A] rounded-2xl font-mono text-sm text-[#1F2933] flex items-center justify-center truncate font-bold">
                   {settings.restaurant_upi_id}
                 </code>
                 <button
                   type="button"
                   onClick={handleCopyUpiId}
-                  className="min-h-[52px] px-4 shrink-0 rounded-2xl bg-[#181818] border border-white/10 text-gray-300 hover:text-white hover:bg-white/5 transition text-xs font-black flex items-center gap-2"
+                  className="min-h-[52px] px-4 shrink-0 rounded-2xl bg-white border border-[#9F988A] text-[#1F2933] hover:bg-[#F0E8D8] transition text-xs font-black flex items-center gap-2 cursor-pointer shadow-sm"
                 >
-                  {copied ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                  {copied ? <Check className="w-4 h-4 text-[#198754]" /> : <Copy className="w-4 h-4" />}
                   {copied ? 'Copied' : 'Copy'}
                 </button>
               </div>
@@ -401,12 +401,12 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
             <div className="space-y-1.5">
               <a
                 href={upiUri}
-                className="w-full min-h-[56px] px-5 bg-[#C5A059] hover:bg-[#b38f48] active:scale-[0.99] text-black font-black rounded-2xl transition text-sm flex items-center justify-center gap-2"
+                className="w-full min-h-[56px] px-5 bg-[#D95F0A] hover:bg-[#B94D00] active:scale-[0.99] text-white font-black rounded-2xl transition text-sm flex items-center justify-center gap-2 border border-[#B94D00] shadow-sm"
               >
-                <Smartphone className="w-5 h-5" /> Open UPI App
+                <Smartphone className="w-5 h-5 text-white" /> Open UPI App
               </a>
               {!isLikelyMobile() && (
-                <p className="text-[10px] text-gray-500 text-center">
+                <p className="text-[10px] text-[#5F6368] text-center">
                   Opening an app only works on a phone — scan the QR code instead.
                 </p>
               )}
@@ -414,7 +414,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
 
             <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5">
               {UPI_APPS.map(app => (
-                <span key={app} className="text-[10px] font-bold text-gray-500 bg-[#181818] border border-white/10 rounded-full px-2.5 py-1">
+                <span key={app} className="text-[10px] font-bold text-[#5F6368] bg-[#F7F4EC] border border-[#DDD6C8] rounded-full px-2.5 py-1">
                   {app}
                 </span>
               ))}
@@ -422,9 +422,9 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
           </section>
 
           {/* Instructions */}
-          <div className="p-4 bg-[#181818] border border-white/10 rounded-2xl flex items-start gap-3">
-            <Info className="w-4 h-4 text-[#C5A059] shrink-0 mt-0.5" />
-            <p className="text-[11px] text-gray-400 leading-relaxed">
+          <div className="p-4 bg-[#F7F4EC] border border-[#DDD6C8] rounded-2xl flex items-start gap-3 shadow-sm">
+            <Info className="w-4 h-4 text-[#B8862D] shrink-0 mt-0.5" />
+            <p className="text-[11px] text-[#5F6368] leading-relaxed">
               Please complete your payment after placing the order. Once payment is received, our team
               will verify and begin preparing your food.
             </p>
@@ -441,14 +441,14 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
               onChange={(e) => setUpiTxnId(e.target.value.replace(/\D/g, '').slice(0, 12))}
               placeholder="UPI transaction reference (optional)"
               aria-label="UPI transaction reference"
-              className="w-full min-h-[52px] px-4 bg-[#181818] border border-white/10 rounded-2xl text-sm font-mono text-white placeholder-gray-500 outline-none focus:border-[#C5A059]"
+              className="w-full min-h-[52px] px-4 bg-[#F8F6F0] border border-[#9F988A] rounded-2xl text-sm font-mono text-[#1F2933] placeholder-[#6B6B63] outline-none focus:border-[#D95F0A]"
             />
 
             <button
               type="button"
               onClick={handleClaimPayment}
               disabled={isClaiming}
-              className="w-full min-h-[56px] px-5 bg-emerald-600 hover:bg-emerald-500 active:scale-[0.99] text-white font-black rounded-2xl transition text-sm flex items-center justify-center gap-2 disabled:opacity-50"
+              className="w-full min-h-[56px] px-5 bg-[#198754] hover:bg-[#146C43] active:scale-[0.99] text-white font-black rounded-2xl transition text-sm flex items-center justify-center gap-2 disabled:opacity-50 border border-[#146C43] shadow-sm cursor-pointer"
             >
               {isClaiming
                 ? <><Loader2 className="w-5 h-5 animate-spin" /> Saving…</>
@@ -458,9 +458,9 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
             <button
               type="button"
               onClick={() => screenshotInput.current?.click()}
-              className="w-full min-h-[52px] px-5 bg-[#181818] border border-white/10 hover:bg-white/5 text-gray-300 font-bold rounded-2xl transition text-xs flex items-center justify-center gap-2"
+              className="w-full min-h-[52px] px-5 bg-white border border-[#9F988A] hover:bg-[#F0E8D8] text-[#1F2933] font-bold rounded-2xl transition text-xs flex items-center justify-center gap-2 cursor-pointer shadow-sm"
             >
-              <ImageUp className="w-4 h-4" /> Share Payment Screenshot
+              <ImageUp className="w-4 h-4 text-[#5F6368]" /> Share Payment Screenshot
             </button>
             <input
               ref={screenshotInput}
@@ -476,7 +476,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
             <button
               type="button"
               onClick={() => setStep('confirmed')}
-              className="w-full min-h-[48px] text-gray-400 hover:text-white font-bold text-xs transition"
+              className="w-full min-h-[48px] text-[#5F6368] hover:text-[#1F2933] font-bold text-xs transition cursor-pointer"
             >
               I'll pay later — view my order
             </button>
@@ -492,11 +492,6 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
     const eta = estimatedDeliveryLabel(placedAt ?? new Date(), settings.estimated_delivery_mins);
     const isCod = placedOrder.payment_method === 'COD';
 
-    // `placedOrder` is the snapshot returned by the insert and never changes.
-    // A customer who stays on this screen while an admin verifies the transfer
-    // must see that happen, so the payment status is read from the live list
-    // that realtime keeps current, falling back to the snapshot before the
-    // subscription has delivered anything.
     const live = existingOrders.find(o => o.id === placedOrder.id) ?? placedOrder;
     const tone = paymentTone(live);
     const note = paymentNote(live);
@@ -505,12 +500,12 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
       <main className="flex-1 px-4 py-8 sm:py-12">
         <div className="max-w-xl mx-auto space-y-4 sm:space-y-5">
 
-          <section className="bg-[#121212] border border-emerald-500/30 rounded-3xl p-6 sm:p-8 text-center space-y-3">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 rounded-3xl mx-auto flex items-center justify-center">
-              <CheckCircle2 className="w-9 h-9 sm:w-11 sm:h-11" />
+          <section className="bg-white border border-[#DDD6C8] rounded-3xl p-6 sm:p-8 text-center space-y-3 shadow-md">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#D1FAE5] border border-[#86EFAC] text-[#146C43] rounded-3xl mx-auto flex items-center justify-center shadow-sm">
+              <CheckCircle2 className="w-9 h-9 sm:w-11 sm:h-11 text-[#146C43]" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-white font-serif">✅ Order Confirmed</h1>
-            <p className="text-xs sm:text-sm text-gray-400">
+            <h1 className="text-2xl sm:text-3xl font-black text-[#1F2933] font-serif">Order Confirmed</h1>
+            <p className="text-xs sm:text-sm text-[#5F6368]">
               {isCod
                 ? 'Pay our delivery partner when your food arrives.'
                 : 'Our team will verify your payment and begin preparing your food.'}
@@ -518,27 +513,27 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
           </section>
 
           {/* The four facts, plainly */}
-          <section className="bg-[#121212] border border-white/10 rounded-3xl divide-y divide-white/10">
+          <section className="bg-white border border-[#DDD6C8] rounded-3xl divide-y divide-[#DDD6C8] shadow-sm">
             {[
               { label: 'Order ID', value: placedOrder.order_number, mono: true },
               { label: 'Estimated Delivery', value: eta },
               { label: 'Payment Method', value: isCod ? '🚚 Cash on Delivery' : '⚡ Instant UPI Payment' }
             ].map(({ label, value, mono }) => (
               <div key={label} className="flex items-center justify-between gap-4 p-4 sm:px-5">
-                <span className="text-[11px] uppercase tracking-wider text-gray-500 font-bold shrink-0">{label}</span>
-                <span className={`text-sm font-black text-white text-right min-w-0 break-words ${mono ? 'font-mono text-[#C5A059]' : ''}`}>
+                <span className="text-[11px] uppercase tracking-wider text-[#5F6368] font-bold shrink-0">{label}</span>
+                <span className={`text-sm font-black text-[#1F2933] text-right min-w-0 break-words ${mono ? 'font-mono text-[#D95F0A]' : ''}`}>
                   {value}
                 </span>
               </div>
             ))}
 
             <div className="flex items-center justify-between gap-4 p-4 sm:px-5">
-              <span className="text-[11px] uppercase tracking-wider text-gray-500 font-bold shrink-0">Payment Status</span>
+              <span className="text-[11px] uppercase tracking-wider text-[#5F6368] font-bold shrink-0">Payment Status</span>
               <span className={`text-xs font-black px-3 py-1.5 rounded-full border shrink-0 ${
-                tone === 'success' ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400'
-                  : tone === 'error' ? 'bg-rose-500/10 border-rose-500/30 text-rose-400'
-                  : tone === 'pending' ? 'bg-amber-500/10 border-amber-500/30 text-amber-400'
-                  : 'bg-[#C5A059]/10 border-[#C5A059]/30 text-[#C5A059]'
+                tone === 'success' ? 'bg-[#D1FAE5] border-[#86EFAC] text-[#146C43]'
+                  : tone === 'error' ? 'bg-[#FDE2E1] border-[#F5A6A1] text-[#922B21]'
+                  : tone === 'pending' ? 'bg-[#FFF0CC] border-[#E8C66A] text-[#8A5A00]'
+                  : 'bg-[#F7F4EC] border-[#DDD6C8] text-[#B8862D]'
               }`}>
                 {paymentLabel(live)}
               </span>
@@ -548,15 +543,15 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
           {note && (
             <p className={`text-[11px] text-center px-2 leading-relaxed ${
               tone === 'error'
-                ? 'text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-2xl py-3'
-                : 'text-gray-500'
+                ? 'text-[#922B21] bg-[#FDE2E1] border border-[#F5A6A1] rounded-2xl py-3 font-medium'
+                : 'text-[#5F6368]'
             }`}>
               {note}
             </p>
           )}
 
           {!isCod && live.payment_status === 'pending' && (
-            <p className="text-[11px] text-gray-500 text-center px-2 leading-relaxed">
+            <p className="text-[11px] text-[#5F6368] text-center px-2 leading-relaxed">
               {hasClaimedPayment
                 ? 'Your payment reference has been noted. It stays pending until our team verifies it.'
                 : 'Not paid yet? You can still pay using the UPI details on your order.'}
@@ -564,22 +559,22 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
           )}
 
           {/* Items and total */}
-          <section className="bg-[#121212] border border-white/10 rounded-3xl p-5 space-y-3">
-            <h2 className="text-sm font-black text-white font-serif flex items-center gap-2">
-              <ReceiptText className="w-4 h-4 text-[#C5A059]" /> Your Items
+          <section className="bg-white border border-[#DDD6C8] rounded-3xl p-5 space-y-3 shadow-sm">
+            <h2 className="text-sm font-black text-[#1F2933] font-serif flex items-center gap-2">
+              <ReceiptText className="w-4 h-4 text-[#B8862D]" /> Your Items
             </h2>
             <ul className="space-y-2 text-xs">
               {placedOrder.items.map((item, i) => (
-                <li key={`${item.dish_id}-${i}`} className="flex justify-between gap-3 text-gray-300">
+                <li key={`${item.dish_id}-${i}`} className="flex justify-between gap-3 text-[#1F2933]">
                   <span className="min-w-0 break-words">
-                    {item.dish_name} <span className="text-gray-500">× {item.quantity}</span>
+                    {item.dish_name} <span className="text-[#5F6368]">× {item.quantity}</span>
                   </span>
-                  <span className="font-bold text-white shrink-0">₹{item.price * item.quantity}</span>
+                  <span className="font-bold text-[#1F2933] shrink-0">₹{item.price * item.quantity}</span>
                 </li>
               ))}
             </ul>
-            <div className="flex justify-between pt-3 border-t border-white/10 text-base font-black text-white">
-              <span>Total</span><span className="text-[#C5A059]">₹{placedOrder.total_amount}</span>
+            <div className="flex justify-between pt-3 border-t border-[#DDD6C8] text-base font-black text-[#1F2933]">
+              <span>Total</span><span className="text-[#D95F0A]">₹{placedOrder.total_amount}</span>
             </div>
           </section>
 
@@ -590,15 +585,15 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
             <button
               type="button"
               onClick={() => onTrackOrder(placedOrder)}
-              className="w-full min-h-[56px] px-5 bg-[#C5A059] hover:bg-[#b38f48] active:scale-[0.99] text-black font-black rounded-2xl transition text-sm flex items-center justify-center gap-2"
+              className="w-full min-h-[56px] px-5 bg-[#D95F0A] hover:bg-[#B94D00] active:scale-[0.99] text-white font-black rounded-2xl transition text-sm flex items-center justify-center gap-2 border border-[#B94D00] shadow-sm cursor-pointer"
             >
-              <Truck className="w-5 h-5" /> Track Order
+              <Truck className="w-5 h-5 text-white" /> Track Order
             </button>
 
             <button
               type="button"
               onClick={onBackToMenu}
-              className="w-full min-h-[52px] px-5 bg-[#181818] border border-white/10 hover:bg-white/5 text-gray-300 font-bold rounded-2xl transition text-sm"
+              className="w-full min-h-[52px] px-5 bg-white border border-[#9F988A] hover:bg-[#F0E8D8] text-[#1F2933] font-bold rounded-2xl transition text-sm cursor-pointer shadow-sm"
             >
               Back to Menu
             </button>
@@ -609,7 +604,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
                 type="button"
                 onClick={handleDownloadReceipt}
                 disabled={isDownloading}
-                className="min-h-[48px] px-3 text-gray-400 hover:text-white font-bold rounded-2xl transition text-[11px] flex items-center justify-center gap-1.5 disabled:opacity-50"
+                className="min-h-[48px] px-3 text-[#5F6368] hover:text-[#1F2933] font-bold rounded-2xl transition text-[11px] flex items-center justify-center gap-1.5 disabled:opacity-50 cursor-pointer"
               >
                 {isDownloading
                   ? <><Loader2 className="w-3.5 h-3.5 animate-spin" /> Preparing…</>
@@ -618,7 +613,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
               <button
                 type="button"
                 onClick={handleShareOrder}
-                className="min-h-[48px] px-3 text-gray-400 hover:text-white font-bold rounded-2xl transition text-[11px] flex items-center justify-center gap-1.5"
+                className="min-h-[48px] px-3 text-[#5F6368] hover:text-[#1F2933] font-bold rounded-2xl transition text-[11px] flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Share2 className="w-3.5 h-3.5" /> Share
               </button>
@@ -632,8 +627,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
   // ------------------------------------------------------------- step: form
 
   const inputClass =
-    'w-full min-h-[52px] pl-11 pr-4 bg-[#181818] border border-white/10 rounded-2xl text-sm text-white ' +
-    'placeholder-gray-500 outline-none focus:border-[#C5A059] transition';
+    'w-full min-h-[52px] pl-11 pr-4 bg-[#F8F6F0] border border-[#9F988A] rounded-2xl text-sm text-[#1F2933] ' +
+    'placeholder-[#6B6B63] outline-none focus:border-[#D95F0A] focus:ring-2 focus:ring-[#D95F0A]/20 transition';
 
   const ctaLabel =
     paymentMethod === 'COD' ? 'Continue with Cash on Delivery'
@@ -645,11 +640,11 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
       type="button"
       onClick={handlePlaceOrder}
       disabled={isPlacing || !validation.valid}
-      className="w-full min-h-[56px] px-5 bg-[#C5A059] hover:bg-[#b38f48] active:scale-[0.99] text-black font-black rounded-2xl shadow-lg shadow-[#C5A059]/20 transition text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+      className="w-full min-h-[56px] px-5 bg-[#D95F0A] hover:bg-[#B94D00] active:scale-[0.99] text-white font-black rounded-2xl shadow-md border border-[#B94D00] transition text-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
     >
       {isPlacing
         ? <><Loader2 className="w-5 h-5 animate-spin" /> Placing your order…</>
-        : <><CheckCircle2 className="w-5 h-5" /> {ctaLabel}</>}
+        : <><CheckCircle2 className="w-5 h-5 text-white" /> {ctaLabel}</>}
     </button>
   );
 
@@ -664,14 +659,14 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
         />
 
         {cart.length === 0 ? (
-          <div className="bg-[#121212] border border-white/10 rounded-3xl p-10 text-center space-y-3">
-            <ShoppingBag className="w-10 h-10 text-[#C5A059] mx-auto" />
-            <p className="text-sm font-bold text-white">Your cart is empty</p>
-            <p className="text-xs text-gray-400">Add something from the menu to get started.</p>
+          <div className="bg-white border border-[#DDD6C8] rounded-3xl p-10 text-center space-y-3 shadow-sm">
+            <ShoppingBag className="w-10 h-10 text-[#B8862D] mx-auto" />
+            <p className="text-sm font-bold text-[#1F2933]">Your cart is empty</p>
+            <p className="text-xs text-[#5F6368]">Add something from the menu to get started.</p>
             <button
               type="button"
               onClick={onBackToMenu}
-              className="mt-1 min-h-[52px] px-6 bg-[#C5A059] hover:bg-[#b38f48] text-black font-black rounded-2xl transition text-xs"
+              className="mt-1 min-h-[52px] px-6 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-black rounded-2xl transition text-xs border border-[#B94D00] cursor-pointer"
             >
               Browse Menu
             </button>
@@ -681,15 +676,15 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
             <ErrorBox />
 
             {/* Delivery details */}
-            <section className="bg-[#121212] border border-white/10 rounded-3xl p-5 sm:p-6 space-y-4">
-              <h2 className="text-sm font-black text-white font-serif">Delivery Details</h2>
+            <section className="bg-white border border-[#DDD6C8] rounded-3xl p-5 sm:p-6 space-y-4 shadow-sm">
+              <h2 className="text-sm font-black text-[#1F2933] font-serif">Delivery Details</h2>
 
               <div className="space-y-1.5">
-                <label htmlFor="co-name" className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                <label htmlFor="co-name" className="block text-[11px] font-bold text-[#5F6368] uppercase tracking-wider">
                   Full Name *
                 </label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-gray-500 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <User className="w-4 h-4 text-[#5F6368] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     id="co-name" type="text" value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
@@ -699,11 +694,11 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="co-phone" className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                <label htmlFor="co-phone" className="block text-[11px] font-bold text-[#5F6368] uppercase tracking-wider">
                   Phone Number *
                 </label>
                 <div className="relative">
-                  <Phone className="w-4 h-4 text-gray-500 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <Phone className="w-4 h-4 text-[#5F6368] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     id="co-phone" type="tel" inputMode="numeric" maxLength={PHONE_LENGTH}
                     value={phone} onChange={(e) => setPhone(toPhoneDigits(e.target.value))}
@@ -713,11 +708,11 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
               </div>
 
               <div className="space-y-1.5">
-                <label htmlFor="co-address" className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                <label htmlFor="co-address" className="block text-[11px] font-bold text-[#5F6368] uppercase tracking-wider">
                   Delivery Address *
                 </label>
                 <div className="relative">
-                  <MapPin className="w-4 h-4 text-gray-500 absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+                  <MapPin className="w-4 h-4 text-[#5F6368] absolute left-4 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     id="co-address" type="text" value={address}
                     onChange={(e) => setAddress(e.target.value)}
@@ -729,13 +724,13 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
               <input
                 type="text" value={landmark} onChange={(e) => setLandmark(e.target.value)}
                 placeholder="Landmark (optional)" aria-label="Landmark (optional)"
-                className="w-full min-h-[52px] px-4 bg-[#181818] border border-white/10 rounded-2xl text-sm text-white placeholder-gray-500 outline-none focus:border-[#C5A059] transition"
+                className="w-full min-h-[52px] px-4 bg-[#F8F6F0] border border-[#9F988A] rounded-2xl text-sm text-[#1F2933] placeholder-[#6B6B63] outline-none focus:border-[#D95F0A] focus:ring-2 focus:ring-[#D95F0A]/20 transition"
               />
             </section>
 
             {/* Payment method */}
-            <section className="bg-[#121212] border border-white/10 rounded-3xl p-5 sm:p-6 space-y-3">
-              <h2 className="text-sm font-black text-white font-serif">Payment Method</h2>
+            <section className="bg-white border border-[#DDD6C8] rounded-3xl p-5 sm:p-6 space-y-3 shadow-sm">
+              <h2 className="text-sm font-black text-[#1F2933] font-serif">Payment Method</h2>
 
               <div role="radiogroup" aria-label="Payment method" className="space-y-3">
 
@@ -745,76 +740,70 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
                   role="radio"
                   aria-checked={paymentMethod === 'COD'}
                   onClick={() => setPaymentMethod('COD')}
-                  className={`relative w-full text-left p-5 rounded-2xl border-2 transition ${
+                  className={`relative w-full text-left p-5 rounded-2xl border-2 transition cursor-pointer ${
                     paymentMethod === 'COD'
-                      ? 'border-[#C5A059] bg-[#C5A059]/10'
-                      : 'border-white/10 bg-[#181818] hover:bg-white/5'
+                      ? 'border-[#B8862D] bg-[#F7F4EC]'
+                      : 'border-[#DDD6C8] bg-white hover:bg-[#F0E8D8]'
                   }`}
                 >
                   <div className="flex items-start gap-4">
                     <span className="text-3xl leading-none shrink-0" aria-hidden="true">🚚</span>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className={`text-sm font-black ${paymentMethod === 'COD' ? 'text-[#C5A059]' : 'text-white'}`}>
+                        <p className={`text-sm font-black ${paymentMethod === 'COD' ? 'text-[#B8862D]' : 'text-[#1F2933]'}`}>
                           Cash on Delivery
                         </p>
-                        <span className="text-[9px] font-black uppercase tracking-wider bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 rounded-full px-2 py-0.5">
+                        <span className="text-[9px] font-black uppercase tracking-wider bg-[#D1FAE5] text-[#146C43] border border-[#86EFAC] rounded-full px-2 py-0.5">
                           Recommended
                         </span>
                       </div>
-                      <p className="text-[11px] text-gray-400 mt-1.5 leading-relaxed">
+                      <p className="text-[11px] text-[#5F6368] mt-1.5 leading-relaxed">
                         Pay our delivery partner when your food arrives. No advance payment required.
                       </p>
                     </div>
-                    {paymentMethod === 'COD' && <CheckCircle2 className="w-5 h-5 text-[#C5A059] shrink-0" />}
+                    {paymentMethod === 'COD' && <CheckCircle2 className="w-5 h-5 text-[#B8862D] shrink-0" />}
                   </div>
                 </button>
 
-                {/* ② Instant UPI Payment.
-                    Offered only when the kitchen has actually configured a UPI
-                    ID in Settings. Without one there is no honest destination,
-                    and the previous behaviour was worse than hiding it: a
-                    hardcoded fallback VPA meant a customer could pay a
-                    different account than the restaurant's. COD stays. */}
                 {upiConfigured ? (
                 <button
                   type="button"
                   role="radio"
                   aria-checked={paymentMethod === 'UPI'}
                   onClick={() => setPaymentMethod('UPI')}
-                  className={`relative w-full text-left p-5 rounded-2xl border-2 transition ${
+                  className={`relative w-full text-left p-5 rounded-2xl border-2 transition cursor-pointer ${
                     paymentMethod === 'UPI'
-                      ? 'border-[#C5A059] bg-[#C5A059]/10'
-                      : 'border-white/10 bg-[#181818] hover:bg-white/5'
+                      ? 'border-[#B8862D] bg-[#F7F4EC]'
+                      : 'border-[#DDD6C8] bg-white hover:bg-[#F0E8D8]'
                   }`}
                 >
                   <div className="flex items-start gap-4">
                     <span className="text-3xl leading-none shrink-0" aria-hidden="true">⚡</span>
                     <div className="min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className={`text-sm font-black ${paymentMethod === 'UPI' ? 'text-[#C5A059]' : 'text-white'}`}>
+                        <p className={`text-sm font-black ${paymentMethod === 'UPI' ? 'text-[#B8862D]' : 'text-[#1F2933]'}`}>
                           Instant UPI Payment
                         </p>
-                        <span className="text-[9px] font-black uppercase tracking-wider text-gray-500 border border-white/10 rounded-full px-2 py-0.5">
+                        <span className="text-[9px] font-black uppercase tracking-wider text-[#5F6368] border border-[#DDD6C8] rounded-full px-2 py-0.5">
                           Optional
                         </span>
                       </div>
-                      <p className="text-[11px] text-gray-400 mt-1.5 leading-relaxed">
+                      <p className="text-[11px] text-[#5F6368] mt-1.5 leading-relaxed">
                         Pay now using any UPI app.
                       </p>
                       <div className="flex flex-wrap gap-1.5 mt-2.5">
                         {UPI_APPS.map(app => (
-                          <span key={app} className="text-[10px] font-bold text-gray-400 bg-[#121212] border border-white/10 rounded-full px-2 py-0.5">
+                          <span key={app} className="text-[10px] font-bold text-[#5F6368] bg-[#F7F4EC] border border-[#DDD6C8] rounded-full px-2 py-0.5">
                             {app}
                           </span>
                         ))}
                       </div>
                     </div>
-                    {paymentMethod === 'UPI' && <CheckCircle2 className="w-5 h-5 text-[#C5A059] shrink-0" />}
+                    {paymentMethod === 'UPI' && <CheckCircle2 className="w-5 h-5 text-[#B8862D] shrink-0" />}
                   </div>
                 </button>
                 ) : (
-                  <p className="p-4 rounded-2xl border border-white/10 bg-[#181818] text-[11px] text-gray-400 leading-relaxed">
+                  <p className="p-4 rounded-2xl border border-[#DDD6C8] bg-[#F7F4EC] text-[11px] text-[#5F6368] leading-relaxed">
                     Online UPI payment is unavailable right now — the kitchen has not
                     configured a UPI ID. Cash on Delivery is still available.
                   </p>
@@ -822,8 +811,8 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
               </div>
 
               {paymentMethod === 'UPI' && (
-                <p className="text-[11px] text-gray-400 bg-[#181818] border border-white/10 rounded-2xl p-3.5 leading-relaxed flex items-start gap-2.5">
-                  <Info className="w-3.5 h-3.5 text-[#C5A059] shrink-0 mt-0.5" />
+                <p className="text-[11px] text-[#5F6368] bg-[#F7F4EC] border border-[#DDD6C8] rounded-2xl p-3.5 leading-relaxed flex items-start gap-2.5">
+                  <Info className="w-3.5 h-3.5 text-[#B8862D] shrink-0 mt-0.5" />
                   <span>
                     We'll place your order first, then show the QR code and UPI ID — so you never pay for
                     an order that failed to reach the kitchen.
@@ -833,10 +822,10 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
             </section>
 
             {/* Order summary */}
-            <section className="bg-[#121212] border border-white/10 rounded-3xl p-5 sm:p-6 space-y-3">
-              <h2 className="text-sm font-black text-white font-serif">
+            <section className="bg-white border border-[#DDD6C8] rounded-3xl p-5 sm:p-6 space-y-3 shadow-sm">
+              <h2 className="text-sm font-black text-[#1F2933] font-serif">
                 Order Summary
-                <span className="ml-2 text-[11px] font-bold text-gray-500">
+                <span className="ml-2 text-[11px] font-bold text-[#5F6368]">
                   {cart.reduce((s, i) => s + i.quantity, 0)} items
                 </span>
               </h2>
@@ -845,34 +834,34 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
                 {cart.map(item => (
                   <li key={item.menuItem.id} className="flex items-start justify-between gap-3 text-xs">
                     <span className="flex items-start gap-2 min-w-0">
-                      <span className={`w-2 h-2 rounded-full shrink-0 mt-1.5 ${item.menuItem.is_veg ? 'bg-emerald-500' : 'bg-red-500'}`} />
-                      <span className="text-gray-300 break-words">
+                      <span className={`w-2 h-2 rounded-full shrink-0 mt-1.5 ${item.menuItem.is_veg ? 'bg-[#198754]' : 'bg-[#C0392B]'}`} />
+                      <span className="text-[#1F2933] break-words">
                         {item.menuItem.name}
-                        <span className="text-gray-500"> × {item.quantity}</span>
+                        <span className="text-[#5F6368]"> × {item.quantity}</span>
                       </span>
                     </span>
-                    <span className="font-bold text-white shrink-0">₹{item.menuItem.price * item.quantity}</span>
+                    <span className="font-bold text-[#1F2933] shrink-0">₹{item.menuItem.price * item.quantity}</span>
                   </li>
                 ))}
               </ul>
 
-              <div className="pt-3 border-t border-white/10 space-y-1.5 text-xs">
-                <div className="flex justify-between text-gray-400">
-                  <span>Subtotal</span><span className="font-bold text-white">₹{subtotal}</span>
+              <div className="pt-3 border-t border-[#DDD6C8] space-y-1.5 text-xs">
+                <div className="flex justify-between text-[#5F6368]">
+                  <span>Subtotal</span><span className="font-bold text-[#1F2933]">₹{subtotal}</span>
                 </div>
-                <div className="flex justify-between text-gray-400">
+                <div className="flex justify-between text-[#5F6368]">
                   <span>Delivery</span>
                   <span className="font-bold">
-                    {deliveryFee === 0 ? <span className="text-emerald-400 font-black uppercase">Free</span> : `₹${deliveryFee}`}
+                    {deliveryFee === 0 ? <span className="text-[#198754] font-black uppercase">Free</span> : `₹${deliveryFee}`}
                   </span>
                 </div>
                 {taxAmount > 0 && (
-                  <div className="flex justify-between text-gray-400">
-                    <span>GST ({settings.tax_percent}%)</span><span className="font-bold text-white">₹{taxAmount}</span>
+                  <div className="flex justify-between text-[#5F6368]">
+                    <span>GST ({settings.tax_percent}%)</span><span className="font-bold text-[#1F2933]">₹{taxAmount}</span>
                   </div>
                 )}
-                <div className="flex justify-between pt-2.5 border-t border-white/10 text-base font-black text-white">
-                  <span>Total</span><span className="text-[#C5A059]">₹{grandTotal}</span>
+                <div className="flex justify-between pt-2.5 border-t border-[#DDD6C8] text-base font-black text-[#1F2933]">
+                  <span>Total</span><span className="text-[#D95F0A]">₹{grandTotal}</span>
                 </div>
               </div>
             </section>
@@ -880,7 +869,7 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
             {/* Inline CTA for wide screens */}
             <div className="hidden lg:block space-y-2">
               {!validation.valid && (
-                <p className="text-[11px] text-[#C5A059] text-center">{validation.message}</p>
+                <p className="text-[11px] text-[#D95F0A] text-center font-bold">{validation.message}</p>
               )}
               <Cta />
             </div>
@@ -888,12 +877,11 @@ export const CheckoutView: React.FC<CheckoutViewProps> = ({
         )}
       </div>
 
-      {/* Sticky bottom bar — the primary action stays reachable on phones without
-          scrolling back down past the summary. */}
+      {/* Sticky bottom bar */}
       {cart.length > 0 && (
-        <div className="lg:hidden fixed inset-x-0 bottom-0 z-40 bg-[#0d0d0d]/95 backdrop-blur border-t border-white/10 px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+        <div className="lg:hidden fixed inset-x-0 bottom-0 z-40 bg-white/95 backdrop-blur border-t border-[#DDD6C8] px-4 pt-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-lg">
           {!validation.valid && (
-            <p className="text-[11px] text-[#C5A059] text-center mb-2 leading-snug">{validation.message}</p>
+            <p className="text-[11px] text-[#D95F0A] font-bold text-center mb-2 leading-snug">{validation.message}</p>
           )}
           <Cta />
         </div>

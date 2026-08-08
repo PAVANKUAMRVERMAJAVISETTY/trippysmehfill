@@ -264,16 +264,16 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
   const activeCount = customersList.filter(c => c.is_active && c.account_status !== 'blocked_fraud').length;
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-8 text-gray-200">
+    <div className="min-h-screen p-4 sm:p-6 max-w-7xl mx-auto space-y-8 text-[#1F2933]" style={{ backgroundColor: '#F5F1E8' }}>
       
       {/* Title Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-white font-serif tracking-wide flex items-center gap-2">
-            <UserCheck className="w-7 h-7 text-[#C5A059]" />
+          <h1 className="text-2xl font-black text-[#252525] font-serif tracking-wide flex items-center gap-2">
+            <UserCheck className="w-7 h-7 text-[#B8862D]" />
             <span>Registered Customers & Anti-Fraud Security</span>
           </h1>
-          <p className="text-xs text-gray-400 mt-0.5">
+          <p className="text-xs text-[#5F6368] mt-0.5">
             Monitor real hardware GPS coordinates, security IPs, WhatsApp verification, and anti-fraud accounts.
           </p>
         </div>
@@ -282,34 +282,34 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
         <div className="flex flex-wrap items-center gap-3 text-xs">
           <button
             onClick={() => setShowSqlModal(true)}
-            className="px-3.5 py-2 rounded-2xl bg-[#181818] hover:bg-[#222] border border-[#C5A059]/40 text-[#C5A059] font-bold flex items-center gap-1.5 transition shadow-lg"
+            className="px-3.5 py-2 rounded-2xl bg-white hover:bg-[#F0E8D8] border border-[#DDD6C8] text-[#B8862D] font-bold flex items-center gap-1.5 transition shadow-sm cursor-pointer"
           >
-            <Database className="w-4 h-4 text-[#C5A059]" />
+            <Database className="w-4 h-4 text-[#B8862D]" />
             <span>View SQL Schema</span>
           </button>
 
-          <div className="bg-[#121212] border border-white/10 px-3.5 py-2 rounded-2xl flex items-center gap-2">
-            <span className="text-gray-400 font-medium">Total Registered:</span>
-            <span className="text-white font-extrabold text-sm">{customersList.length}</span>
+          <div className="bg-white border border-[#DDD6C8] px-3.5 py-2 rounded-2xl flex items-center gap-2 shadow-sm">
+            <span className="text-[#5F6368] font-medium">Total Registered:</span>
+            <span className="text-[#1F2933] font-extrabold text-sm">{customersList.length}</span>
           </div>
-          <div className="bg-[#121212] border border-white/10 px-3.5 py-2 rounded-2xl flex items-center gap-2">
-            <span className="text-gray-400 font-medium">Active:</span>
-            <span className="text-emerald-400 font-extrabold text-sm">{activeCount}</span>
+          <div className="bg-white border border-[#DDD6C8] px-3.5 py-2 rounded-2xl flex items-center gap-2 shadow-sm">
+            <span className="text-[#5F6368] font-medium">Active:</span>
+            <span className="text-[#146C43] font-extrabold text-sm">{activeCount}</span>
           </div>
         </div>
       </div>
 
       {successMsg && (
-        <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs rounded-2xl flex items-center justify-between">
+        <div className="p-4 bg-[#D1FAE5] border border-[#86EFAC] text-[#146C43] text-xs rounded-2xl flex items-center justify-between font-bold">
           <span>{successMsg}</span>
-          <button onClick={() => setSuccessMsg('')} className="text-emerald-400 hover:text-white">✕</button>
+          <button onClick={() => setSuccessMsg('')} className="text-[#146C43] hover:text-black cursor-pointer">✕</button>
         </div>
       )}
 
       {/* Account Creation Panel */}
-      <div className="bg-[#121212] p-5 rounded-2xl border border-white/10 shadow-xl space-y-4">
-        <div className="flex items-center gap-2 text-white font-bold text-sm font-serif">
-          <Plus className="w-4 h-4 text-[#C5A059]" />
+      <div className="bg-white p-5 rounded-2xl border border-[#DDD6C8] shadow-sm space-y-4">
+        <div className="flex items-center gap-2 text-[#1F2933] font-bold text-sm font-serif">
+          <Plus className="w-4 h-4 text-[#D95F0A]" />
           <span>Create Customer Account (Email & Password Login)</span>
         </div>
 
@@ -320,7 +320,7 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
             value={fullName}
             onChange={(e) => setFullName(e.target.value)}
             required
-            className="p-2.5 bg-[#181818] border border-white/10 rounded-xl text-white placeholder-gray-500 outline-none focus:border-[#C5A059]"
+            className="p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] placeholder-[#6B6B63] outline-none focus:border-[#D95F0A]"
           />
           <input
             type="email"
@@ -328,7 +328,7 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="p-2.5 bg-[#181818] border border-white/10 rounded-xl text-white placeholder-gray-500 outline-none focus:border-[#C5A059]"
+            className="p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] placeholder-[#6B6B63] outline-none focus:border-[#D95F0A]"
           />
           <input
             type="password"
@@ -336,26 +336,26 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="p-2.5 bg-[#181818] border border-white/10 rounded-xl text-white placeholder-gray-500 outline-none focus:border-[#C5A059]"
+            className="p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] placeholder-[#6B6B63] outline-none focus:border-[#D95F0A]"
           />
           <input
             type="text"
             placeholder="Phone Number"
             value={phone}
             onChange={(e) => setPhone(e.target.value)}
-            className="p-2.5 bg-[#181818] border border-white/10 rounded-xl text-white placeholder-gray-500 outline-none focus:border-[#C5A059]"
+            className="p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] placeholder-[#6B6B63] outline-none focus:border-[#D95F0A]"
           />
           <input
             type="text"
             placeholder="Hostel / Delivery Address"
             value={hostelAddress}
             onChange={(e) => setHostelAddress(e.target.value)}
-            className="p-2.5 bg-[#181818] border border-white/10 rounded-xl text-white placeholder-gray-500 outline-none focus:border-[#C5A059]"
+            className="p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] placeholder-[#6B6B63] outline-none focus:border-[#D95F0A]"
           />
 
           <button
             type="submit"
-            className="py-2.5 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold rounded-xl shadow-lg shadow-[#C5A059]/20 transition flex items-center justify-center gap-1.5"
+            className="py-2.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold rounded-xl border border-[#B94D00] shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer"
           >
             <UserCheck className="w-4 h-4" />
             <span>Register Customer</span>
@@ -364,56 +364,56 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-[#121212] p-4 rounded-2xl border border-white/10">
+      <div className="flex flex-col sm:flex-row items-center justify-between gap-4 bg-white p-4 rounded-2xl border border-[#DDD6C8] shadow-sm">
         <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-[#5F6368] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             placeholder="Search customers by name, mail, phone..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-9 pr-3 py-2 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-[#C5A059]"
+            className="w-full pl-9 pr-3 py-2 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-xs text-[#1F2933] placeholder-[#6B6B63] outline-none focus:border-[#D95F0A]"
           />
         </div>
 
         <div className="flex items-center gap-2 text-xs w-full sm:w-auto flex-wrap">
-          <span className="text-gray-400 font-medium">Filter:</span>
+          <span className="text-[#5F6368] font-medium">Filter:</span>
           <button
             onClick={() => setStatusFilter('all')}
-            className={`px-3 py-1.5 rounded-xl font-bold transition ${
+            className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer border ${
               statusFilter === 'all'
-                ? 'bg-[#C5A059] text-black'
-                : 'bg-[#181818] text-gray-400 hover:text-white border border-white/10'
+                ? 'bg-[#B8862D] text-white border-[#B8862D]'
+                : 'bg-white text-[#1F2933] border-[#DDD6C8] hover:bg-[#F7F4EC]'
             }`}
           >
             All ({customersList.length})
           </button>
           <button
             onClick={() => setStatusFilter('active')}
-            className={`px-3 py-1.5 rounded-xl font-bold transition ${
+            className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer border ${
               statusFilter === 'active'
-                ? 'bg-emerald-500 text-black'
-                : 'bg-[#181818] text-gray-400 hover:text-white border border-white/10'
+                ? 'bg-[#198754] text-white border-[#146C43]'
+                : 'bg-white text-[#1F2933] border-[#DDD6C8] hover:bg-[#F7F4EC]'
             }`}
           >
             Active ({activeCount})
           </button>
           <button
             onClick={() => setStatusFilter('whatsapp_pending')}
-            className={`px-3 py-1.5 rounded-xl font-bold transition ${
+            className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer border ${
               statusFilter === 'whatsapp_pending'
-                ? 'bg-amber-500 text-black'
-                : 'bg-[#181818] text-amber-400 hover:text-amber-300 border border-amber-500/30'
+                ? 'bg-[#8A5A00] text-white border-[#8A5A00]'
+                : 'bg-white text-[#8A5A00] border-[#E8C66A] hover:bg-[#FFF0CC]'
             }`}
           >
             WhatsApp Pending
           </button>
           <button
             onClick={() => setStatusFilter('blocked_fraud')}
-            className={`px-3 py-1.5 rounded-xl font-bold transition ${
+            className={`px-3 py-1.5 rounded-xl font-bold transition cursor-pointer border ${
               statusFilter === 'blocked_fraud'
-                ? 'bg-rose-600 text-white'
-                : 'bg-[#181818] text-rose-400 hover:text-rose-300 border border-rose-500/30'
+                ? 'bg-[#C0392B] text-white border-[#922B21]'
+                : 'bg-white text-[#922B21] border-[#F5A6A1] hover:bg-[#FDE2E1]'
             }`}
           >
             Fraud Suspended
@@ -423,10 +423,10 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
 
       {/* Customer Accounts Grid */}
       {filteredCustomers.length === 0 ? (
-        <div className="bg-[#121212] rounded-2xl p-10 text-center border border-white/10 shadow-xl">
-          <User className="w-12 h-12 text-gray-600 mx-auto mb-2" />
-          <p className="text-white font-bold">No registered customer accounts found.</p>
-          <p className="text-xs text-gray-400 mt-1">
+        <div className="bg-white rounded-2xl p-10 text-center border border-[#DDD6C8] shadow-sm">
+          <User className="w-12 h-12 text-[#5F6368] mx-auto mb-2" />
+          <p className="text-[#1F2933] font-bold">No registered customer accounts found.</p>
+          <p className="text-xs text-[#5F6368] mt-1">
             {searchQuery ? 'Try adjusting your search criteria.' : 'Create a customer account above or users will register when signing up on the app.'}
           </p>
         </div>
@@ -438,10 +438,10 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
             return (
               <div
                 key={cust.id}
-                className={`bg-[#121212] rounded-2xl p-5 border shadow-xl transition space-y-4 flex flex-col justify-between ${
+                className={`bg-white rounded-2xl p-5 border shadow-sm transition space-y-4 flex flex-col justify-between ${
                   isBlocked
-                    ? 'border-rose-500/50 bg-rose-950/10'
-                    : 'border-white/10 hover:border-[#C5A059]/40'
+                    ? 'border-[#F5A6A1] bg-[#FDE2E1]/20'
+                    : 'border-[#DDD6C8] hover:border-[#B8862D]'
                 }`}
               >
                 <div className="space-y-3">
@@ -450,23 +450,23 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
                     <div className="flex items-center gap-3">
                       <div className={`w-10 h-10 rounded-2xl font-black flex items-center justify-center text-base ${
                         isBlocked
-                          ? 'bg-rose-500/20 text-rose-400 border border-rose-500/40'
-                          : 'bg-[#C5A059]/20 border border-[#C5A059]/30 text-[#C5A059]'
+                          ? 'bg-[#FDE2E1] text-[#922B21] border border-[#F5A6A1]'
+                          : 'bg-[#FFF0CC] border border-[#E8C66A] text-[#8A5A00]'
                       }`}>
                         {cust.full_name ? cust.full_name.charAt(0).toUpperCase() : 'C'}
                       </div>
                       <div>
-                        <h3 className="font-extrabold text-white text-sm line-clamp-1">{cust.full_name}</h3>
+                        <h3 className="font-extrabold text-[#1F2933] text-sm line-clamp-1">{cust.full_name}</h3>
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-[#C5A059]/10 border border-[#C5A059]/30 text-[#C5A059]">
+                          <span className="inline-block px-2 py-0.5 rounded-full text-[10px] font-black uppercase bg-[#F7F4EC] border border-[#DDD6C8] text-[#B8862D]">
                             Customer
                           </span>
                           {cust.is_whatsapp_verified ? (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-0.5">
-                              <ShieldCheck className="w-3 h-3" /> WA Verified
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-black bg-[#D1FAE5] text-[#146C43] border border-[#86EFAC] flex items-center gap-0.5">
+                              <ShieldCheck className="w-3 h-3 text-[#146C43]" /> WA Verified
                             </span>
                           ) : (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#FFF0CC] text-[#8A5A00] border border-[#E8C66A]">
                               WA Pending
                             </span>
                           )}
@@ -475,17 +475,17 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
                     </div>
 
                     <span
-                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase flex items-center gap-1 ${
+                      className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase flex items-center gap-1 border ${
                         isBlocked
-                          ? 'bg-rose-600/30 border border-rose-500 text-rose-300 font-extrabold'
+                          ? 'bg-[#FDE2E1] border-[#F5A6A1] text-[#922B21] font-extrabold'
                           : cust.is_active
-                          ? 'bg-emerald-500/20 border border-emerald-500/30 text-emerald-400'
-                          : 'bg-rose-500/20 border border-rose-500/30 text-rose-400'
+                          ? 'bg-[#D1FAE5] border-[#86EFAC] text-[#146C43]'
+                          : 'bg-[#FDE2E1] border-[#F5A6A1] text-[#922B21]'
                       }`}
                     >
                       {isBlocked ? (
                         <>
-                          <ShieldAlert className="w-3 h-3 text-rose-400" />
+                          <ShieldAlert className="w-3 h-3 text-[#922B21]" />
                           <span>BLOCKED FRAUD</span>
                         </>
                       ) : cust.is_active ? (
@@ -504,34 +504,34 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
 
                   {/* Details */}
                   <div className="space-y-2 text-xs pt-1">
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <Mail className="w-3.5 h-3.5 text-[#C5A059] shrink-0" />
+                    <div className="flex items-center gap-2 text-[#1F2933]">
+                      <Mail className="w-3.5 h-3.5 text-[#B8862D] shrink-0" />
                       <span className="truncate">{cust.email}</span>
                     </div>
 
-                    <div className="flex items-center gap-2 text-gray-300">
-                      <Phone className="w-3.5 h-3.5 text-[#C5A059] shrink-0" />
+                    <div className="flex items-center gap-2 text-[#1F2933]">
+                      <Phone className="w-3.5 h-3.5 text-[#B8862D] shrink-0" />
                       <span>{cust.phone || 'N/A'}</span>
                     </div>
 
                     {cust.hostel_address && (
-                      <div className="flex items-start gap-2 text-gray-300">
-                        <MapPin className="w-3.5 h-3.5 text-[#C5A059] shrink-0 mt-0.5" />
-                        <span className="line-clamp-2 text-gray-400 text-[11px]">{cust.hostel_address}</span>
+                      <div className="flex items-start gap-2 text-[#1F2933]">
+                        <MapPin className="w-3.5 h-3.5 text-[#B8862D] shrink-0 mt-0.5" />
+                        <span className="line-clamp-2 text-[#5F6368] text-[11px]">{cust.hostel_address}</span>
                       </div>
                     )}
 
                     {/* Auth Provider & Comprehensive ERP Anti-Fraud Security Data */}
-                    <div className="pt-2 border-t border-white/10 space-y-2 text-[11px]">
+                    <div className="pt-2 border-t border-[#DDD6C8] space-y-2 text-[11px]">
                       {/* Fraud Risk Indicator Badge */}
                       <div className="flex items-center justify-between">
-                        <span className="text-gray-500 font-medium">Anti-Fraud Risk:</span>
+                        <span className="text-[#5F6368] font-medium">Anti-Fraud Risk:</span>
                         <span className={`px-2 py-0.5 rounded-full font-extrabold text-[10px] uppercase border flex items-center gap-1 ${
                           cust.fraud_risk_level === 'high'
-                            ? 'bg-rose-500/20 text-rose-300 border-rose-500/50 font-black animate-pulse'
+                            ? 'bg-[#FDE2E1] text-[#922B21] border-[#F5A6A1] font-black'
                             : cust.fraud_risk_level === 'medium'
-                            ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                            : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30'
+                            ? 'bg-[#FFF0CC] text-[#8A5A00] border-[#E8C66A]'
+                            : 'bg-[#D1FAE5] text-[#146C43] border-[#86EFAC]'
                         }`}>
                           {cust.fraud_risk_level === 'high' && '🔴 HIGH RISK'}
                           {cust.fraud_risk_level === 'medium' && '⚠️ MEDIUM RISK'}
@@ -541,7 +541,7 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
 
                       {/* Warning reasons if any */}
                       {cust.fraud_risk_reasons && cust.fraud_risk_reasons.length > 0 && (
-                        <div className="p-2 bg-rose-950/30 border border-rose-500/30 rounded-xl space-y-1 text-[10px] text-rose-300">
+                        <div className="p-2 bg-[#FDE2E1] border border-[#F5A6A1] rounded-xl space-y-1 text-[10px] text-[#922B21]">
                           {cust.fraud_risk_reasons.map((r, i) => (
                             <p key={i} className="font-bold flex items-start gap-1">
                               <span>•</span>
@@ -552,37 +552,37 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
                       )}
 
                       {/* Device, OS & Browser */}
-                      <div className="flex items-center justify-between text-[10px] text-gray-400 bg-[#181818] p-2 rounded-xl border border-white/5">
-                        <div className="flex items-center gap-1 font-bold text-white">
+                      <div className="flex items-center justify-between text-[10px] text-[#5F6368] bg-[#F7F4EC] p-2 rounded-xl border border-[#DDD6C8]">
+                        <div className="flex items-center gap-1 font-bold text-[#1F2933]">
                           <span>💻 {cust.device_type || 'Desktop'}</span>
-                          <span className="text-gray-500">•</span>
-                          <span className="text-gray-300">{cust.os_name || 'Windows 11'}</span>
+                          <span className="text-[#DDD6C8]">•</span>
+                          <span className="text-[#5F6368]">{cust.os_name || 'Windows 11'}</span>
                         </div>
-                        <span className="font-mono text-orange-400 font-bold">{cust.browser_name || 'Chrome'}</span>
+                        <span className="font-mono text-[#D95F0A] font-bold">{cust.browser_name || 'Chrome'}</span>
                       </div>
 
                       {/* Public IP */}
                       <div className="flex items-center justify-between font-mono text-[10px]">
-                        <span className="text-gray-500">Public IP:</span>
-                        <span className="text-gray-300 bg-[#181818] px-2 py-0.5 rounded border border-white/10 font-bold">
+                        <span className="text-[#5F6368]">Public IP:</span>
+                        <span className="text-[#1F2933] bg-[#F7F4EC] px-2 py-0.5 rounded border border-[#DDD6C8] font-bold">
                           🌐 {cust.ip_address || '103.211.14.82'}
                         </span>
                       </div>
 
                       {/* Hardware GPS & Live Google Maps Link */}
-                      <div className="space-y-1 bg-[#181818] p-2.5 rounded-xl border border-white/10 text-[10px]">
+                      <div className="space-y-1 bg-[#F7F4EC] p-2.5 rounded-xl border border-[#DDD6C8] text-[10px]">
                         <div className="flex items-center justify-between">
-                          <span className="text-gray-400 font-bold flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-orange-400" /> GPS Distance:
+                          <span className="text-[#5F6368] font-bold flex items-center gap-1">
+                            <MapPin className="w-3 h-3 text-[#D95F0A]" /> GPS Distance:
                           </span>
-                          <span className="text-emerald-400 font-mono font-extrabold">
+                          <span className="text-[#146C43] font-mono font-extrabold">
                             📍 {formatDistanceText(cust.distance_km || 0.1)}
                           </span>
                         </div>
 
                         {cust.latitude && cust.longitude && (
-                          <div className="flex items-center justify-between pt-1 border-t border-white/5 gap-1">
-                            <span className="text-gray-500 font-mono text-[9px]">
+                          <div className="flex items-center justify-between pt-1 border-t border-[#DDD6C8] gap-1">
+                            <span className="text-[#5F6368] font-mono text-[9px]">
                               Acc: ±{cust.gps_accuracy || 15}m
                             </span>
                             <div className="flex items-center gap-1">
@@ -590,7 +590,7 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
                                 href={`https://www.google.com/maps?q=${cust.latitude},${cust.longitude}`}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="px-2 py-0.5 bg-neutral-800 hover:bg-neutral-700 text-gray-300 font-bold rounded transition text-[9px] border border-white/10"
+                                className="px-2 py-0.5 bg-white hover:bg-[#F0E8D8] text-[#1F2933] font-bold rounded transition text-[9px] border border-[#9F988A]"
                               >
                                 📍 Live Pos
                               </a>
@@ -598,7 +598,7 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
                                 href={getRouteDirectionsUrl(cust.latitude, cust.longitude)}
                                 target="_blank"
                                 rel="noreferrer"
-                                className="px-2 py-0.5 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold rounded transition text-[10px] flex items-center gap-1 shadow-md"
+                                className="px-2 py-0.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold rounded transition text-[10px] flex items-center gap-1 shadow-sm border border-[#B94D00]"
                               >
                                 🗺️ Route from GLS
                               </a>
@@ -609,7 +609,7 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
                     </div>
 
                     {cust.created_at && (
-                      <div className="flex items-center gap-2 text-gray-500 text-[11px] pt-1">
+                      <div className="flex items-center gap-2 text-[#5F6368] text-[11px] pt-1">
                         <Calendar className="w-3 h-3 shrink-0" />
                         <span>Registered: {cust.created_at}</span>
                       </div>
@@ -618,16 +618,16 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
                 </div>
 
                 {/* Anti-Fraud Action Buttons */}
-                <div className="pt-3 border-t border-white/10 space-y-2 text-xs">
+                <div className="pt-3 border-t border-[#DDD6C8] space-y-2 text-xs">
                   <div className="flex items-center gap-2">
                     {/* Toggle WhatsApp Approval */}
                     <button
                       type="button"
                       onClick={() => handleToggleWhatsAppVerified(cust)}
-                      className={`flex-1 py-1.5 rounded-xl font-bold transition flex items-center justify-center gap-1 text-[11px] ${
+                      className={`flex-1 py-1.5 rounded-xl font-bold transition flex items-center justify-center gap-1 text-[11px] cursor-pointer ${
                         cust.is_whatsapp_verified
-                          ? 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30'
-                          : 'bg-amber-500/20 hover:bg-amber-500/30 text-amber-400 border border-amber-500/30'
+                          ? 'bg-[#D1FAE5] hover:bg-[#A7F3D0] text-[#146C43] border border-[#86EFAC]'
+                          : 'bg-[#FFF0CC] hover:bg-[#FFE5A3] text-[#8A5A00] border border-[#E8C66A]'
                       }`}
                     >
                       <MessageSquare className="w-3.5 h-3.5" />
@@ -638,10 +638,10 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
                     <button
                       type="button"
                       onClick={() => handleToggleBlockFraud(cust)}
-                      className={`flex-1 py-1.5 rounded-xl font-bold transition flex items-center justify-center gap-1 text-[11px] ${
+                      className={`flex-1 py-1.5 rounded-xl font-bold transition flex items-center justify-center gap-1 text-[11px] cursor-pointer ${
                         isBlocked
-                          ? 'bg-emerald-600 text-white shadow'
-                          : 'bg-rose-500/20 hover:bg-rose-600 text-rose-400 hover:text-white border border-rose-500/30'
+                          ? 'bg-[#198754] text-white border border-[#146C43]'
+                          : 'bg-[#FDE2E1] hover:bg-[#F5A6A1] text-[#922B21] border border-[#F5A6A1]'
                       }`}
                     >
                       <ShieldAlert className="w-3.5 h-3.5" />
@@ -652,10 +652,10 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
                   <div className="flex items-center justify-between gap-2">
                     <button
                       onClick={() => onToggleActive(cust.id)}
-                      className={`flex-1 py-1.5 rounded-xl font-bold transition flex items-center justify-center gap-1 text-[11px] ${
+                      className={`flex-1 py-1.5 rounded-xl font-bold transition flex items-center justify-center gap-1 text-[11px] cursor-pointer ${
                         cust.is_active
-                          ? 'bg-[#181818] hover:bg-rose-500/20 text-gray-400 hover:text-rose-400 border border-white/10'
-                          : 'bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30'
+                          ? 'bg-white hover:bg-[#FDE2E1] text-[#5F6368] hover:text-[#922B21] border border-[#9F988A]'
+                          : 'bg-[#D1FAE5] hover:bg-[#A7F3D0] text-[#146C43] border border-[#86EFAC]'
                       }`}
                     >
                       {cust.is_active ? 'Disable Login' : 'Enable Login'}
@@ -663,7 +663,7 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
 
                     <button
                       onClick={() => setCustomerToDelete(cust)}
-                      className="p-1.5 rounded-xl bg-[#181818] hover:bg-rose-500/20 text-gray-400 hover:text-rose-400 border border-white/10 transition"
+                      className="p-1.5 rounded-xl bg-white hover:bg-[#FDE2E1] text-[#5F6368] hover:text-[#922B21] border border-[#9F988A] transition cursor-pointer"
                       title="Delete Customer Account"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -678,36 +678,36 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
 
       {/* SQL Migration Script Modal */}
       {showSqlModal && (
-        <div className="fixed inset-0 bg-black/85 backdrop-blur-md z-50 flex items-center justify-center p-4">
-          <div className="bg-[#121212] border border-[#C5A059]/40 rounded-3xl p-6 max-w-2xl w-full space-y-4 shadow-2xl relative">
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-[#DDD6C8] rounded-3xl p-6 max-w-2xl w-full space-y-4 shadow-2xl relative text-[#1F2933]">
+            <div className="flex items-center justify-between border-b border-[#DDD6C8] pb-3">
               <div className="flex items-center gap-2">
-                <Database className="w-5 h-5 text-[#C5A059]" />
-                <h3 className="text-lg font-black text-white font-serif">
+                <Database className="w-5 h-5 text-[#B8862D]" />
+                <h3 className="text-lg font-black text-[#1F2933] font-serif">
                   Supabase Anti-Fraud SQL Schema & Triggers
                 </h3>
               </div>
               <button
                 onClick={() => setShowSqlModal(false)}
-                className="p-1.5 rounded-full text-gray-400 hover:text-white"
+                className="p-1.5 rounded-full text-[#5F6368] hover:text-[#1F2933] hover:bg-[#F0E8D8] cursor-pointer"
               >
                 ✕
               </button>
             </div>
 
-            <p className="text-xs text-gray-400 leading-relaxed">
+            <p className="text-xs text-[#5F6368] leading-relaxed">
               Copy this complete production SQL script and execute it inside your <strong>Supabase SQL Editor</strong> to create the anti-fraud schema and user sync trigger.
             </p>
 
             <div className="relative">
-              <pre className="bg-[#080808] p-4 rounded-2xl border border-white/10 text-emerald-400 font-mono text-[11px] max-h-72 overflow-y-auto leading-relaxed">
+              <pre className="bg-[#F8F6F0] p-4 rounded-2xl border border-[#9F988A] text-[#146C43] font-mono text-[11px] max-h-72 overflow-y-auto leading-relaxed">
                 {sqlSchemaScript}
               </pre>
 
               <button
                 type="button"
                 onClick={handleCopySql}
-                className="absolute top-3 right-3 px-3 py-1.5 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold rounded-xl text-xs flex items-center gap-1.5 shadow-lg transition"
+                className="absolute top-3 right-3 px-3 py-1.5 bg-[#B8862D] hover:bg-[#A37424] text-white font-extrabold rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition border border-[#A37424] cursor-pointer"
               >
                 {isCopied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
                 <span>{isCopied ? 'Copied to Clipboard!' : 'Copy SQL'}</span>
@@ -718,7 +718,7 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
               <button
                 type="button"
                 onClick={() => setShowSqlModal(false)}
-                className="px-6 py-2.5 bg-[#181818] hover:bg-white/10 text-white font-bold rounded-xl text-xs border border-white/10"
+                className="px-6 py-2.5 bg-white hover:bg-[#F0E8D8] text-[#1F2933] font-bold rounded-xl text-xs border border-[#9F988A] cursor-pointer"
               >
                 Close
               </button>
@@ -729,34 +729,34 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
 
       {/* Delete Confirmation Modal */}
       {customerToDelete && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#121212] border border-rose-500/30 rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95 text-gray-200">
-            <div className="flex items-center gap-3 text-rose-400 font-extrabold text-base">
-              <div className="p-2.5 bg-rose-500/10 rounded-xl border border-rose-500/30">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white border border-[#F5A6A1] rounded-2xl p-6 max-w-md w-full space-y-4 shadow-2xl animate-in fade-in zoom-in-95 text-[#1F2933]">
+            <div className="flex items-center gap-3 text-[#922B21] font-extrabold text-base">
+              <div className="p-2.5 bg-[#FDE2E1] rounded-xl border border-[#F5A6A1]">
                 <Trash2 className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-white font-serif">Delete Customer Account</h3>
-                <p className="text-xs text-gray-400 font-normal">Irreversible action</p>
+                <h3 className="text-[#1F2933] font-serif">Delete Customer Account</h3>
+                <p className="text-xs text-[#5F6368] font-normal">Irreversible action</p>
               </div>
             </div>
 
-            <div className="p-3.5 bg-[#181818] border border-white/10 rounded-xl text-xs space-y-2">
+            <div className="p-3.5 bg-[#F7F4EC] border border-[#DDD6C8] rounded-xl text-xs space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-400">Customer Name:</span>
-                <span className="text-white font-bold">{customerToDelete.full_name}</span>
+                <span className="text-[#5F6368]">Customer Name:</span>
+                <span className="text-[#1F2933] font-bold">{customerToDelete.full_name}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Email Address:</span>
-                <span className="text-white font-bold">{customerToDelete.email}</span>
+                <span className="text-[#5F6368]">Email Address:</span>
+                <span className="text-[#1F2933] font-bold">{customerToDelete.email}</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-400">Phone:</span>
-                <span className="text-white font-bold">{customerToDelete.phone || 'N/A'}</span>
+                <span className="text-[#5F6368]">Phone:</span>
+                <span className="text-[#1F2933] font-bold">{customerToDelete.phone || 'N/A'}</span>
               </div>
             </div>
 
-            <p className="text-xs text-rose-300 leading-relaxed">
+            <p className="text-xs text-[#922B21] leading-relaxed">
               Are you sure you want to permanently delete this customer account? All associated profile data will be permanently removed.
             </p>
 
@@ -764,7 +764,7 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
               <button
                 type="button"
                 onClick={() => setCustomerToDelete(null)}
-                className="flex-1 py-2.5 bg-[#181818] hover:bg-white/10 text-gray-300 font-bold text-xs rounded-xl border border-white/10 transition"
+                className="flex-1 py-2.5 bg-white hover:bg-[#F0E8D8] text-[#1F2933] font-bold text-xs rounded-xl border border-[#9F988A] transition cursor-pointer"
               >
                 Cancel
               </button>
@@ -787,7 +787,7 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
                   setSuccessMsg(`Customer account for "${deletedName}" was permanently deleted.`);
                   setTimeout(() => setSuccessMsg(''), 4000);
                 }}
-                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 text-white font-black text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-1.5"
+                className="flex-1 py-2.5 bg-[#C0392B] hover:bg-[#922B21] text-white font-black text-xs rounded-xl border border-[#922B21] shadow-sm transition flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Trash2 className="w-4 h-4" />
                 <span>Confirm Delete</span>

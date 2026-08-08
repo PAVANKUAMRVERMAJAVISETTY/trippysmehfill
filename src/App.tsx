@@ -521,6 +521,56 @@ function MainApp() {
     }
   };
 
+  const handleToggleStaffActive = async (userId: string) => {
+    const target = staffList.find(s => s.id === userId);
+    if (!target) return;
+
+    const newIsActive = !target.is_active;
+
+    setStaffList(prev => prev.map(s => s.id === userId ? { ...s, is_active: newIsActive } : s));
+
+    if (isSupabaseConfigured) {
+      try {
+        const { error } = await supabase
+          .from('profiles')
+          .update({
+            is_active: newIsActive,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', userId);
+
+        if (error) {
+          console.error('Failed to update staff status in Supabase:', error.message);
+          setStaffList(prev => prev.map(s => s.id === userId ? { ...s, is_active: target.is_active } : s));
+        } else {
+          await refreshProfilesFromSupabase();
+        }
+      } catch (err) {
+        console.error('Error updating staff status:', err);
+        setStaffList(prev => prev.map(s => s.id === userId ? { ...s, is_active: target.is_active } : s));
+      }
+    }
+  };
+
+  const handleDeleteStaff = async (userId: string) => {
+    setStaffList(prev => prev.filter(s => s.id !== userId));
+
+    if (isSupabaseConfigured) {
+      try {
+        const { error } = await supabase.from('profiles').delete().eq('id', userId);
+        if (error) {
+          console.error('Failed to delete staff profile from Supabase:', error.message);
+          await refreshProfilesFromSupabase();
+        } else {
+          await refreshProfilesFromSupabase();
+        }
+      } catch (err) {
+        console.error('Error deleting staff profile:', err);
+        await refreshProfilesFromSupabase();
+      }
+    }
+  };
+
   // Filtered menu dishes for customer storefront
   const filteredDishes = menuItems.filter((dish) => {
     const matchesCategory =
@@ -540,7 +590,7 @@ function MainApp() {
   const drivers = staffList.filter(s => s.role === 'driver');
 
   return (
-    <div className="min-h-screen bg-[#080808] text-gray-200 font-sans flex flex-col antialiased">
+    <div className="min-h-screen bg-[#F4F1E8] text-[#1F2933] font-sans flex flex-col antialiased">
       
       {/* Top Closed Banner Notification if kitchen closed */}
       <NotificationBanner />
@@ -774,13 +824,22 @@ function MainApp() {
             )}
             {adminTab === 'history' && <OrderHistoryView orders={orders} drivers={drivers} />}
             {adminTab === 'feedback' && <FeedbackView feedback={feedback} />}
-            {adminTab === 'driver_stats' && <DriverStatsView drivers={drivers} orders={orders} />}
+            {adminTab === 'driver_stats' && (
+              <DriverStatsView
+                drivers={drivers}
+                orders={orders}
+                onToggleActive={handleToggleStaffActive}
+              />
+            )}
             {adminTab === 'staff' && (
               <StaffDriversView
                 staffList={staffList}
-                onAddStaff={(s) => setStaffList(prev => [...prev, s])}
-                onToggleActive={(id) => setStaffList(prev => prev.map(s => s.id === id ? { ...s, is_active: !s.is_active } : s))}
-                onDeleteStaff={(id) => setStaffList(prev => prev.filter(s => s.id !== id))}
+                onAddStaff={(s) => {
+                  setStaffList(prev => [...prev.filter(item => item.id !== s.id), s]);
+                  refreshProfilesFromSupabase();
+                }}
+                onToggleActive={handleToggleStaffActive}
+                onDeleteStaff={handleDeleteStaff}
               />
             )}
             {adminTab === 'customers' && (

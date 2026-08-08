@@ -174,7 +174,7 @@ export const Header: React.FC<HeaderProps> = ({
 
   return (
     <>
-      <header className="bg-[#0d0d0d]/95 backdrop-blur-md text-white sticky top-0 z-40 shadow-2xl border-b border-white/10">
+      <header className="bg-white/95 backdrop-blur-md text-[#1F2933] sticky top-0 z-40 shadow-sm border-b border-[#DDD6C8]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             
@@ -183,36 +183,36 @@ export const Header: React.FC<HeaderProps> = ({
               className="flex items-center gap-3 cursor-pointer group"
               onClick={handleLogoClick}
             >
-              <div className="w-11 h-11 rounded-2xl bg-[#181818] border-2 border-[#C5A059] flex items-center justify-center p-1.5 shadow-lg group-hover:scale-105 transition-transform">
+              <div className="w-11 h-11 rounded-2xl bg-[#F7F4EC] border-2 border-[#B8862D] flex items-center justify-center p-1.5 shadow-sm group-hover:scale-105 transition-transform">
                 <div className="text-center leading-none">
-                  <div className="text-[9px] font-black text-[#C5A059] tracking-wider">TRIPPY'S</div>
-                  <div className="text-[8px] font-bold text-gray-300">MEHFIL</div>
+                  <div className="text-[9px] font-black text-[#B8862D] tracking-wider">TRIPPY'S</div>
+                  <div className="text-[8px] font-extrabold text-[#1F2933]">MEHFIL</div>
                 </div>
               </div>
               <div>
-                <span className="block text-[9px] font-bold text-[#C5A059] tracking-widest uppercase">
+                <span className="block text-[9px] font-extrabold text-[#B8862D] tracking-widest uppercase">
                   CLOUD KITCHEN ERP
                 </span>
-                <span className="text-lg sm:text-xl font-black tracking-tight text-white font-serif">
+                <span className="text-lg sm:text-xl font-black tracking-tight text-[#1F2933] font-serif">
                   Trippy's Mehfill
                 </span>
               </div>
             </div>
 
-            {/* Clean Top Navigation Bar (Gallery, Support, My Orders, Profile) */}
-            <nav className="hidden md:flex items-center gap-6 text-xs sm:text-sm font-extrabold tracking-wide">
+            {/* Clean Top Navigation Bar */}
+            <nav className="hidden md:flex items-center gap-4 text-xs sm:text-sm font-extrabold tracking-wide">
               <button
                 onClick={() => scrollToSection('gallery-section')}
-                className="text-gray-300 hover:text-[#C5A059] transition-colors py-1"
+                className="text-[#1F2933] hover:text-[#B8862D] hover:bg-[#F0E8D8] px-3 py-1.5 rounded-xl transition-colors"
               >
                 Gallery
               </button>
 
               <button
                 onClick={() => setIsSupportOpen(true)}
-                className="text-gray-300 hover:text-[#C5A059] transition-colors py-1 flex items-center gap-1"
+                className="text-[#1F2933] hover:text-[#B8862D] hover:bg-[#F0E8D8] px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1.5"
               >
-                <HelpCircle className="w-3.5 h-3.5 text-[#C5A059]" />
+                <HelpCircle className="w-4 h-4 text-[#B8862D]" />
                 <span>Support</span>
               </button>
 
@@ -220,18 +220,18 @@ export const Header: React.FC<HeaderProps> = ({
                 <>
                   <button
                     onClick={onOpenOrders}
-                    className="text-gray-300 hover:text-[#C5A059] transition-colors py-1 flex items-center gap-1"
+                    className="text-[#1F2933] hover:text-[#B8862D] hover:bg-[#F0E8D8] px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1.5"
                   >
-                    <ShoppingBag className="w-3.5 h-3.5 text-[#C5A059]" />
+                    <ShoppingBag className="w-4 h-4 text-[#B8862D]" />
                     <span>My Orders</span>
                   </button>
 
                   {onOpenCustomerDashboard && (
                     <button
                       onClick={onOpenCustomerDashboard}
-                      className="text-gray-300 hover:text-[#C5A059] transition-colors py-1 flex items-center gap-1"
+                      className="text-[#1F2933] hover:text-[#B8862D] hover:bg-[#F0E8D8] px-3 py-1.5 rounded-xl transition-colors flex items-center gap-1.5"
                     >
-                      <User className="w-3.5 h-3.5 text-[#C5A059]" />
+                      <User className="w-4 h-4 text-[#B8862D]" />
                       <span>Profile</span>
                     </button>
                   )}
@@ -241,8 +241,8 @@ export const Header: React.FC<HeaderProps> = ({
               {user?.role === 'admin' && (
                 <button
                   onClick={() => setActiveSection('admin')}
-                  className={`flex items-center gap-1.5 py-1 px-3 rounded-full bg-[#C5A059]/10 border border-[#C5A059]/40 text-[#C5A059] font-black text-xs transition ${
-                    activeSection === 'admin' ? 'bg-[#C5A059] text-black' : 'hover:bg-[#C5A059]/20'
+                  className={`flex items-center gap-1.5 py-1.5 px-3.5 rounded-xl font-black text-xs border transition ${
+                    activeSection === 'admin' ? 'bg-[#B8862D] text-white border-[#8F691F] shadow-sm' : 'bg-[#F7F4EC] text-[#B8862D] border-[#DDD6C8] hover:bg-[#F0E8D8]'
                   }`}
                 >
                   <Shield className="w-3.5 h-3.5" />
@@ -258,19 +258,19 @@ export const Header: React.FC<HeaderProps> = ({
               {user?.role === 'customer' && (
                 <button
                   onClick={onOpenCart}
-                  className="relative p-2.5 bg-[#181818] hover:bg-white/10 text-white rounded-xl border border-[#C5A059]/30 transition flex items-center gap-1.5 shadow-md"
+                  className="relative p-2.5 bg-white hover:bg-[#F0E8D8] text-[#1F2933] rounded-xl border border-[#9F988A] transition flex items-center gap-1.5 shadow-sm cursor-pointer"
                 >
-                  <ShoppingBag className="w-4 h-4 text-[#C5A059]" />
-                  <span className="hidden sm:inline text-xs font-bold">Cart</span>
+                  <ShoppingBag className="w-4 h-4 text-[#D95F0A]" />
+                  <span className="hidden sm:inline text-xs font-extrabold text-[#1F2933]">Cart</span>
                   {totalCount > 0 && (
-                    <span className="bg-[#C5A059] text-black text-[10px] font-black px-1.5 py-0.2 rounded-full">
+                    <span className="bg-[#D95F0A] text-white text-[10px] font-black px-1.5 py-0.2 rounded-full border border-[#B94D00]">
                       {totalCount}
                     </span>
                   )}
                 </button>
               )}
 
-              {/* Admin Live Notifications Bell Icon (Live Orders Only) */}
+              {/* Admin Live Notifications Bell Icon */}
               {(user?.role === 'admin' || user?.role === 'staff') && (
                 <div className="relative">
                   <button
@@ -278,12 +278,12 @@ export const Header: React.FC<HeaderProps> = ({
                       setIsNotificationsOpen(!isNotificationsOpen);
                       setUnreadCount(0);
                     }}
-                    className="p-2.5 bg-[#181818] hover:bg-white/10 text-[#C5A059] rounded-xl border border-[#C5A059]/30 transition relative flex items-center gap-1"
+                    className="p-2.5 bg-white hover:bg-[#F0E8D8] text-[#B8862D] rounded-xl border border-[#9F988A] transition relative flex items-center gap-1 cursor-pointer"
                     title="Live Orders Realtime Center"
                   >
-                    <Bell className="w-4 h-4 text-[#C5A059]" />
+                    <Bell className="w-4 h-4 text-[#B8862D]" />
                     {unreadCount > 0 && (
-                      <span className="bg-orange-600 text-white font-black text-[10px] px-1.5 py-0.2 rounded-full animate-pulse">
+                      <span className="bg-[#D95F0A] text-white font-black text-[10px] px-1.5 py-0.2 rounded-full animate-pulse border border-[#B94D00]">
                         {unreadCount}
                       </span>
                     )}
@@ -291,22 +291,22 @@ export const Header: React.FC<HeaderProps> = ({
 
                   {/* Live Order Notification Dropdown Panel */}
                   {isNotificationsOpen && (
-                    <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-[#121212] text-gray-200 rounded-2xl shadow-2xl border border-white/15 p-4 z-50 space-y-3">
-                      <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                    <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white text-[#1F2933] rounded-2xl shadow-xl border border-[#DDD6C8] p-4 z-50 space-y-3">
+                      <div className="flex items-center justify-between border-b border-[#DDD6C8] pb-2">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-extrabold text-white text-xs font-serif">Live Orders Center</span>
-                          <span className="text-[9px] bg-emerald-500/20 text-emerald-400 font-extrabold px-2 py-0.5 rounded-full border border-emerald-500/30 uppercase">
+                          <span className="font-extrabold text-[#1F2933] text-xs font-serif">Live Orders Center</span>
+                          <span className="text-[9px] bg-emerald-100 text-[#146C43] font-extrabold px-2 py-0.5 rounded-full border border-[#86EFAC] uppercase">
                             Realtime Live
                           </span>
                         </div>
-                        <span className="text-[10px] text-gray-500 font-mono">
+                        <span className="text-[10px] text-[#5F6368] font-mono">
                           {orderNotifications.length} orders
                         </span>
                       </div>
 
                       <div className="space-y-2 text-xs max-h-80 overflow-y-auto">
                         {orderNotifications.length === 0 ? (
-                          <div className="p-5 text-center text-gray-500 text-xs font-medium">
+                          <div className="p-5 text-center text-[#5F6368] text-xs font-medium">
                             No live orders placed yet.
                           </div>
                         ) : (
@@ -317,27 +317,27 @@ export const Header: React.FC<HeaderProps> = ({
                                 setActiveSection('admin');
                                 setIsNotificationsOpen(false);
                               }}
-                              className="p-3 bg-[#181818] hover:bg-white/5 rounded-xl border border-white/5 space-y-1 cursor-pointer transition"
+                              className="p-3 bg-[#F7F4EC] hover:bg-[#FFF0D5] rounded-xl border border-[#DDD6C8] space-y-1 cursor-pointer transition"
                             >
                               <div className="flex items-center justify-between">
-                                <span className="font-extrabold text-orange-400 text-xs flex items-center gap-1">
+                                <span className="font-extrabold text-[#D95F0A] text-xs flex items-center gap-1">
                                   {notif.event === 'NEW_ORDER' ? '📦' : '🛵'} {notif.orderNumber}
                                 </span>
-                                <span className="text-[10px] text-gray-500 font-mono">{notif.time}</span>
+                                <span className="text-[10px] text-[#5F6368] font-mono">{notif.time}</span>
                               </div>
 
-                              <div className="flex items-center justify-between text-[11px] text-gray-300">
+                              <div className="flex items-center justify-between text-[11px] text-[#1F2933]">
                                 <span className="font-bold truncate">{notif.customerName}</span>
-                                <span className="font-extrabold text-emerald-400">₹{notif.totalAmount}</span>
+                                <span className="font-extrabold text-[#198754]">₹{notif.totalAmount}</span>
                               </div>
 
                               <div className="flex items-center justify-between pt-1 text-[10px]">
-                                <span className="text-gray-400 truncate max-w-[200px]">{notif.deliveryAddress}</span>
+                                <span className="text-[#5F6368] truncate max-w-[200px]">{notif.deliveryAddress}</span>
                                 <span className={`px-2 py-0.5 rounded-md font-mono font-bold uppercase text-[9px] ${
-                                  notif.status === 'delivered' ? 'bg-emerald-500/20 text-emerald-400' :
-                                  notif.status === 'cooking' ? 'bg-amber-500/20 text-amber-400' :
-                                  notif.status === 'out_for_delivery' ? 'bg-blue-500/20 text-blue-400' :
-                                  'bg-orange-500/20 text-orange-400'
+                                  notif.status === 'delivered' ? 'bg-[#D1FAE5] text-[#146C43] border border-[#86EFAC]' :
+                                  notif.status === 'cooking' ? 'bg-[#FFF0CC] text-[#8A5A00] border border-[#E8C66A]' :
+                                  notif.status === 'out_for_delivery' ? 'bg-blue-100 text-blue-800 border border-blue-300' :
+                                  'bg-[#FFF0CC] text-[#8A5A00] border border-[#E8C66A]'
                                 }`}>
                                   {notif.status}
                                 </span>
@@ -356,22 +356,22 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="relative">
                   <button
                     onClick={() => setIsMenuDropdownOpen(!isMenuDropdownOpen)}
-                    className="flex items-center gap-2 bg-[#181818] hover:bg-white/10 px-3 py-1.5 rounded-xl border border-white/10 text-xs font-bold text-gray-200"
+                    className="flex items-center gap-2 bg-white hover:bg-[#F0E8D8] px-3 py-1.5 rounded-xl border border-[#9F988A] text-xs font-bold text-[#1F2933] cursor-pointer shadow-sm"
                   >
-                    <div className="w-6 h-6 rounded-full bg-[#C5A059] text-black flex items-center justify-center font-black text-xs uppercase">
+                    <div className="w-6 h-6 rounded-full bg-[#B8862D] text-white flex items-center justify-center font-black text-xs uppercase">
                       {user.full_name.charAt(0)}
                     </div>
-                    <span className="max-w-[100px] truncate">{user.full_name}</span>
-                    <span className="px-1.5 py-0.5 rounded text-[9px] bg-[#C5A059]/20 text-[#C5A059] font-black uppercase border border-[#C5A059]/30">
+                    <span className="max-w-[100px] truncate text-[#1F2933]">{user.full_name}</span>
+                    <span className="px-1.5 py-0.5 rounded text-[9px] bg-[#F7F4EC] text-[#B8862D] font-black uppercase border border-[#DDD6C8]">
                       {user.role}
                     </span>
                   </button>
 
                   {isMenuDropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-52 bg-[#121212] text-gray-200 rounded-2xl shadow-2xl border border-white/15 py-2 z-50 text-xs space-y-1">
-                      <div className="px-4 py-2 border-b border-white/10">
-                        <p className="font-bold text-white truncate">{user.full_name}</p>
-                        <p className="text-[10px] text-gray-400 truncate">{user.email || user.phone}</p>
+                    <div className="absolute right-0 mt-2 w-56 bg-white text-[#1F2933] rounded-2xl shadow-xl border border-[#DDD6C8] py-2 z-50 text-xs space-y-1">
+                      <div className="px-4 py-2 border-b border-[#DDD6C8]">
+                        <p className="font-bold text-[#1F2933] truncate">{user.full_name}</p>
+                        <p className="text-[10px] text-[#5F6368] truncate">{user.email || user.phone}</p>
                       </div>
 
                       {user.role === 'customer' && onOpenCustomerDashboard && (
@@ -380,7 +380,7 @@ export const Header: React.FC<HeaderProps> = ({
                             onOpenCustomerDashboard();
                             setIsMenuDropdownOpen(false);
                           }}
-                          className="w-full text-left px-4 py-2 hover:bg-white/5 text-[#C5A059] font-bold flex items-center gap-2"
+                          className="w-full text-left px-4 py-2 hover:bg-[#F0E8D8] text-[#B8862D] font-bold flex items-center gap-2 cursor-pointer"
                         >
                           <User className="w-4 h-4" /> My Profile & Dashboard
                         </button>
@@ -389,7 +389,7 @@ export const Header: React.FC<HeaderProps> = ({
                       {user.role === 'admin' && (
                         <button
                           onClick={() => { setActiveSection('admin'); setIsMenuDropdownOpen(false); }}
-                          className="w-full text-left px-4 py-2 hover:bg-white/5 text-[#C5A059] font-bold flex items-center gap-2"
+                          className="w-full text-left px-4 py-2 hover:bg-[#F0E8D8] text-[#B8862D] font-bold flex items-center gap-2 cursor-pointer"
                         >
                           <Shield className="w-4 h-4" /> Admin Dashboard
                         </button>
@@ -398,7 +398,7 @@ export const Header: React.FC<HeaderProps> = ({
                       {user.role === 'driver' && (
                         <button
                           onClick={() => { setActiveSection('driver'); setIsMenuDropdownOpen(false); }}
-                          className="w-full text-left px-4 py-2 hover:bg-white/5 text-[#C5A059] font-bold flex items-center gap-2"
+                          className="w-full text-left px-4 py-2 hover:bg-[#F0E8D8] text-[#B8862D] font-bold flex items-center gap-2 cursor-pointer"
                         >
                           <Bike className="w-4 h-4" /> Driver Portal
                         </button>
@@ -409,21 +409,21 @@ export const Header: React.FC<HeaderProps> = ({
                           onOpenOrders();
                           setIsMenuDropdownOpen(false);
                         }}
-                        className="w-full text-left px-4 py-2 hover:bg-white/5 text-gray-300 font-bold flex items-center gap-2"
+                        className="w-full text-left px-4 py-2 hover:bg-[#F0E8D8] text-[#1F2933] font-bold flex items-center gap-2 cursor-pointer"
                       >
                         <ShoppingBag className="w-4 h-4" /> Order History
                       </button>
 
                       <button
                         onClick={() => { setIsSupportOpen(true); setIsMenuDropdownOpen(false); }}
-                        className="w-full text-left px-4 py-2 hover:bg-white/5 text-gray-300 font-bold flex items-center gap-2"
+                        className="w-full text-left px-4 py-2 hover:bg-[#F0E8D8] text-[#1F2933] font-bold flex items-center gap-2 cursor-pointer"
                       >
                         <HelpCircle className="w-4 h-4" /> Support
                       </button>
 
                       <button
                         onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 hover:bg-rose-500/10 text-rose-400 font-bold flex items-center gap-2 border-t border-white/10 pt-2"
+                        className="w-full text-left px-4 py-2 hover:bg-red-50 text-[#C0392B] font-bold flex items-center gap-2 border-t border-[#DDD6C8] pt-2 cursor-pointer"
                       >
                         <LogOut className="w-4 h-4" /> Logout Account
                       </button>
@@ -434,14 +434,14 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleSignInClick('signin')}
-                    className="px-3.5 py-2 bg-[#181818] hover:bg-white/10 text-white font-black rounded-xl text-xs border border-white/15 transition shadow-sm"
+                    className="px-3.5 py-2 bg-white hover:bg-[#F0E8D8] text-[#1F2933] font-black rounded-xl text-xs border border-[#9F988A] transition shadow-sm cursor-pointer"
                   >
                     Login
                   </button>
 
                   <button
                     onClick={() => handleSignInClick('register')}
-                    className="px-4 py-2 bg-[#C5A059] hover:bg-[#b38f48] text-black font-black rounded-xl text-xs shadow-lg transition transform active:scale-95"
+                    className="px-4 py-2 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-black rounded-xl text-xs shadow-md border border-[#B94D00] transition transform active:scale-95 cursor-pointer"
                   >
                     Sign Up
                   </button>

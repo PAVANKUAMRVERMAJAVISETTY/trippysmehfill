@@ -2,25 +2,26 @@
 
 @layer base {
   body {
-    background-color: #080808;
-    color: #e5e7eb;
+    background-color: #F4F1E8;
+    color: #1F2933;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
   }
 }
 
-/* Custom scrollbar for Sophisticated Dark theme */
+/* Custom scrollbar for Light Premium Restaurant theme */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #0d0d0d;
+  background: #F4F1E8;
 }
 ::-webkit-scrollbar-thumb {
-  background: #262626;
+  background: #B8B09F;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #C5A059;
+  background: #B8862D;
 }
 
 .no-scrollbar::-webkit-scrollbar {
@@ -31,20 +32,9 @@
   scrollbar-width: none;
 }
 
-
-/*
- * Contain stray horizontal overflow at the document level.
- *
- * Playwright measured documentElement.scrollWidth at 396px on a 390px iPhone
- * viewport once signed in: a few pixels of a decorative element escaped its
- * container and made the whole page scroll sideways. `clip` stops that without
- * creating a scroll container, so the intentional horizontal scrollers inside
- * the page (category pills, admin nav) keep working normally.
- *
- * `overflow-y` is deliberately left alone -- setting both would break sticky
- * positioning on the checkout bar.
- */
 html,
 body {
   overflow-x: clip;
+  background-color: #F4F1E8;
+  color: #1F2933;
 }

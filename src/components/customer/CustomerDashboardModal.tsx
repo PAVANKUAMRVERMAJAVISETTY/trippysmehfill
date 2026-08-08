@@ -318,32 +318,32 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
   const strength = getPasswordStrength(newPassInput);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-2 sm:p-6 overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 sm:p-6 overflow-y-auto animate-in fade-in">
       
       {/* Toast Popup Notification */}
       {toastMessage && (
-        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#C5A059] text-black font-extrabold px-6 py-3 rounded-2xl shadow-2xl flex items-center gap-2 border border-amber-300 animate-bounce">
-          <Sparkles className="w-5 h-5" />
+        <div className="fixed top-5 left-1/2 -translate-x-1/2 z-50 bg-[#D95F0A] text-white font-extrabold px-6 py-3 rounded-2xl shadow-xl flex items-center gap-2 border border-[#B94D00]">
+          <Sparkles className="w-5 h-5 text-white" />
           <span>{toastMessage}</span>
         </div>
       )}
 
-      <div className="bg-[#121212] border border-white/15 w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden text-white my-auto flex flex-col md:flex-row max-h-[92vh] relative">
+      <div className="bg-white border border-[#DDD6C8] w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden text-[#1F2933] my-auto flex flex-col md:flex-row max-h-[92vh] relative">
         
         {/* Sidebar Navigation */}
-        <div className="w-full md:w-64 bg-[#0d0d0d] p-4 sm:p-5 border-b md:border-b-0 md:border-r border-white/10 flex flex-col justify-between shrink-0">
+        <div className="w-full md:w-64 bg-[#F7F4EC] p-4 sm:p-5 border-b md:border-b-0 md:border-r border-[#DDD6C8] flex flex-col justify-between shrink-0">
           <div className="space-y-5">
             
             {/* User Profile Card */}
-            <div className="flex items-center gap-3 p-3 bg-[#181818] rounded-2xl border border-white/10">
-              <div className="w-11 h-11 rounded-xl bg-gradient-to-tr from-[#C5A059] to-amber-300 text-black flex items-center justify-center font-black text-lg shadow-md shrink-0">
+            <div className="flex items-center gap-3 p-3 bg-white rounded-2xl border border-[#DDD6C8] shadow-sm">
+              <div className="w-11 h-11 rounded-xl bg-[#B8862D] text-white flex items-center justify-center font-black text-lg shadow-sm shrink-0 border border-[#8F691F]">
                 {user.full_name?.charAt(0) || 'U'}
               </div>
               <div className="overflow-hidden">
-                <h3 className="font-extrabold text-white text-sm truncate font-serif">{user.full_name}</h3>
-                <p className="text-[10px] text-gray-400 truncate">{user.phone}</p>
-                <div className="inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-full bg-[#C5A059]/20 text-[#C5A059] text-[9px] font-black uppercase border border-[#C5A059]/30">
-                  <Award className="w-3 h-3" />
+                <h3 className="font-extrabold text-[#1F2933] text-sm truncate font-serif">{user.full_name}</h3>
+                <p className="text-[10px] text-[#5F6368] truncate">{user.phone}</p>
+                <div className="inline-flex items-center gap-1 mt-0.5 px-2 py-0.5 rounded-full bg-[#F7F4EC] text-[#B8862D] text-[9px] font-black uppercase border border-[#DDD6C8]">
+                  <Award className="w-3 h-3 text-[#B8862D]" />
                   <span>Gold Member</span>
                 </div>
               </div>
@@ -367,10 +367,10 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id as TabType)}
-                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition ${
+                    className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl text-xs font-extrabold transition cursor-pointer border ${
                       isActive
-                        ? 'bg-[#C5A059] text-black shadow-lg shadow-[#C5A059]/20'
-                        : 'text-gray-300 hover:bg-white/5 hover:text-white'
+                        ? 'bg-[#B8862D] text-white border-[#8F691F] shadow-sm'
+                        : 'text-[#1F2933] hover:bg-[#F0E8D8] border-transparent'
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
@@ -380,7 +380,7 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
 
                     {tab.badge !== undefined && (
                       <span className={`text-[10px] px-2 py-0.5 rounded-full font-black ${
-                        isActive ? 'bg-black text-[#C5A059]' : 'bg-white/10 text-gray-300'
+                        isActive ? 'bg-white text-[#B8862D]' : 'bg-[#DDD6C8] text-[#1F2933]'
                       }`}>
                         {tab.badge}
                       </span>
@@ -388,18 +388,18 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
 
                     {tab.badgeText && (
                       <span className={`text-[9px] px-1.5 py-0.5 rounded font-black uppercase ${
-                        isActive ? 'bg-black text-[#C5A059]' : 'bg-orange-500/20 text-orange-400'
+                        isActive ? 'bg-white text-[#B8862D]' : 'bg-[#FFF0CC] text-[#8A5A00] border border-[#E8C66A]'
                       }`}>
                         {tab.badgeText}
                       </span>
                     )}
 
                     {tab.activePulse && (
-                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
+                      <span className="w-2 h-2 rounded-full bg-[#198754] animate-ping" />
                     )}
 
                     {tab.val && (
-                      <span className={`text-[10px] font-mono font-bold ${isActive ? 'text-black' : 'text-[#C5A059]'}`}>
+                      <span className={`text-[10px] font-mono font-bold ${isActive ? 'text-white' : 'text-[#B8862D]'}`}>
                         {tab.val}
                       </span>
                     )}
@@ -410,12 +410,12 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
           </div>
 
           {/* Bottom Logout */}
-          <div className="pt-4 border-t border-white/10 mt-4 space-y-2">
+          <div className="pt-4 border-t border-[#DDD6C8] mt-4 space-y-2">
             <button
               onClick={() => openWhatsAppSupport({ name: user.full_name, phone: user.phone })}
-              className="w-full py-2 px-3 bg-[#181818] hover:bg-white/10 text-gray-300 text-xs font-bold rounded-xl flex items-center gap-2 border border-white/10 transition text-left"
+              className="w-full py-2 px-3 bg-white hover:bg-[#F0E8D8] text-[#1F2933] text-xs font-bold rounded-xl flex items-center gap-2 border border-[#9F988A] transition text-left cursor-pointer shadow-sm"
             >
-              <HelpCircle className="w-4 h-4 text-[#C5A059]" />
+              <HelpCircle className="w-4 h-4 text-[#B8862D]" />
               <span>WhatsApp Customer Support</span>
             </button>
 
@@ -424,24 +424,24 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                 onClose();
                 signOut();
               }}
-              className="w-full py-2 px-3 bg-rose-500/10 hover:bg-rose-500 text-rose-300 hover:text-white text-xs font-bold rounded-xl flex items-center gap-2 border border-rose-500/30 transition"
+              className="w-full py-2 px-3 bg-[#FDE2E1] hover:bg-[#F5A6A1] text-[#922B21] text-xs font-bold rounded-xl flex items-center gap-2 border border-[#F5A6A1] transition cursor-pointer shadow-sm"
             >
-              <LogOut className="w-4 h-4" />
+              <LogOut className="w-4 h-4 text-[#922B21]" />
               <span>Logout Account</span>
             </button>
           </div>
         </div>
 
         {/* Main Panel Content */}
-        <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-6">
+        <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-6 bg-white">
           
           {/* Header Bar */}
-          <div className="flex items-center justify-between border-b border-white/10 pb-4">
+          <div className="flex items-center justify-between border-b border-[#DDD6C8] pb-4">
             <div>
-              <h2 className="text-xl sm:text-2xl font-black text-white font-serif tracking-tight capitalize">
+              <h2 className="text-xl sm:text-2xl font-black text-[#1F2933] font-serif tracking-tight capitalize">
                 {activeTab === 'orders' ? 'Order History & Reorder' : activeTab.replace('_', ' ')}
               </h2>
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-[#5F6368]">
                 {activeTab === 'orders'
                   ? 'Track your orders, view tax receipts & repeat past orders.'
                   : activeTab === 'profile'
@@ -452,7 +452,7 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
 
             <button
               onClick={onClose}
-              className="p-2 rounded-full bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white transition"
+              className="p-2 rounded-full bg-[#F7F4EC] hover:bg-[#F0E8D8] text-[#5F6368] hover:text-[#1F2933] transition border border-[#DDD6C8] cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -464,39 +464,39 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
               
               {/* Active Live Order Banner */}
               {activeOrder ? (
-                <div className="bg-gradient-to-r from-amber-600/20 via-orange-500/10 to-[#181818] border border-amber-500/40 rounded-3xl p-5 shadow-xl space-y-3">
+                <div className="bg-[#FFF0CC] border border-[#E8C66A] rounded-3xl p-5 shadow-sm space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="w-3 h-3 rounded-full bg-amber-400 animate-ping" />
-                      <span className="text-xs font-black uppercase text-amber-400 tracking-wider">Order In Progress</span>
+                      <span className="w-3 h-3 rounded-full bg-[#D95F0A] animate-ping" />
+                      <span className="text-xs font-black uppercase text-[#8A5A00] tracking-wider">Order In Progress</span>
                     </div>
-                    <span className="text-xs font-mono font-bold text-gray-300">Order #{activeOrder.order_number}</span>
+                    <span className="text-xs font-mono font-bold text-[#5F6368]">Order #{activeOrder.order_number}</span>
                   </div>
 
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div>
-                      <h4 className="font-extrabold text-white text-base">Status: {activeOrder.status.toUpperCase()}</h4>
-                      <p className="text-xs text-gray-300 mt-0.5">{activeOrder.items?.map(i => `${i.quantity}x ${i.dish_name || (i as any).menuItem?.name || 'Dish'}`).join(', ')}</p>
+                      <h4 className="font-extrabold text-[#1F2933] text-base">Status: {activeOrder.status.toUpperCase()}</h4>
+                      <p className="text-xs text-[#5F6368] mt-0.5">{activeOrder.items?.map(i => `${i.quantity}x ${i.dish_name || (i as any).menuItem?.name || 'Dish'}`).join(', ')}</p>
                     </div>
 
                     <button
                       onClick={() => onTrackOrder(activeOrder)}
-                      className="px-5 py-2.5 bg-[#C5A059] hover:bg-[#b38f48] text-black font-black text-xs rounded-xl shadow-lg transition flex items-center justify-center gap-2"
+                      className="px-5 py-2.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-black text-xs rounded-xl shadow-sm transition flex items-center justify-center gap-2 border border-[#B94D00] cursor-pointer"
                     >
-                      <Truck className="w-4 h-4" />
+                      <Truck className="w-4 h-4 text-white" />
                       <span>Live Order Tracking</span>
                     </button>
                   </div>
                 </div>
               ) : (
-                <div className="bg-[#181818] rounded-3xl p-5 border border-white/10 flex items-center justify-between">
+                <div className="bg-[#F7F4EC] rounded-3xl p-5 border border-[#DDD6C8] flex items-center justify-between">
                   <div className="space-y-1">
-                    <h4 className="font-extrabold text-white text-sm">No Active Orders Right Now</h4>
-                    <p className="text-xs text-gray-400">Order authentic dum biryani & starters delivered fresh to your hostel.</p>
+                    <h4 className="font-extrabold text-[#1F2933] text-sm">No Active Orders Right Now</h4>
+                    <p className="text-xs text-[#5F6368]">Order authentic dum biryani & starters delivered fresh to your hostel.</p>
                   </div>
                   <button
                     onClick={onClose}
-                    className="px-4 py-2 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold text-xs rounded-xl shadow-md transition"
+                    className="px-4 py-2 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold text-xs rounded-xl shadow-sm transition border border-[#B94D00] cursor-pointer"
                   >
                     Browse Menu
                   </button>
@@ -504,20 +504,20 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
               )}
 
               {/* Quick Password & Security Quickcard */}
-              <div className="bg-gradient-to-r from-orange-950/40 via-[#181818] to-gray-900 border border-orange-500/30 rounded-3xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
+              <div className="bg-[#F7F4EC] border border-[#DDD6C8] rounded-3xl p-4 flex flex-col sm:flex-row items-center justify-between gap-3">
                 <div className="flex items-center gap-3">
-                  <div className="p-3 bg-orange-500/20 text-orange-400 rounded-2xl border border-orange-500/30">
+                  <div className="p-3 bg-[#FFF0CC] text-[#8A5A00] rounded-2xl border border-[#E8C66A]">
                     <KeyRound className="w-6 h-6" />
                   </div>
                   <div>
-                    <h4 className="font-extrabold text-white text-xs">Security & Login Credentials</h4>
-                    <p className="text-[11px] text-gray-400">View your login phone & update account password anytime.</p>
+                    <h4 className="font-extrabold text-[#1F2933] text-xs">Security & Login Credentials</h4>
+                    <p className="text-[11px] text-[#5F6368]">View your login phone & update account password anytime.</p>
                   </div>
                 </div>
 
                 <button
                   onClick={() => setActiveTab('profile')}
-                  className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-md transition flex items-center gap-1.5 shrink-0"
+                  className="px-4 py-2 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold text-xs rounded-xl shadow-sm transition flex items-center gap-1.5 shrink-0 border border-[#B94D00] cursor-pointer"
                 >
                   <Lock className="w-3.5 h-3.5" />
                   <span>Update Password</span>
@@ -526,35 +526,35 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
 
               {/* Stats Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-                <div className="bg-[#181818] rounded-2xl p-4 border border-white/10 space-y-1">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Orders</p>
-                  <p className="text-2xl font-black text-white">{customerOrders.length}</p>
+                <div className="bg-[#F7F4EC] rounded-2xl p-4 border border-[#DDD6C8] space-y-1">
+                  <p className="text-[10px] font-bold text-[#5F6368] uppercase tracking-wider">Total Orders</p>
+                  <p className="text-2xl font-black text-[#1F2933]">{customerOrders.length}</p>
                 </div>
 
-                <div className="bg-[#181818] rounded-2xl p-4 border border-white/10 space-y-1">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Wallet Balance</p>
-                  <p className="text-2xl font-black text-[#C5A059]">₹{user.wallet_balance || 0}</p>
+                <div className="bg-[#F7F4EC] rounded-2xl p-4 border border-[#DDD6C8] space-y-1">
+                  <p className="text-[10px] font-bold text-[#5F6368] uppercase tracking-wider">Wallet Balance</p>
+                  <p className="text-2xl font-black text-[#B8862D]">₹{user.wallet_balance || 0}</p>
                 </div>
 
-                <div className="bg-[#181818] rounded-2xl p-4 border border-white/10 space-y-1 col-span-2 sm:col-span-1">
-                  <p className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Loyalty Points</p>
-                  <p className="text-2xl font-black text-amber-400">450 pts</p>
+                <div className="bg-[#F7F4EC] rounded-2xl p-4 border border-[#DDD6C8] space-y-1 col-span-2 sm:col-span-1">
+                  <p className="text-[10px] font-bold text-[#5F6368] uppercase tracking-wider">Loyalty Points</p>
+                  <p className="text-2xl font-black text-[#8A5A00]">450 pts</p>
                 </div>
               </div>
 
               {/* Recommended Foods */}
               <div className="space-y-3">
-                <h3 className="text-sm font-extrabold text-[#C5A059] uppercase tracking-wider font-serif">
+                <h3 className="text-sm font-extrabold text-[#B8862D] uppercase tracking-wider font-serif">
                   Recommended For You
                 </h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {recommendedDishes.map((dish) => (
-                    <div key={dish.id} className="bg-[#181818] p-3 rounded-2xl border border-white/10 flex items-center justify-between gap-3">
+                    <div key={dish.id} className="bg-[#F7F4EC] p-3 rounded-2xl border border-[#DDD6C8] flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <img src={dish.image_url} alt="" className="w-14 h-14 rounded-xl object-cover shrink-0" />
+                        <img src={dish.image_url} alt="" className="w-14 h-14 rounded-xl object-cover shrink-0 border border-[#DDD6C8]" />
                         <div>
-                          <h4 className="font-bold text-white text-xs line-clamp-1">{dish.name}</h4>
-                          <span className="text-xs font-black text-[#C5A059]">₹{dish.price}</span>
+                          <h4 className="font-bold text-[#1F2933] text-xs line-clamp-1">{dish.name}</h4>
+                          <span className="text-xs font-black text-[#D95F0A]">₹{dish.price}</span>
                         </div>
                       </div>
 
@@ -563,7 +563,7 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                           addToCart(dish);
                           triggerToast(`Added ${dish.name} to cart!`);
                         }}
-                        className="px-3 py-1.5 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold text-xs rounded-xl transition"
+                        className="px-3 py-1.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold text-xs rounded-xl transition border border-[#B94D00] cursor-pointer"
                       >
                         + Add
                       </button>
@@ -580,47 +580,47 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
             <div className="space-y-5">
               
               {/* Order Filter Pills */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="flex items-center justify-between border-b border-[#DDD6C8] pb-3">
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setOrderFilter('all')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
-                      orderFilter === 'all' ? 'bg-[#C5A059] text-black' : 'bg-white/5 text-gray-400 hover:text-white'
+                    className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition cursor-pointer border ${
+                      orderFilter === 'all' ? 'bg-[#B8862D] text-white border-[#8F691F]' : 'bg-[#F7F4EC] text-[#5F6368] hover:text-[#1F2933] border-[#DDD6C8]'
                     }`}
                   >
                     All Orders ({customerOrders.length})
                   </button>
                   <button
                     onClick={() => setOrderFilter('delivered')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
-                      orderFilter === 'delivered' ? 'bg-[#C5A059] text-black' : 'bg-white/5 text-gray-400 hover:text-white'
+                    className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition cursor-pointer border ${
+                      orderFilter === 'delivered' ? 'bg-[#B8862D] text-white border-[#8F691F]' : 'bg-[#F7F4EC] text-[#5F6368] hover:text-[#1F2933] border-[#DDD6C8]'
                     }`}
                   >
                     Delivered
                   </button>
                   <button
                     onClick={() => setOrderFilter('active')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition ${
-                      orderFilter === 'active' ? 'bg-[#C5A059] text-black' : 'bg-white/5 text-gray-400 hover:text-white'
+                    className={`px-3 py-1.5 rounded-xl text-xs font-extrabold transition cursor-pointer border ${
+                      orderFilter === 'active' ? 'bg-[#B8862D] text-white border-[#8F691F]' : 'bg-[#F7F4EC] text-[#5F6368] hover:text-[#1F2933] border-[#DDD6C8]'
                     }`}
                   >
                     Active / In Progress
                   </button>
                 </div>
 
-                <span className="text-xs text-gray-400 hidden sm:inline">
+                <span className="text-xs text-[#5F6368] hidden sm:inline font-medium">
                   Showing {filteredOrders.length} orders
                 </span>
               </div>
 
               {filteredOrders.length === 0 ? (
-                <div className="text-center py-12 bg-[#181818] rounded-3xl border border-white/10 space-y-3">
-                  <ShoppingBag className="w-12 h-12 text-[#C5A059] mx-auto opacity-50" />
-                  <p className="font-bold text-white text-sm">No orders found in this category</p>
-                  <p className="text-xs text-gray-400">Order fresh dum biryani & starters to get started!</p>
+                <div className="text-center py-12 bg-[#F7F4EC] rounded-3xl border border-[#DDD6C8] space-y-3">
+                  <ShoppingBag className="w-12 h-12 text-[#B8862D] mx-auto opacity-50" />
+                  <p className="font-bold text-[#1F2933] text-sm">No orders found in this category</p>
+                  <p className="text-xs text-[#5F6368]">Order fresh dum biryani & starters to get started!</p>
                   <button
                     onClick={onClose}
-                    className="px-5 py-2.5 bg-[#C5A059] text-black font-extrabold text-xs rounded-2xl shadow-lg"
+                    className="px-5 py-2.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold text-xs rounded-2xl shadow-sm border border-[#B94D00] cursor-pointer"
                   >
                     Explore Food Menu
                   </button>
@@ -630,18 +630,18 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                   {filteredOrders.map((ord) => (
                     <div
                       key={ord.id}
-                      className="bg-[#181818] rounded-3xl border border-white/10 overflow-hidden shadow-lg hover:border-[#C5A059]/40 transition space-y-0"
+                      className="bg-white rounded-3xl border border-[#DDD6C8] overflow-hidden shadow-sm hover:border-[#B8862D] transition space-y-0"
                     >
                       {/* Order Card Header */}
-                      <div className="p-4 sm:p-5 bg-black/40 border-b border-white/10 flex flex-wrap items-center justify-between gap-3">
+                      <div className="p-4 sm:p-5 bg-[#F7F4EC] border-b border-[#DDD6C8] flex flex-wrap items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-2xl bg-orange-600/20 text-orange-400 border border-orange-500/30 flex items-center justify-center shrink-0">
+                          <div className="w-10 h-10 rounded-2xl bg-[#FFF0CC] text-[#8A5A00] border border-[#E8C66A] flex items-center justify-center shrink-0">
                             <Store className="w-5 h-5" />
                           </div>
                           <div>
-                            <h4 className="font-black text-white text-sm">Trippy's Mehfill Cloud Kitchen</h4>
-                            <p className="text-[11px] text-gray-400 flex items-center gap-1.5 mt-0.5">
-                              <MapPin className="w-3 h-3 text-[#C5A059]" />
+                            <h4 className="font-black text-[#1F2933] text-sm">Trippy's Mehfill Cloud Kitchen</h4>
+                            <p className="text-[11px] text-[#5F6368] flex items-center gap-1.5 mt-0.5">
+                              <MapPin className="w-3 h-3 text-[#B8862D]" />
                               <span>Gachibowli Hub • Order #{ord.order_number}</span>
                             </p>
                           </div>
@@ -649,12 +649,12 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
 
                         <div className="flex items-center gap-2">
                           <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${
-                            ord.status === 'delivered' ? 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30' :
-                            ord.status === 'cancelled' ? 'bg-rose-500/20 text-rose-400 border-rose-500/30' : 'bg-amber-500/20 text-amber-400 border-amber-500/30 animate-pulse'
+                            ord.status === 'delivered' ? 'bg-[#D1FAE5] text-[#146C43] border-[#86EFAC]' :
+                            ord.status === 'cancelled' ? 'bg-[#FDE2E1] text-[#922B21] border-[#F5A6A1]' : 'bg-[#FFF0CC] text-[#8A5A00] border-[#E8C66A] animate-pulse'
                           }`}>
                             {ord.status.replace('_', ' ')}
                           </span>
-                          <span className="text-xs font-mono text-gray-400">{ord.created_at || 'Today'}</span>
+                          <span className="text-xs font-mono text-[#5F6368] font-bold">{ord.created_at || 'Today'}</span>
                         </div>
                       </div>
 
@@ -662,7 +662,7 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                       <div className="p-4 sm:p-5 space-y-3">
                         
                         {/* Dishes list */}
-                        <div className="space-y-2 border-b border-white/10 pb-3">
+                        <div className="space-y-2 border-b border-[#DDD6C8] pb-3">
                           {ord.items?.map((item, i) => {
                             const isVeg = item.is_veg ?? true;
                             return (
@@ -670,16 +670,16 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                                 <div className="flex items-center gap-2">
                                   {/* Veg / Non-Veg Indicator */}
                                   <span className={`w-3.5 h-3.5 border flex items-center justify-center rounded-sm shrink-0 ${
-                                    isVeg ? 'border-emerald-500' : 'border-red-500'
+                                    isVeg ? 'border-emerald-600' : 'border-red-600'
                                   }`}>
-                                    <span className={`w-1.5 h-1.5 rounded-full ${isVeg ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                                    <span className={`w-1.5 h-1.5 rounded-full ${isVeg ? 'bg-emerald-600' : 'bg-red-600'}`} />
                                   </span>
 
-                                  <span className="text-white font-extrabold">{item.quantity} x</span>
-                                  <span className="text-gray-200">{item.dish_name || (item as any).menuItem?.name || 'Special Dish'}</span>
+                                  <span className="text-[#1F2933] font-extrabold">{item.quantity} x</span>
+                                  <span className="text-[#1F2933] font-medium">{item.dish_name || (item as any).menuItem?.name || 'Special Dish'}</span>
                                 </div>
 
-                                <span className="font-mono text-gray-300">
+                                <span className="font-mono text-[#1F2933] font-bold">
                                   ₹{(item.price || (item as any).menuItem?.price || 0) * item.quantity}
                                 </span>
                               </div>
@@ -690,38 +690,38 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                         {/* Order Total & Delivery Location */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
                           <div>
-                            <span className="text-gray-400">Delivered To: </span>
-                            <span className="text-white font-bold">{ord.delivery_address || user.hostel_address || 'Hostel Campus Gate'}</span>
+                            <span className="text-[#5F6368]">Delivered To: </span>
+                            <span className="text-[#1F2933] font-bold">{ord.delivery_address || user.hostel_address || 'Hostel Campus Gate'}</span>
                           </div>
 
                           <div className="flex items-center gap-2">
-                            <span className="text-gray-400">Total Paid:</span>
-                            <span className="text-base font-black text-[#C5A059] font-mono">₹{ord.total_amount}</span>
-                            <span className="text-[10px] px-2 py-0.5 rounded bg-white/10 text-gray-300 font-bold uppercase">
+                            <span className="text-[#5F6368]">Total Paid:</span>
+                            <span className="text-base font-black text-[#D95F0A] font-mono">₹{ord.total_amount}</span>
+                            <span className="text-[10px] px-2 py-0.5 rounded bg-[#F7F4EC] text-[#5F6368] font-bold uppercase border border-[#DDD6C8]">
                               {ord.payment_method || 'UPI'}
                             </span>
                           </div>
                         </div>
 
                         {/* ORDER ACTION BUTTONS */}
-                        <div className="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-white/10">
+                        <div className="pt-2 flex flex-wrap items-center justify-between gap-2 border-t border-[#DDD6C8]">
                           <div className="flex items-center gap-2">
                             
                             {/* REORDER / REPEAT ORDER BUTTON */}
                             <button
                               onClick={() => handleReorder(ord)}
-                              className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-extrabold text-xs rounded-xl shadow-lg shadow-orange-600/20 transition flex items-center gap-1.5"
+                              className="px-4 py-2 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold text-xs rounded-xl shadow-sm border border-[#B94D00] transition flex items-center gap-1.5 cursor-pointer"
                             >
-                              <Repeat className="w-3.5 h-3.5" />
+                              <Repeat className="w-3.5 h-3.5 text-white" />
                               <span>Reorder Items</span>
                             </button>
 
                             {/* VIEW INVOICE RECEIPT BUTTON */}
                             <button
                               onClick={() => setSelectedInvoiceOrder(ord)}
-                              className="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-gray-200 font-bold text-xs rounded-xl transition flex items-center gap-1.5"
+                              className="px-3.5 py-2 bg-white hover:bg-[#F0E8D8] text-[#1F2933] font-bold text-xs rounded-xl transition flex items-center gap-1.5 border border-[#9F988A] cursor-pointer"
                             >
-                              <FileText className="w-3.5 h-3.5 text-[#C5A059]" />
+                              <FileText className="w-3.5 h-3.5 text-[#B8862D]" />
                               <span>Tax Invoice</span>
                             </button>
                           </div>
@@ -734,9 +734,9 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                                 setGivenRating(5);
                                 setRatingSubmitted(false);
                               }}
-                              className="px-3 py-2 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 font-bold text-xs rounded-xl transition flex items-center gap-1"
+                              className="px-3 py-2 bg-[#FFF0CC] hover:bg-[#FFE8B3] text-[#8A5A00] border border-[#E8C66A] font-bold text-xs rounded-xl transition flex items-center gap-1 cursor-pointer"
                             >
-                              <Star className="w-3.5 h-3.5 fill-amber-400" />
+                              <Star className="w-3.5 h-3.5 fill-[#8A5A00]" />
                               <span>Rate Order</span>
                             </button>
 
@@ -744,9 +744,9 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                             {ord.status !== 'delivered' && ord.status !== 'cancelled' && (
                               <button
                                 onClick={() => onTrackOrder(ord)}
-                                className="px-4 py-2 bg-[#C5A059] text-black font-extrabold text-xs rounded-xl shadow-md transition flex items-center gap-1.5"
+                                className="px-4 py-2 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold text-xs rounded-xl shadow-sm border border-[#B94D00] transition flex items-center gap-1.5 cursor-pointer"
                               >
-                                <Truck className="w-3.5 h-3.5" />
+                                <Truck className="w-3.5 h-3.5 text-white" />
                                 <span>Track Live</span>
                               </button>
                             )}
@@ -766,13 +766,13 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
           {activeTab === 'live_tracking' && (
             <div className="space-y-6">
               {activeOrder ? (
-                <div className="bg-[#181818] p-6 rounded-3xl border border-white/10 space-y-6">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                <div className="bg-[#F7F4EC] p-6 rounded-3xl border border-[#DDD6C8] space-y-6 shadow-sm">
+                  <div className="flex items-center justify-between border-b border-[#DDD6C8] pb-4">
                     <div>
-                      <h3 className="font-black text-white text-lg font-serif">Live Order Status</h3>
-                      <p className="text-xs text-gray-400 font-mono">Order ID: #{activeOrder.order_number}</p>
+                      <h3 className="font-black text-[#1F2933] text-lg font-serif">Live Order Status</h3>
+                      <p className="text-xs text-[#5F6368] font-mono">Order ID: #{activeOrder.order_number}</p>
                     </div>
-                    <span className="px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-400 text-xs font-black uppercase border border-emerald-500/30">
+                    <span className="px-3 py-1 rounded-full bg-[#D1FAE5] text-[#146C43] text-xs font-black uppercase border border-[#86EFAC]">
                       ETA: ~25 mins
                     </span>
                   </div>
@@ -788,22 +788,22 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                       { step: 6, label: 'Delivered', desc: 'Enjoy your hot meal!', status: 'delivered' }
                     ].map((st) => (
                       <div key={st.step} className="flex items-start gap-4">
-                        <div className="w-8 h-8 rounded-full bg-[#C5A059] text-black font-black flex items-center justify-center text-xs shrink-0 shadow-md">
+                        <div className="w-8 h-8 rounded-full bg-[#B8862D] text-white font-black flex items-center justify-center text-xs shrink-0 shadow-sm border border-[#8F691F]">
                           {st.step}
                         </div>
                         <div>
-                          <h4 className="font-extrabold text-white text-sm">{st.label}</h4>
-                          <p className="text-xs text-gray-400">{st.desc}</p>
+                          <h4 className="font-extrabold text-[#1F2933] text-sm">{st.label}</h4>
+                          <p className="text-xs text-[#5F6368]">{st.desc}</p>
                         </div>
                       </div>
                     ))}
                   </div>
                 </div>
               ) : (
-                <div className="text-center py-12 bg-[#181818] rounded-3xl border border-white/10">
-                  <Truck className="w-12 h-12 text-gray-500 mx-auto mb-2 opacity-40" />
-                  <p className="font-bold text-white">No order in progress right now</p>
-                  <p className="text-xs text-gray-400 mt-1">When you place an order, live tracking will appear here.</p>
+                <div className="text-center py-12 bg-[#F7F4EC] rounded-3xl border border-[#DDD6C8]">
+                  <Truck className="w-12 h-12 text-[#5F6368] mx-auto mb-2 opacity-40" />
+                  <p className="font-bold text-[#1F2933]">No order in progress right now</p>
+                  <p className="text-xs text-[#5F6368] mt-1">When you place an order, live tracking will appear here.</p>
                 </div>
               )}
             </div>
@@ -812,29 +812,29 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
           {/* TAB 4: WALLET & REWARDS */}
           {activeTab === 'wallet_rewards' && (
             <div className="space-y-6">
-              <div className="bg-gradient-to-tr from-[#181818] to-[#242424] p-6 rounded-3xl border border-[#C5A059]/40 shadow-xl space-y-4">
+              <div className="bg-[#F7F4EC] p-6 rounded-3xl border border-[#DDD6C8] shadow-sm space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
-                    <span className="text-[10px] font-black uppercase tracking-widest text-[#C5A059]">Trippy's Cash Wallet</span>
-                    <h3 className="text-3xl font-black text-white font-mono mt-1">₹{(user.wallet_balance || 0).toFixed(2)}</h3>
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#B8862D]">Trippy's Cash Wallet</span>
+                    <h3 className="text-3xl font-black text-[#1F2933] font-mono mt-1">₹{(user.wallet_balance || 0).toFixed(2)}</h3>
                   </div>
-                  <div className="p-3 rounded-2xl bg-[#C5A059]/10 text-[#C5A059]">
+                  <div className="p-3 rounded-2xl bg-white text-[#B8862D] border border-[#DDD6C8]">
                     <Wallet className="w-8 h-8" />
                   </div>
                 </div>
-                <p className="text-xs text-gray-400">100% usable on your next food order with auto-deduction at checkout.</p>
+                <p className="text-xs text-[#5F6368]">100% usable on your next food order with auto-deduction at checkout.</p>
               </div>
 
               {/* Loyalty Tier Progress */}
-              <div className="bg-[#181818] p-5 rounded-3xl border border-white/10 space-y-3">
+              <div className="bg-[#F7F4EC] p-5 rounded-3xl border border-[#DDD6C8] space-y-3">
                 <div className="flex items-center justify-between">
-                  <h4 className="font-extrabold text-white text-sm">Gold Loyalty Status</h4>
-                  <span className="text-xs text-[#C5A059] font-bold">450 / 1000 Points</span>
+                  <h4 className="font-extrabold text-[#1F2933] text-sm">Gold Loyalty Status</h4>
+                  <span className="text-xs text-[#B8862D] font-bold">450 / 1000 Points</span>
                 </div>
-                <div className="w-full h-3 bg-black/60 rounded-full overflow-hidden p-0.5 border border-white/10">
-                  <div className="h-full bg-[#C5A059] rounded-full w-[45%]" />
+                <div className="w-full h-3 bg-white rounded-full overflow-hidden p-0.5 border border-[#DDD6C8]">
+                  <div className="h-full bg-[#B8862D] rounded-full w-[45%]" />
                 </div>
-                <p className="text-[11px] text-gray-400">Earn 550 more points to unlock Platinum Tier (Free delivery on all orders!)</p>
+                <p className="text-[11px] text-[#5F6368]">Earn 550 more points to unlock Platinum Tier (Free delivery on all orders!)</p>
               </div>
             </div>
           )}
@@ -843,9 +843,9 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
           {activeTab === 'coupons' && (
             <div className="space-y-4">
               {availableCoupons.map((c) => (
-                <div key={c.code} className="bg-[#181818] p-5 rounded-3xl border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div key={c.code} className="bg-[#F7F4EC] p-5 rounded-3xl border border-[#DDD6C8] flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-1">
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#C5A059]/10 border border-[#C5A059]/30 rounded-xl text-[#C5A059] font-mono font-black text-xs">
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-white border border-[#DDD6C8] rounded-xl text-[#B8862D] font-mono font-black text-xs">
                       <Gift className="w-3.5 h-3.5" />
                       <span>{c.code}</span>
                     </div>
@@ -855,9 +855,9 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
 
                   <button
                     onClick={() => handleCopyCode(c.code)}
-                    className="px-4 py-2 bg-white/10 hover:bg-[#C5A059] hover:text-black text-white font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shrink-0"
+                    className="px-4 py-2 bg-white hover:bg-[#F0E8D8] text-[#1F2933] font-bold text-xs rounded-xl transition flex items-center justify-center gap-1.5 shrink-0 border border-[#9F988A] cursor-pointer"
                   >
-                    {copiedCode ? <Check className="w-4 h-4 text-emerald-400" /> : <Copy className="w-4 h-4" />}
+                    {copiedCode ? <Check className="w-4 h-4 text-[#146C43]" /> : <Copy className="w-4 h-4 text-[#B8862D]" />}
                     <span>{copiedCode ? 'Copied' : 'Copy Coupon'}</span>
                   </button>
                 </div>
@@ -871,14 +871,14 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
               
               {/* Success Notification Banner */}
               {addressSuccessMsg && (
-                <div className="p-4 bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs rounded-2xl flex items-center justify-between gap-3 font-bold animate-in fade-in">
+                <div className="p-4 bg-[#D1FAE5] border border-[#86EFAC] text-[#146C43] text-xs rounded-2xl flex items-center justify-between gap-3 font-bold animate-in fade-in">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
+                    <CheckCircle2 className="w-5 h-5 text-[#146C43] shrink-0" />
                     <span>{addressSuccessMsg}</span>
                   </div>
                   <button
                     onClick={() => setAddressSuccessMsg(null)}
-                    className="text-gray-400 hover:text-white p-1"
+                    className="text-[#5F6368] hover:text-[#1F2933] p-1 cursor-pointer"
                   >
                     <X className="w-4 h-4" />
                   </button>
@@ -886,26 +886,26 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
               )}
 
               {/* CURRENT DEFAULT ADDRESS CARD */}
-              <div className="bg-[#181818] p-5 sm:p-6 rounded-3xl border border-white/10 space-y-4 shadow-xl">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="bg-[#F7F4EC] p-5 sm:p-6 rounded-3xl border border-[#DDD6C8] space-y-4 shadow-sm">
+                <div className="flex items-center justify-between border-b border-[#DDD6C8] pb-3">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-2xl bg-orange-600/20 text-orange-400 border border-orange-500/30">
+                    <div className="p-2.5 rounded-2xl bg-[#FFF0CC] text-[#8A5A00] border border-[#E8C66A]">
                       <MapPin className="w-5 h-5" />
                     </div>
                     <div>
-                      <h4 className="font-extrabold text-white text-base font-serif">Default Delivery Address</h4>
-                      <p className="text-[11px] text-gray-400">Used automatically for all upcoming food orders.</p>
+                      <h4 className="font-extrabold text-[#1F2933] text-base font-serif">Default Delivery Address</h4>
+                      <p className="text-[11px] text-[#5F6368]">Used automatically for all upcoming food orders.</p>
                     </div>
                   </div>
 
                   <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 rounded-full bg-[#C5A059]/20 text-[#C5A059] text-[10px] font-black uppercase border border-[#C5A059]/30">
+                    <span className="px-3 py-1 rounded-full bg-white text-[#B8862D] text-[10px] font-black uppercase border border-[#DDD6C8]">
                       Default Address
                     </span>
                     <button
                       type="button"
                       onClick={() => setIsEditingAddress(!isEditingAddress)}
-                      className="px-3.5 py-1.5 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold text-xs rounded-xl shadow-md transition flex items-center gap-1.5"
+                      className="px-3.5 py-1.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold text-xs rounded-xl shadow-sm border border-[#B94D00] transition flex items-center gap-1.5 cursor-pointer"
                     >
                       <span>{isEditingAddress ? 'Cancel' : '✏️ Edit Address'}</span>
                     </button>
@@ -914,37 +914,37 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
 
                 {/* Display Current Address Details */}
                 <div className="space-y-2 text-xs">
-                  <p className="text-gray-200 font-extrabold text-sm leading-relaxed">
+                  <p className="text-[#1F2933] font-extrabold text-sm leading-relaxed">
                     {user.hostel_address || 'GD Goenka University Campus - Hostel Gate 5'}
                   </p>
                   
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 text-[11px] text-gray-400">
-                    <div className="bg-[#0d0d0d] p-2.5 rounded-xl border border-white/5">
-                      <span className="text-gray-500 font-bold block">Hostel / Campus:</span>
-                      <span className="text-white font-medium">{user.hostel_name || 'GD Goenka Campus Hostel'}</span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-2 text-[11px] text-[#5F6368]">
+                    <div className="bg-white p-2.5 rounded-xl border border-[#DDD6C8]">
+                      <span className="text-[#5F6368] font-bold block">Hostel / Campus:</span>
+                      <span className="text-[#1F2933] font-medium">{user.hostel_name || 'GD Goenka Campus Hostel'}</span>
                     </div>
-                    <div className="bg-[#0d0d0d] p-2.5 rounded-xl border border-white/5">
-                      <span className="text-gray-500 font-bold block">Room & Tower:</span>
-                      <span className="text-white font-medium">
+                    <div className="bg-white p-2.5 rounded-xl border border-[#DDD6C8]">
+                      <span className="text-[#5F6368] font-bold block">Room & Tower:</span>
+                      <span className="text-[#1F2933] font-medium">
                         {user.room_number ? `Room ${user.room_number}` : 'N/A'}{user.tower_block ? `, ${user.tower_block}` : ''}
                       </span>
                     </div>
                     {user.landmark && (
-                      <div className="bg-[#0d0d0d] p-2.5 rounded-xl border border-white/5">
-                        <span className="text-gray-500 font-bold block">Landmark:</span>
-                        <span className="text-amber-300 font-medium">{user.landmark}</span>
+                      <div className="bg-white p-2.5 rounded-xl border border-[#DDD6C8]">
+                        <span className="text-[#5F6368] font-bold block">Landmark:</span>
+                        <span className="text-[#8A5A00] font-medium">{user.landmark}</span>
                       </div>
                     )}
                     {user.delivery_notes && (
-                      <div className="bg-[#0d0d0d] p-2.5 rounded-xl border border-white/5">
-                        <span className="text-gray-500 font-bold block">Delivery Notes:</span>
-                        <span className="text-gray-300 italic">{user.delivery_notes}</span>
+                      <div className="bg-white p-2.5 rounded-xl border border-[#DDD6C8]">
+                        <span className="text-[#5F6368] font-bold block">Delivery Notes:</span>
+                        <span className="text-[#1F2933] italic">{user.delivery_notes}</span>
                       </div>
                     )}
                   </div>
 
                   {user.latitude && user.longitude && (
-                    <p className="text-[10px] text-emerald-400 font-mono pt-1">
+                    <p className="text-[10px] text-[#146C43] font-mono pt-1">
                       📍 Verified GPS Coordinates: {user.latitude}, {user.longitude}
                     </p>
                   )}
@@ -953,76 +953,76 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
 
               {/* EDIT ADDRESS FORM */}
               {isEditingAddress && (
-                <form onSubmit={handleSaveAddress} className="bg-[#181818] p-5 sm:p-6 rounded-3xl border border-[#C5A059]/40 space-y-4 animate-in fade-in">
-                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                    <h4 className="font-extrabold text-white text-base font-serif flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-[#C5A059]" />
+                <form onSubmit={handleSaveAddress} className="bg-[#F7F4EC] p-5 sm:p-6 rounded-3xl border border-[#B8862D] space-y-4 animate-in fade-in shadow-sm">
+                  <div className="flex items-center justify-between border-b border-[#DDD6C8] pb-3">
+                    <h4 className="font-extrabold text-[#1F2933] text-base font-serif flex items-center gap-2">
+                      <MapPin className="w-4 h-4 text-[#B8862D]" />
                       <span>Update Delivery Location Details</span>
                     </h4>
-                    <span className="text-xs text-gray-400 font-medium">Auto-saves to Supabase profile</span>
+                    <span className="text-xs text-[#5F6368] font-medium">Auto-saves to Supabase profile</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                     
                     {/* Hostel / Campus */}
                     <div>
-                      <label className="font-bold text-gray-300 block mb-1">Hostel / Building Name *</label>
+                      <label className="font-bold text-[#1F2933] block mb-1">Hostel / Building Name *</label>
                       <input
                         type="text"
                         value={hostelName}
                         onChange={(e) => setHostelName(e.target.value)}
                         placeholder="e.g. GD Goenka Hostel / Boys Hostel 2"
-                        className="w-full p-3 bg-[#0d0d0d] border border-white/15 rounded-xl text-white outline-none focus:border-[#C5A059]"
+                        className="w-full p-3 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] outline-none focus:border-[#D95F0A] placeholder-[#6B6B63]"
                         required
                       />
                     </div>
 
                     {/* Room Number */}
                     <div>
-                      <label className="font-bold text-gray-300 block mb-1">Room Number *</label>
+                      <label className="font-bold text-[#1F2933] block mb-1">Room Number *</label>
                       <input
                         type="text"
                         value={roomNumber}
                         onChange={(e) => setRoomNumber(e.target.value)}
                         placeholder="e.g. Room 304"
-                        className="w-full p-3 bg-[#0d0d0d] border border-white/15 rounded-xl text-white outline-none focus:border-[#C5A059]"
+                        className="w-full p-3 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] outline-none focus:border-[#D95F0A] placeholder-[#6B6B63]"
                         required
                       />
                     </div>
 
                     {/* Tower / Block */}
                     <div>
-                      <label className="font-bold text-gray-300 block mb-1">Tower / Block (Optional)</label>
+                      <label className="font-bold text-[#1F2933] block mb-1">Tower / Block (Optional)</label>
                       <input
                         type="text"
                         value={towerBlock}
                         onChange={(e) => setTowerBlock(e.target.value)}
                         placeholder="e.g. Block B / Tower 3"
-                        className="w-full p-3 bg-[#0d0d0d] border border-white/15 rounded-xl text-white outline-none focus:border-[#C5A059]"
+                        className="w-full p-3 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] outline-none focus:border-[#D95F0A] placeholder-[#6B6B63]"
                       />
                     </div>
 
                     {/* Landmark */}
                     <div>
-                      <label className="font-bold text-gray-300 block mb-1">Landmark (Optional)</label>
+                      <label className="font-bold text-[#1F2933] block mb-1">Landmark (Optional)</label>
                       <input
                         type="text"
                         value={addressLandmark}
                         onChange={(e) => setAddressLandmark(e.target.value)}
                         placeholder="e.g. Near Gate 5 Canteen / Opposite Library"
-                        className="w-full p-3 bg-[#0d0d0d] border border-white/15 rounded-xl text-white outline-none focus:border-[#C5A059]"
+                        className="w-full p-3 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] outline-none focus:border-[#D95F0A] placeholder-[#6B6B63]"
                       />
                     </div>
 
                     {/* Delivery Notes */}
                     <div className="sm:col-span-2">
-                      <label className="font-bold text-gray-300 block mb-1">Delivery Instructions / Notes (Optional)</label>
+                      <label className="font-bold text-[#1F2933] block mb-1">Delivery Instructions / Notes (Optional)</label>
                       <input
                         type="text"
                         value={deliveryNotes}
                         onChange={(e) => setDeliveryNotes(e.target.value)}
                         placeholder="e.g. Please call when arriving at gate, do not ring bell late night"
-                        className="w-full p-3 bg-[#0d0d0d] border border-white/15 rounded-xl text-white outline-none focus:border-[#C5A059]"
+                        className="w-full p-3 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] outline-none focus:border-[#D95F0A] placeholder-[#6B6B63]"
                       />
                     </div>
 
@@ -1033,9 +1033,9 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                         id="isDefaultCheckbox"
                         checked={isDefaultAddress}
                         onChange={(e) => setIsDefaultAddress(e.target.checked)}
-                        className="w-4 h-4 accent-[#C5A059] rounded cursor-pointer"
+                        className="w-4 h-4 accent-[#D95F0A] rounded cursor-pointer"
                       />
-                      <label htmlFor="isDefaultCheckbox" className="text-xs text-gray-300 font-bold cursor-pointer">
+                      <label htmlFor="isDefaultCheckbox" className="text-xs text-[#1F2933] font-bold cursor-pointer">
                         Set as Default Address for all future orders
                       </label>
                     </div>
@@ -1046,15 +1046,15 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                     <button
                       type="submit"
                       disabled={isSavingAddress}
-                      className="flex-1 py-3 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold rounded-2xl shadow-lg transition flex items-center justify-center gap-2 text-xs"
+                      className="flex-1 py-3 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold rounded-2xl shadow-sm border border-[#B94D00] transition flex items-center justify-center gap-2 text-xs cursor-pointer"
                     >
-                      <CheckCircle2 className="w-4 h-4" />
+                      <CheckCircle2 className="w-4 h-4 text-white" />
                       <span>{isSavingAddress ? 'Saving Address...' : 'Save & Set as Default Address'}</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setIsEditingAddress(false)}
-                      className="px-5 py-3 bg-white/10 hover:bg-white/20 text-gray-300 hover:text-white font-bold rounded-2xl transition text-xs"
+                      className="px-5 py-3 bg-white hover:bg-[#F0E8D8] text-[#1F2933] font-bold rounded-2xl border border-[#9F988A] transition text-xs cursor-pointer"
                     >
                       Cancel
                     </button>
@@ -1067,27 +1067,27 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
 
           {/* TAB 7: REFERRAL */}
           {activeTab === 'referral' && (
-            <div className="bg-[#181818] p-6 rounded-3xl border border-white/10 text-center space-y-4">
-              <div className="w-14 h-14 rounded-full bg-[#C5A059]/10 border border-[#C5A059]/30 text-[#C5A059] flex items-center justify-center mx-auto">
+            <div className="bg-[#F7F4EC] p-6 rounded-3xl border border-[#DDD6C8] text-center space-y-4 shadow-sm">
+              <div className="w-14 h-14 rounded-full bg-[#FFF0CC] border border-[#E8C66A] text-[#8A5A00] flex items-center justify-center mx-auto">
                 <Share2 className="w-7 h-7" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-xl font-black text-white font-serif">Refer Friends & Get 25% OFF</h3>
-                <div className="text-xs text-gray-300 max-w-md mx-auto space-y-1.5 text-left bg-[#0d0d0d] p-4 rounded-2xl border border-white/10">
-                  <p className="font-bold text-amber-300">Invite your friends to Trippy's Mehfill.</p>
-                  <p className="text-gray-400">When a referred customer places their first successful order using your referral code:</p>
-                  <ul className="list-disc list-inside space-y-1 text-gray-300 pt-1">
-                    <li>Friend receives <strong className="text-emerald-400">25% OFF</strong> on their first order.</li>
-                    <li>Referrer also receives <strong className="text-emerald-400">25% OFF coupon</strong> for their next order.</li>
+                <h3 className="text-xl font-black text-[#1F2933] font-serif">Refer Friends & Get 25% OFF</h3>
+                <div className="text-xs text-[#5F6368] max-w-md mx-auto space-y-1.5 text-left bg-white p-4 rounded-2xl border border-[#DDD6C8]">
+                  <p className="font-bold text-[#8A5A00]">Invite your friends to Trippy's Mehfill.</p>
+                  <p className="text-[#5F6368]">When a referred customer places their first successful order using your referral code:</p>
+                  <ul className="list-disc list-inside space-y-1 text-[#1F2933] pt-1">
+                    <li>Friend receives <strong className="text-[#146C43]">25% OFF</strong> on their first order.</li>
+                    <li>Referrer also receives <strong className="text-[#146C43]">25% OFF coupon</strong> for their next order.</li>
                   </ul>
                 </div>
               </div>
 
-              <div className="p-3 bg-[#0d0d0d] rounded-2xl border border-white/15 inline-flex items-center gap-4">
-                <span className="font-mono font-black text-lg text-[#C5A059]">{user.referral_code || `TRIPPY-${(user.full_name?.slice(0, 4)?.toUpperCase() || 'USER')}-${user.phone?.slice(-4) || '2026'}`}</span>
+              <div className="p-3 bg-white rounded-2xl border border-[#DDD6C8] inline-flex items-center gap-4">
+                <span className="font-mono font-black text-lg text-[#B8862D]">{user.referral_code || `TRIPPY-${(user.full_name?.slice(0, 4)?.toUpperCase() || 'USER')}-${user.phone?.slice(-4) || '2026'}`}</span>
                 <button
                   onClick={() => handleCopyReferral(user.referral_code || `TRIPPY-${(user.full_name?.slice(0, 4)?.toUpperCase() || 'USER')}-${user.phone?.slice(-4) || '2026'}`)}
-                  className="px-3 py-1.5 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold text-xs rounded-xl shadow-md transition"
+                  className="px-3 py-1.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold text-xs rounded-xl shadow-sm border border-[#B94D00] transition cursor-pointer"
                 >
                   {copiedReferral ? 'Copied Code!' : 'Copy Code'}
                 </button>
@@ -1095,23 +1095,23 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
             </div>
           )}
 
-          {/* TAB 8: PROFILE & SECURITY (SHOW LOGIN CREDENTIALS & UPDATE PASSWORD) */}
+          {/* TAB 8: PROFILE & SECURITY */}
           {activeTab === 'profile' && (
             <div className="space-y-6">
               
               {/* CURRENT LOGIN CREDENTIALS & PASSWORD DISPLAY CARD */}
-              <div className="bg-gradient-to-tr from-[#181818] to-gray-900 p-5 sm:p-6 rounded-3xl border border-orange-500/40 shadow-xl space-y-4">
-                <div className="flex items-center justify-between border-b border-white/10 pb-3">
+              <div className="bg-[#F7F4EC] p-5 sm:p-6 rounded-3xl border border-[#DDD6C8] shadow-sm space-y-4">
+                <div className="flex items-center justify-between border-b border-[#DDD6C8] pb-3">
                   <div className="flex items-center gap-3">
-                    <div className="p-2.5 rounded-2xl bg-orange-600/20 text-orange-400 border border-orange-500/30">
+                    <div className="p-2.5 rounded-2xl bg-[#FFF0CC] text-[#8A5A00] border border-[#E8C66A]">
                       <KeyRound className="w-5 h-5" />
                     </div>
                     <div>
-                      <h3 className="font-black text-white text-base font-serif">Your Account Credentials</h3>
-                      <p className="text-[11px] text-gray-400">Use phone number or email with password to log in.</p>
+                      <h3 className="font-black text-[#1F2933] text-base font-serif">Your Account Credentials</h3>
+                      <p className="text-[11px] text-[#5F6368]">Use phone number or email with password to log in.</p>
                     </div>
                   </div>
-                  <span className="px-2.5 py-1 bg-emerald-500/20 text-emerald-400 text-[10px] font-black uppercase rounded-full border border-emerald-500/30">
+                  <span className="px-2.5 py-1 bg-[#D1FAE5] text-[#146C43] text-[10px] font-black uppercase rounded-full border border-[#86EFAC]">
                     Account Active
                   </span>
                 </div>
@@ -1119,40 +1119,40 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   
                   {/* Phone / Login ID */}
-                  <div className="bg-[#0d0d0d] p-3.5 rounded-2xl border border-white/10 space-y-1">
-                    <span className="text-[10px] text-gray-400 uppercase font-bold block">Login Phone / Username</span>
-                    <span className="text-white font-mono font-black text-sm">
-                      {user.phone || user.username || <span className="text-gray-500 font-normal">Not set</span>}
+                  <div className="bg-white p-3.5 rounded-2xl border border-[#DDD6C8] space-y-1">
+                    <span className="text-[10px] text-[#5F6368] uppercase font-bold block">Login Phone / Username</span>
+                    <span className="text-[#1F2933] font-mono font-black text-sm">
+                      {user.phone || user.username || <span className="text-[#5F6368] font-normal">Not set</span>}
                     </span>
                   </div>
 
                   {/* Email */}
-                  <div className="bg-[#0d0d0d] p-3.5 rounded-2xl border border-white/10 space-y-1">
-                    <span className="text-[10px] text-gray-400 uppercase font-bold block">Registered Email</span>
-                    <span className="text-white font-mono font-bold text-xs truncate block">{user.email || 'Not attached'}</span>
+                  <div className="bg-white p-3.5 rounded-2xl border border-[#DDD6C8] space-y-1">
+                    <span className="text-[10px] text-[#5F6368] uppercase font-bold block">Registered Email</span>
+                    <span className="text-[#1F2933] font-mono font-bold text-xs truncate block">{user.email || 'Not attached'}</span>
                   </div>
 
                   {/* CURRENT PASSWORD VIEW / HIDE TOGGLE CARD */}
-                  <div className="bg-[#0d0d0d] p-3.5 rounded-2xl border border-orange-500/30 sm:col-span-2 space-y-2">
+                  <div className="bg-white p-3.5 rounded-2xl border border-[#DDD6C8] sm:col-span-2 space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] text-orange-400 uppercase font-black tracking-wider block">
+                      <span className="text-[10px] text-[#D95F0A] uppercase font-black tracking-wider block">
                         Account Password Credentials
                       </span>
                       <button
                         type="button"
                         onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                        className="text-xs text-gray-300 hover:text-white flex items-center gap-1 font-bold underline"
+                        className="text-xs text-[#1F2933] hover:text-[#D95F0A] flex items-center gap-1 font-bold underline cursor-pointer"
                       >
-                        {showCurrentPassword ? <EyeOff className="w-3.5 h-3.5 text-orange-400" /> : <Eye className="w-3.5 h-3.5 text-orange-400" />}
+                        {showCurrentPassword ? <EyeOff className="w-3.5 h-3.5 text-[#D95F0A]" /> : <Eye className="w-3.5 h-3.5 text-[#D95F0A]" />}
                         <span>{showCurrentPassword ? 'Hide Password' : 'Show Password'}</span>
                       </button>
                     </div>
 
-                    <div className="flex items-center justify-between gap-3 bg-black/60 p-2.5 rounded-xl border border-white/10 font-mono">
-                      <span className="text-sm font-black text-amber-300 tracking-wider">
+                    <div className="flex items-center justify-between gap-3 bg-[#F8F6F0] p-2.5 rounded-xl border border-[#9F988A] font-mono">
+                      <span className="text-sm font-black text-[#8A5A00] tracking-wider">
                         {user.password ? (showCurrentPassword ? user.password : '••••••••••••') : '••••••••••••'}
                       </span>
-                      <span className="text-[10px] text-gray-400">
+                      <span className="text-[10px] text-[#5F6368] font-medium">
                         {user.password ? 'Custom Password Saved' : 'Secured via Auth'}
                       </span>
                     </div>
@@ -1162,22 +1162,22 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
               </div>
 
               {/* UPDATE PASSWORD FORM */}
-              <div className="bg-[#181818] p-5 sm:p-6 rounded-3xl border border-white/10 space-y-4">
-                <div className="flex items-center gap-2 border-b border-white/10 pb-3">
-                  <Lock className="w-5 h-5 text-[#C5A059]" />
-                  <h3 className="font-extrabold text-white text-base font-serif">Change & Update Password</h3>
+              <div className="bg-[#F7F4EC] p-5 sm:p-6 rounded-3xl border border-[#DDD6C8] space-y-4 shadow-sm">
+                <div className="flex items-center gap-2 border-b border-[#DDD6C8] pb-3">
+                  <Lock className="w-5 h-5 text-[#B8862D]" />
+                  <h3 className="font-extrabold text-[#1F2933] text-base font-serif">Change & Update Password</h3>
                 </div>
 
                 {passUpdateError && (
-                  <div className="p-3 bg-rose-500/20 border border-rose-500/40 text-rose-300 text-xs rounded-2xl flex items-center gap-2 font-bold">
-                    <AlertCircle className="w-4 h-4 shrink-0" />
+                  <div className="p-3 bg-[#FDE2E1] border border-[#F5A6A1] text-[#922B21] text-xs rounded-2xl flex items-center gap-2 font-bold">
+                    <AlertCircle className="w-4 h-4 shrink-0 text-[#922B21]" />
                     <span>{passUpdateError}</span>
                   </div>
                 )}
 
                 {passUpdateSuccess && (
-                  <div className="p-3 bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-xs rounded-2xl flex items-center gap-2 font-bold">
-                    <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  <div className="p-3 bg-[#D1FAE5] border border-[#86EFAC] text-[#146C43] text-xs rounded-2xl flex items-center gap-2 font-bold">
+                    <CheckCircle2 className="w-4 h-4 shrink-0 text-[#146C43]" />
                     <span>{passUpdateSuccess}</span>
                   </div>
                 )}
@@ -1186,19 +1186,19 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                   
                   {/* Current Password Field */}
                   <div>
-                    <label className="font-bold text-gray-300 block mb-1">Current Password</label>
+                    <label className="font-bold text-[#1F2933] block mb-1">Current Password</label>
                     <div className="relative">
                       <input
                         type={showCurrentPassword ? 'text' : 'password'}
                         value={currentPassInput}
                         onChange={(e) => setCurrentPassInput(e.target.value)}
                         placeholder="Enter current password"
-                        className="w-full p-3 bg-[#0d0d0d] border border-white/15 rounded-xl text-white outline-none focus:border-[#C5A059] font-mono text-xs pr-10"
+                        className="w-full p-3 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] outline-none focus:border-[#D95F0A] font-mono text-xs pr-10 placeholder-[#6B6B63]"
                       />
                       <button
                         type="button"
                         onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5F6368] hover:text-[#1F2933] cursor-pointer"
                       >
                         {showCurrentPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
@@ -1207,19 +1207,19 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
 
                   {/* New Password Field */}
                   <div>
-                    <label className="font-bold text-gray-300 block mb-1">New Password</label>
+                    <label className="font-bold text-[#1F2933] block mb-1">New Password</label>
                     <div className="relative">
                       <input
                         type={showNewPassword ? 'text' : 'password'}
                         value={newPassInput}
                         onChange={(e) => setNewPassInput(e.target.value)}
                         placeholder="At least 6 characters"
-                        className="w-full p-3 bg-[#0d0d0d] border border-white/15 rounded-xl text-white outline-none focus:border-[#C5A059] font-mono text-xs pr-10"
+                        className="w-full p-3 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] outline-none focus:border-[#D95F0A] font-mono text-xs pr-10 placeholder-[#6B6B63]"
                       />
                       <button
                         type="button"
                         onClick={() => setShowNewPassword(!showNewPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5F6368] hover:text-[#1F2933] cursor-pointer"
                       >
                         {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
@@ -1228,11 +1228,11 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                     {/* Strength Indicator */}
                     {newPassInput && (
                       <div className="mt-2 space-y-1">
-                        <div className="flex justify-between text-[10px] font-bold text-gray-400">
+                        <div className="flex justify-between text-[10px] font-bold text-[#5F6368]">
                           <span>Password Strength:</span>
                           <span className={strength.color.replace('bg-', 'text-')}>{strength.label}</span>
                         </div>
-                        <div className="w-full h-1.5 bg-gray-800 rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-[#DDD6C8] rounded-full overflow-hidden">
                           <div className={`h-full ${strength.color} transition-all duration-300`} style={{ width: `${(strength.score / 4) * 100}%` }} />
                         </div>
                       </div>
@@ -1241,19 +1241,19 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
 
                   {/* Confirm New Password Field */}
                   <div>
-                    <label className="font-bold text-gray-300 block mb-1">Confirm New Password</label>
+                    <label className="font-bold text-[#1F2933] block mb-1">Confirm New Password</label>
                     <div className="relative">
                       <input
                         type={showConfirmPassword ? 'text' : 'password'}
                         value={confirmPassInput}
                         onChange={(e) => setConfirmPassInput(e.target.value)}
                         placeholder="Re-enter new password"
-                        className="w-full p-3 bg-[#0d0d0d] border border-white/15 rounded-xl text-white outline-none focus:border-[#C5A059] font-mono text-xs pr-10"
+                        className="w-full p-3 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] outline-none focus:border-[#D95F0A] font-mono text-xs pr-10 placeholder-[#6B6B63]"
                       />
                       <button
                         type="button"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-[#5F6368] hover:text-[#1F2933] cursor-pointer"
                       >
                         {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                       </button>
@@ -1263,72 +1263,72 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                   <button
                     type="submit"
                     disabled={isUpdatingPass}
-                    className="w-full py-3 bg-orange-600 hover:bg-orange-700 text-white font-extrabold rounded-2xl shadow-lg shadow-orange-600/30 transition flex items-center justify-center gap-2"
+                    className="w-full py-3 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold rounded-2xl shadow-sm border border-[#B94D00] transition flex items-center justify-center gap-2 cursor-pointer"
                   >
-                    <KeyRound className="w-4 h-4" />
+                    <KeyRound className="w-4 h-4 text-white" />
                     <span>{isUpdatingPass ? 'Updating Security...' : 'Save New Password'}</span>
                   </button>
                 </form>
               </div>
 
               {/* EDIT PERSONAL PROFILE DETAILS FORM */}
-              <div className="bg-[#181818] p-5 sm:p-6 rounded-3xl border border-white/10 space-y-4">
-                <h3 className="font-extrabold text-white text-base font-serif border-b border-white/10 pb-2">
+              <div className="bg-[#F7F4EC] p-5 sm:p-6 rounded-3xl border border-[#DDD6C8] space-y-4 shadow-sm">
+                <h3 className="font-extrabold text-[#1F2933] text-base font-serif border-b border-[#DDD6C8] pb-2">
                   Update Profile Details
                 </h3>
 
                 {profileSuccessMsg && (
-                  <div className="p-3 bg-emerald-500/20 text-emerald-300 text-xs rounded-2xl font-bold flex items-center gap-2">
-                    <CheckCircle2 className="w-4 h-4" />
+                  <div className="p-3 bg-[#D1FAE5] border border-[#86EFAC] text-[#146C43] text-xs rounded-2xl font-bold flex items-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-[#146C43]" />
                     <span>{profileSuccessMsg}</span>
                   </div>
                 )}
 
                 <form onSubmit={handleProfileSave} className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   <div>
-                    <label className="font-bold text-gray-300 block mb-1">Full Name</label>
+                    <label className="font-bold text-[#1F2933] block mb-1">Full Name</label>
                     <input
                       type="text"
                       value={editName}
                       onChange={(e) => setEditName(e.target.value)}
-                      className="w-full p-2.5 bg-[#0d0d0d] border border-white/15 rounded-xl text-white outline-none focus:border-[#C5A059]"
+                      className="w-full p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] outline-none focus:border-[#D95F0A]"
                     />
                   </div>
 
                   <div>
-                    <label className="font-bold text-gray-300 block mb-1">Phone Number</label>
+                    <label className="font-bold text-[#1F2933] block mb-1">Phone Number</label>
                     <input
                       type="text"
                       value={editPhone}
                       onChange={(e) => setEditPhone(e.target.value)}
-                      className="w-full p-2.5 bg-[#0d0d0d] border border-white/15 rounded-xl text-white outline-none focus:border-[#C5A059]"
+                      className="w-full p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] outline-none focus:border-[#D95F0A]"
                     />
                   </div>
 
                   <div>
-                    <label className="font-bold text-gray-300 block mb-1">Email Address</label>
+                    <label className="font-bold text-[#1F2933] block mb-1">Email Address</label>
                     <input
                       type="email"
                       value={editEmail}
                       onChange={(e) => setEditEmail(e.target.value)}
-                      className="w-full p-2.5 bg-[#0d0d0d] border border-white/15 rounded-xl text-white outline-none focus:border-[#C5A059]"
+                      className="w-full p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] outline-none focus:border-[#D95F0A]"
                     />
                   </div>
 
                   <div>
-                    <label className="font-bold text-gray-300 block mb-1">Campus / Hostel Address</label>
+                    <label className="font-bold text-[#1F2933] block mb-1">Campus / Hostel Address</label>
                     <input
                       type="text"
                       value={editAddress}
                       onChange={(e) => setEditAddress(e.target.value)}
-                      className="w-full p-2.5 bg-[#0d0d0d] border border-white/15 rounded-xl text-white outline-none focus:border-[#C5A059]"
+                      className="w-full p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] outline-none focus:border-[#D95F0A]"
                     />
                   </div>
 
                   <div className="sm:col-span-2 pt-2">
                     <button
                       type="submit"
-                      className="w-full py-3 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold rounded-2xl shadow-lg transition"
+                      className="w-full py-3 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold rounded-2xl shadow-sm border border-[#B94D00] transition cursor-pointer"
                     >
                       Save Profile Details
                     </button>
@@ -1345,21 +1345,21 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
 
       {/* SWIGGY / ZOMATO TAX INVOICE RECEIPT MODAL */}
       {selectedInvoiceOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 overflow-y-auto">
-          <div className="bg-white text-gray-900 w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl border border-gray-200 my-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto animate-in fade-in">
+          <div className="bg-white text-[#1F2933] w-full max-w-lg rounded-3xl overflow-hidden shadow-2xl border border-[#DDD6C8] my-auto">
             
             {/* Header */}
-            <div className="bg-orange-600 text-white p-5 flex items-center justify-between">
+            <div className="bg-[#F7F4EC] text-[#1F2933] border-b border-[#DDD6C8] p-5 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <Receipt className="w-6 h-6" />
+                <Receipt className="w-6 h-6 text-[#B8862D]" />
                 <div>
                   <h3 className="font-black text-lg font-serif">Tax Invoice & Receipt</h3>
-                  <p className="text-[10px] text-orange-200">Trippy's Mehfill Dum Biryani & Kitchen</p>
+                  <p className="text-[10px] text-[#5F6368]">Trippy's Mehfill Dum Biryani & Kitchen</p>
                 </div>
               </div>
               <button
                 onClick={() => setSelectedInvoiceOrder(null)}
-                className="p-1.5 rounded-full hover:bg-white/20 text-white transition"
+                className="p-1.5 rounded-full bg-white hover:bg-[#F0E8D8] text-[#5F6368] transition border border-[#DDD6C8] cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1369,37 +1369,37 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
             <div className="p-6 space-y-4 text-xs font-sans">
               
               {/* Order Meta */}
-              <div className="flex justify-between border-b pb-3 text-gray-600">
+              <div className="flex justify-between border-b border-[#DDD6C8] pb-3 text-[#5F6368]">
                 <div>
-                  <span className="font-bold block text-gray-900">Order ID: #{selectedInvoiceOrder.order_number}</span>
+                  <span className="font-bold block text-[#1F2933]">Order ID: #{selectedInvoiceOrder.order_number}</span>
                   <span>Date: {selectedInvoiceOrder.created_at || '03 Aug 2026'}</span>
                 </div>
                 <div className="text-right">
-                  <span className="font-bold block text-emerald-700 uppercase">{selectedInvoiceOrder.status}</span>
+                  <span className="font-bold block text-[#146C43] uppercase">{selectedInvoiceOrder.status}</span>
                   <span>Paid via {selectedInvoiceOrder.payment_method || 'UPI'}</span>
                 </div>
               </div>
 
               {/* Customer Details */}
-              <div className="bg-gray-50 p-3 rounded-2xl border border-gray-200 space-y-1">
-                <span className="font-bold text-gray-900 block">Customer Info:</span>
-                <p className="text-gray-700">{user.full_name} ({user.phone})</p>
-                <p className="text-gray-500 text-[11px]">{selectedInvoiceOrder.delivery_address || user.hostel_address}</p>
+              <div className="bg-[#F7F4EC] p-3 rounded-2xl border border-[#DDD6C8] space-y-1">
+                <span className="font-bold text-[#1F2933] block">Customer Info:</span>
+                <p className="text-[#1F2933]">{user.full_name} ({user.phone})</p>
+                <p className="text-[#5F6368] text-[11px]">{selectedInvoiceOrder.delivery_address || user.hostel_address}</p>
               </div>
 
               {/* Items breakdown */}
               <div className="space-y-2">
-                <span className="font-extrabold text-gray-900 block border-b pb-1">Ordered Dishes</span>
+                <span className="font-extrabold text-[#1F2933] block border-b border-[#DDD6C8] pb-1">Ordered Dishes</span>
                 {selectedInvoiceOrder.items?.map((it, idx) => (
-                  <div key={idx} className="flex justify-between font-medium">
+                  <div key={idx} className="flex justify-between font-medium text-[#1F2933]">
                     <span>{it.quantity}x {it.dish_name || (it as any).menuItem?.name || 'Dish'}</span>
-                    <span className="font-mono font-bold">₹{(it.price || 150) * it.quantity}</span>
+                    <span className="font-mono font-bold text-[#1F2933]">₹{(it.price || 150) * it.quantity}</span>
                   </div>
                 ))}
               </div>
 
               {/* Price Calculation */}
-              <div className="border-t pt-3 space-y-1.5 text-gray-600 text-xs">
+              <div className="border-t border-[#DDD6C8] pt-3 space-y-1.5 text-[#5F6368] text-xs">
                 <div className="flex justify-between">
                   <span>Item Subtotal</span>
                   <span className="font-mono">₹{selectedInvoiceOrder.total_amount - 20}</span>
@@ -1412,9 +1412,9 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                   <span>Hostel Express Delivery</span>
                   <span className="font-mono">₹10</span>
                 </div>
-                <div className="flex justify-between font-black text-sm text-gray-900 border-t pt-2">
+                <div className="flex justify-between font-black text-sm text-[#1F2933] border-t border-[#DDD6C8] pt-2">
                   <span>Total Amount Paid</span>
-                  <span className="font-mono text-orange-600">₹{selectedInvoiceOrder.total_amount}</span>
+                  <span className="font-mono text-[#D95F0A]">₹{selectedInvoiceOrder.total_amount}</span>
                 </div>
               </div>
 
@@ -1422,9 +1422,9 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
               <div className="pt-3 flex gap-2">
                 <button
                   onClick={() => window.print()}
-                  className="flex-1 py-2.5 bg-gray-900 hover:bg-black text-white font-bold rounded-xl flex items-center justify-center gap-1.5 text-xs"
+                  className="flex-1 py-2.5 bg-white hover:bg-[#F0E8D8] text-[#1F2933] font-bold rounded-xl flex items-center justify-center gap-1.5 text-xs border border-[#9F988A] cursor-pointer"
                 >
-                  <Printer className="w-4 h-4" />
+                  <Printer className="w-4 h-4 text-[#B8862D]" />
                   <span>Print Invoice</span>
                 </button>
                 <button
@@ -1432,9 +1432,9 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                     triggerToast(`Downloading Invoice #${selectedInvoiceOrder.order_number}...`);
                     setSelectedInvoiceOrder(null);
                   }}
-                  className="flex-1 py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl flex items-center justify-center gap-1.5 text-xs"
+                  className="flex-1 py-2.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-bold rounded-xl flex items-center justify-center gap-1.5 text-xs border border-[#B94D00] cursor-pointer"
                 >
-                  <Download className="w-4 h-4" />
+                  <Download className="w-4 h-4 text-white" />
                   <span>Save Receipt</span>
                 </button>
               </div>
@@ -1446,26 +1446,26 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
 
       {/* RATING SUB-MODAL */}
       {ratingOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
-          <div className="bg-[#181818] border border-white/15 w-full max-w-md rounded-3xl p-6 text-white space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 animate-in fade-in">
+          <div className="bg-[#F8F6F0] border border-[#DDD6C8] w-full max-w-md rounded-3xl p-6 text-[#1F2933] space-y-4 shadow-2xl">
             
-            <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <h3 className="font-extrabold text-base font-serif">Rate Order #{ratingOrder.order_number}</h3>
-              <button onClick={() => setRatingOrder(null)} className="p-1 text-gray-400 hover:text-white">
+            <div className="flex items-center justify-between border-b border-[#DDD6C8] pb-3">
+              <h3 className="font-extrabold text-base font-serif text-[#1F2933]">Rate Order #{ratingOrder.order_number}</h3>
+              <button onClick={() => setRatingOrder(null)} className="p-1.5 rounded-full hover:bg-[#EFEAE0] text-[#5F6368] cursor-pointer transition">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {ratingSubmitted ? (
               <div className="text-center py-6 space-y-3">
-                <div className="w-12 h-12 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center justify-center mx-auto">
+                <div className="w-12 h-12 rounded-full bg-[#D1FAE5] text-[#146C43] border border-[#86EFAC] flex items-center justify-center mx-auto">
                   <ThumbsUp className="w-6 h-6" />
                 </div>
-                <h4 className="font-bold text-white text-sm">Thank you for your rating!</h4>
-                <p className="text-xs text-gray-400">Your feedback helps our kitchen maintain authentic taste.</p>
+                <h4 className="font-bold text-[#1F2933] text-sm">Thank you for your rating!</h4>
+                <p className="text-xs text-[#5F6368]">Your feedback helps our kitchen maintain authentic taste.</p>
                 <button
                   onClick={() => setRatingOrder(null)}
-                  className="px-5 py-2 bg-[#C5A059] text-black font-extrabold text-xs rounded-xl"
+                  className="px-5 py-2 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold text-xs rounded-xl border border-[#B94D00] cursor-pointer"
                 >
                   Done
                 </button>
@@ -1473,28 +1473,28 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
             ) : (
               <div className="space-y-4">
                 <div className="text-center">
-                  <p className="text-xs text-gray-300 mb-2 font-medium">How was your food & delivery experience?</p>
+                  <p className="text-xs text-[#5F6368] mb-2 font-medium">How was your food & delivery experience?</p>
                   <div className="flex justify-center gap-2">
                     {[1, 2, 3, 4, 5].map((star) => (
                       <button
                         key={star}
                         onClick={() => setGivenRating(star)}
-                        className="p-1 hover:scale-125 transition"
+                        className="p-1 hover:scale-125 transition cursor-pointer"
                       >
-                        <Star className={`w-7 h-7 ${star <= givenRating ? 'fill-amber-400 text-amber-400' : 'text-gray-600'}`} />
+                        <Star className={`w-7 h-7 ${star <= givenRating ? 'fill-[#D95F0A] text-[#D95F0A]' : 'text-[#DDD6C8]'}`} />
                       </button>
                     ))}
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-xs font-bold text-gray-300 block mb-1">Add Feedback / Comment</label>
+                  <label className="text-xs font-bold text-[#1F2933] block mb-1">Add Feedback / Comment</label>
                   <textarea
                     rows={3}
                     value={ratingComment}
                     onChange={(e) => setRatingComment(e.target.value)}
                     placeholder="e.g. Biryani was hot & super delicious!"
-                    className="w-full p-2.5 bg-[#0d0d0d] border border-white/15 rounded-xl text-xs text-white outline-none focus:border-[#C5A059]"
+                    className="w-full p-3 bg-white border border-[#9F988A] rounded-xl text-xs text-[#1F2933] outline-none focus:border-[#D95F0A] placeholder-[#6B6B63]"
                   />
                 </div>
 
@@ -1503,7 +1503,7 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                     setRatingSubmitted(true);
                     triggerToast('Rating submitted successfully!');
                   }}
-                  className="w-full py-3 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold text-xs rounded-2xl shadow-lg"
+                  className="w-full py-3 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold text-xs rounded-2xl shadow-sm border border-[#B94D00] cursor-pointer"
                 >
                   Submit Feedback
                 </button>

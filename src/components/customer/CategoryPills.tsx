@@ -33,10 +33,10 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
             <button
               key={cat}
               onClick={() => onSelectCategory(cat)}
-              className={`flex items-center gap-2.5 px-5 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all shadow-sm ${
+              className={`flex items-center gap-2.5 px-5 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all shadow-sm cursor-pointer border ${
                 isSelected
-                  ? 'bg-[#C5A059] text-black font-extrabold shadow-lg shadow-[#C5A059]/20 scale-105'
-                  : 'bg-[#121212] text-gray-300 hover:bg-white/5 border border-white/10'
+                  ? 'bg-[#B8862D] text-white font-extrabold border-[#8F691F] shadow-md scale-105'
+                  : 'bg-white text-[#1F2933] hover:bg-[#F0E8D8] border-[#DDD6C8] hover:border-[#9F988A]'
               }`}
             >
               <span>{categoryIcons[cat]}</span>

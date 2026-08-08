@@ -49,29 +49,29 @@ export const AdminHeaderNav: React.FC<AdminHeaderNavProps> = ({
   pendingPaymentsCount = 0
 }) => {
   return (
-    <div className="bg-[#0d0d0d] text-white border-t border-b border-white/10 overflow-x-auto no-scrollbar">
-      <div className="max-w-7xl mx-auto px-4 flex items-center gap-1 py-1.5 min-w-max">
+    <div className="bg-[#F5F1E8] text-[#1F2933] border-t border-b border-[#D8D2C5] overflow-x-auto no-scrollbar shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 flex items-center gap-1.5 py-2.5 min-w-max">
         {tabs.map((tab) => {
           const isActive = activeTab === tab.id;
           return (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+              className={`relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
                 isActive
-                  ? 'bg-[#C5A059] text-black shadow-md font-extrabold'
-                  : 'text-gray-400 hover:bg-white/5 hover:text-white'
+                  ? 'bg-[#B8862D] text-white border-[#8F691F] shadow-sm font-extrabold'
+                  : 'bg-white text-[#374151] border-[#D8D2C5] hover:bg-[#F0E7D5] hover:text-[#1F2933]'
               }`}
             >
               {tab.icon}
               <span>{tab.label}</span>
               {tab.id === 'registrations' && pendingCount > 0 && (
-                <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full animate-pulse">
+                <span className="bg-[#C0392B] text-white text-[10px] font-black px-1.5 py-0.2 rounded-full border border-[#922B21]">
                   {pendingCount}
                 </span>
               )}
               {tab.id === 'payments' && pendingPaymentsCount > 0 && (
-                <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full animate-pulse">
+                <span className="bg-[#C0392B] text-white text-[10px] font-black px-1.5 py-0.2 rounded-full border border-[#922B21]">
                   {pendingPaymentsCount}
                 </span>
               )}

@@ -49,33 +49,33 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
     setBannerLink('');
   };
 
-  const inputStyle = "w-full p-2.5 bg-white border border-gray-300 rounded-xl text-[#111111] font-extrabold placeholder-gray-400 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 shadow-sm transition";
+  const inputStyle = "w-full p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl text-[#1F2933] font-bold placeholder-[#6B6B63] outline-none focus:border-[#D95F0A] shadow-sm transition";
 
   return (
-    <div className="p-4 sm:p-6 max-w-7xl mx-auto space-y-8">
+    <div className="min-h-screen p-4 sm:p-6 max-w-7xl mx-auto space-y-8 text-[#1F2933]" style={{ backgroundColor: '#F4F0E8' }}>
       
       <div>
-        <h1 className="text-2xl font-black text-gray-900 font-serif">System settings</h1>
+        <h1 className="text-2xl font-black text-[#252525] font-serif">System settings</h1>
       </div>
 
-      {/* Main Settings Form matching video frame 2:42 */}
-      <form onSubmit={handleSave} className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm space-y-6">
+      {/* Main Settings Form */}
+      <form onSubmit={handleSave} className="bg-white p-6 rounded-2xl border border-[#DDD6C8] shadow-sm space-y-6">
         
         {/* Restaurant Status ON/OFF */}
-        <div className="flex items-center justify-between p-4 bg-orange-50/60 rounded-2xl border border-orange-200">
+        <div className="flex items-center justify-between p-4 bg-[#FFF0CC] rounded-2xl border border-[#E8C66A]">
           <div>
-            <h3 className="font-extrabold text-gray-900 text-sm">Restaurant status</h3>
-            <p className="text-xs text-gray-500">
+            <h3 className="font-extrabold text-[#8A5A00] text-sm">Restaurant status</h3>
+            <p className="text-xs text-[#5F6368]">
               {formData.is_open ? 'Open — customers can place orders.' : 'Closed — ordering is disabled platform-wide.'}
             </p>
           </div>
 
-          <div className="flex items-center bg-gray-200 p-1 rounded-xl">
+          <div className="flex items-center bg-[#F7F4EC] p-1 rounded-xl border border-[#DDD6C8]">
             <button
               type="button"
               onClick={() => setFormData({ ...formData, is_open: true })}
-              className={`px-4 py-1.5 rounded-lg text-xs font-black transition ${
-                formData.is_open ? 'bg-orange-600 text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'
+              className={`px-4 py-1.5 rounded-lg text-xs font-black transition cursor-pointer ${
+                formData.is_open ? 'bg-[#D95F0A] text-white shadow-sm border border-[#B94D00]' : 'text-[#5F6368] hover:text-[#1F2933]'
               }`}
             >
               ON Open
@@ -83,8 +83,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
             <button
               type="button"
               onClick={() => setFormData({ ...formData, is_open: false })}
-              className={`px-4 py-1.5 rounded-lg text-xs font-black transition ${
-                !formData.is_open ? 'bg-red-600 text-white shadow-sm' : 'text-gray-600 hover:text-gray-900'
+              className={`px-4 py-1.5 rounded-lg text-xs font-black transition cursor-pointer ${
+                !formData.is_open ? 'bg-[#C0392B] text-white shadow-sm border border-[#922B21]' : 'text-[#5F6368] hover:text-[#1F2933]'
               }`}
             >
               OFF Closed
@@ -95,7 +95,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
         {/* Inputs Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
           <div>
-            <label className="font-bold text-gray-800 block mb-1">Opening time</label>
+            <label className="font-bold text-[#1F2933] block mb-1">Opening time</label>
             <input
               type="text"
               value={formData.opening_time}
@@ -106,7 +106,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
           </div>
 
           <div>
-            <label className="font-bold text-gray-800 block mb-1">Closing time</label>
+            <label className="font-bold text-[#1F2933] block mb-1">Closing time</label>
             <input
               type="text"
               value={formData.closing_time}
@@ -117,7 +117,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
           </div>
 
           <div>
-            <label className="font-bold text-gray-800 block mb-1">Minimum order value (₹)</label>
+            <label className="font-bold text-[#1F2933] block mb-1">Minimum order value (₹)</label>
             <input
               type="number"
               value={formData.min_order_value}
@@ -128,7 +128,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
           </div>
 
           <div>
-            <label className="font-bold text-gray-800 block mb-1">Free delivery above (₹)</label>
+            <label className="font-bold text-[#1F2933] block mb-1">Free delivery above (₹)</label>
             <input
               type="number"
               value={formData.free_delivery_above}
@@ -139,7 +139,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
           </div>
 
           <div>
-            <label className="font-bold text-gray-800 block mb-1">Delivery charge (₹)</label>
+            <label className="font-bold text-[#1F2933] block mb-1">Delivery charge (₹)</label>
             <input
               type="number"
               value={formData.delivery_charge}
@@ -150,7 +150,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
           </div>
 
           <div>
-            <label className="font-bold text-gray-800 block mb-1">Tax (%)</label>
+            <label className="font-bold text-[#1F2933] block mb-1">Tax (%)</label>
             <input
               type="number"
               value={formData.tax_percent}
@@ -161,7 +161,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
           </div>
 
           <div>
-            <label className="font-bold text-gray-800 block mb-1">Estimated delivery (minutes)</label>
+            <label className="font-bold text-[#1F2933] block mb-1">Estimated delivery (minutes)</label>
             <input
               type="number"
               value={formData.estimated_delivery_mins}
@@ -172,7 +172,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
           </div>
 
           <div>
-            <label className="font-bold text-gray-800 block mb-1">Restaurant UPI ID</label>
+            <label className="font-bold text-[#1F2933] block mb-1">Restaurant UPI ID</label>
             <input
               type="text"
               value={formData.restaurant_upi_id}
@@ -183,7 +183,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
           </div>
 
           <div>
-            <label className="font-bold text-gray-800 block mb-1">WhatsApp number</label>
+            <label className="font-bold text-[#1F2933] block mb-1">WhatsApp number</label>
             <input
               type="text"
               value={formData.whatsapp_number}
@@ -195,7 +195,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
         </div>
 
         <div>
-          <label className="font-bold text-gray-800 block mb-1 text-xs">Closed banner message</label>
+          <label className="font-bold text-[#1F2933] block mb-1 text-xs">Closed banner message</label>
           <input
             type="text"
             value={formData.closed_banner_message}
@@ -207,7 +207,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
 
         <button
           type="submit"
-          className="px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl shadow-md transition flex items-center gap-2 text-xs"
+          className="px-6 py-3 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-bold rounded-xl shadow-sm border border-[#B94D00] transition flex items-center gap-2 text-xs cursor-pointer"
         >
           {isSaved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
           <span>{isSaved ? 'Settings saved!' : 'Save settings'}</span>
@@ -215,11 +215,11 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
 
       </form>
 
-      {/* Promotional Banners Publisher matching video frame 2:48 */}
-      <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm space-y-4">
+      {/* Promotional Banners Publisher */}
+      <div className="bg-white p-6 rounded-2xl border border-[#DDD6C8] shadow-sm space-y-4">
         <div>
-          <h3 className="font-extrabold text-gray-900 text-sm">Promotional banners</h3>
-          <p className="text-xs text-gray-500">Active banners pop up once per day for each customer.</p>
+          <h3 className="font-extrabold text-[#1F2933] text-sm">Promotional banners</h3>
+          <p className="text-xs text-[#5F6368]">Active banners pop up once per day for each customer.</p>
         </div>
 
         <form onSubmit={handlePublishBanner} className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
@@ -229,7 +229,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
             value={bannerTitle}
             onChange={(e) => setBannerTitle(e.target.value)}
             required
-            className="p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none"
+            className="p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl outline-none text-[#1F2933] placeholder-[#6B6B63] focus:border-[#D95F0A]"
           />
           <input
             type="text"
@@ -237,31 +237,31 @@ export const SettingsView: React.FC<SettingsViewProps> = ({ banners, onAddBanner
             value={bannerPosterUrl}
             onChange={(e) => setBannerPosterUrl(e.target.value)}
             required
-            className="p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none"
+            className="p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl outline-none text-[#1F2933] placeholder-[#6B6B63] focus:border-[#D95F0A]"
           />
           <input
             type="text"
             placeholder="Link (optional)"
             value={bannerLink}
             onChange={(e) => setBannerLink(e.target.value)}
-            className="p-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none"
+            className="p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl outline-none text-[#1F2933] placeholder-[#6B6B63] focus:border-[#D95F0A]"
           />
           <button
             type="submit"
-            className="py-2.5 bg-orange-600 hover:bg-orange-700 text-white font-bold rounded-xl shadow-md transition"
+            className="py-2.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-bold rounded-xl shadow-sm border border-[#B94D00] transition cursor-pointer"
           >
             Publish banner
           </button>
         </form>
 
         {banners.length > 0 && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-gray-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-[#DDD6C8]">
             {banners.map((b) => (
-              <div key={b.id} className="p-3 bg-gray-50 rounded-xl flex items-center gap-3 border border-gray-200">
+              <div key={b.id} className="p-3 bg-[#F7F4EC] rounded-xl flex items-center gap-3 border border-[#DDD6C8]">
                 <img src={b.poster_url} alt={b.title} className="w-16 h-12 rounded-lg object-cover" />
                 <div>
-                  <h4 className="font-bold text-gray-900 text-xs">{b.title}</h4>
-                  <p className="text-[10px] text-emerald-600 font-bold">Active Banner</p>
+                  <h4 className="font-bold text-[#1F2933] text-xs">{b.title}</h4>
+                  <p className="text-[10px] text-[#146C43] font-bold">Active Banner</p>
                 </div>
               </div>
             ))}

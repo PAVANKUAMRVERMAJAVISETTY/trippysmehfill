@@ -16,7 +16,6 @@ const OfferCard: React.FC<OfferCardProps> = ({
   discount,
   description,
   code,
-  bgGradient,
   badgeBg,
   icon
 }) => {
@@ -29,44 +28,41 @@ const OfferCard: React.FC<OfferCardProps> = ({
   };
 
   return (
-    <div className={`relative overflow-hidden rounded-2xl p-5 border border-white/10 ${bgGradient} shadow-xl hover:border-orange-500/50 transition-all group flex flex-col justify-between`}>
-      {/* Background Decorative Pattern */}
-      <div className="absolute top-0 right-0 -mt-4 -mr-4 w-24 h-24 rounded-full bg-white/5 pointer-events-none group-hover:scale-125 transition-transform duration-500"></div>
-
+    <div className="relative overflow-hidden rounded-2xl p-5 border border-[#DDD6C8] bg-white shadow-sm hover:border-[#B8862D] hover:shadow-md transition-all group flex flex-col justify-between">
       <div className="space-y-3 relative z-10">
         <div className="flex items-center justify-between gap-2">
-          <div className={`p-2.5 rounded-xl ${badgeBg} text-white shadow-md`}>
+          <div className={`p-2.5 rounded-xl ${badgeBg} text-white shadow-sm`}>
             {icon}
           </div>
-          <span className="text-2xl sm:text-3xl font-black text-amber-400 font-serif tracking-tight">
+          <span className="text-2xl sm:text-3xl font-black text-[#D95F0A] font-serif tracking-tight">
             {discount}
           </span>
         </div>
 
         <div>
-          <h3 className="font-serif font-black text-white text-base sm:text-lg leading-tight">
+          <h3 className="font-serif font-black text-[#1F2933] text-base sm:text-lg leading-tight">
             {title}
           </h3>
-          <p className="text-xs text-gray-300 mt-1 line-clamp-2">
+          <p className="text-xs text-[#5F6368] mt-1 line-clamp-2">
             {description}
           </p>
         </div>
       </div>
 
-      <div className="pt-4 border-t border-white/10 mt-4 flex items-center justify-between gap-2 relative z-10">
-        <div className="flex items-center gap-1.5 bg-black/60 px-3 py-1.5 rounded-xl border border-white/15">
-          <Tag className="w-3.5 h-3.5 text-amber-400" />
-          <span className="text-xs font-mono font-black text-amber-300 tracking-wider">
+      <div className="pt-4 border-t border-[#DDD6C8] mt-4 flex items-center justify-between gap-2 relative z-10">
+        <div className="flex items-center gap-1.5 bg-[#F7F4EC] px-3 py-1.5 rounded-xl border border-[#DDD6C8]">
+          <Tag className="w-3.5 h-3.5 text-[#B8862D]" />
+          <span className="text-xs font-mono font-black text-[#B8862D] tracking-wider">
             {code}
           </span>
         </div>
 
         <button
           onClick={handleCopy}
-          className={`px-3 min-h-[44px] rounded-xl font-extrabold text-xs transition flex items-center gap-1.5 shadow-md ${
+          className={`px-3 min-h-[36px] rounded-xl font-extrabold text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer ${
             copied
-              ? 'bg-emerald-500 text-black'
-              : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
+              ? 'bg-[#198754] text-white border border-[#146C43]'
+              : 'bg-white hover:bg-[#F0E8D8] text-[#1F2933] border border-[#9F988A]'
           }`}
         >
           {copied ? (
@@ -88,19 +84,19 @@ const OfferCard: React.FC<OfferCardProps> = ({
 
 export const OffersSection: React.FC = () => {
   return (
-    <section id="offers-section" className="py-10 bg-[#0a0a0a] border-t border-white/10">
+    <section id="offers-section" className="py-10 bg-[#F4F1E8] border-t border-[#DDD6C8]">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
         
         {/* Section Header */}
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-br from-amber-500 to-orange-600 text-black shadow-lg">
+          <div className="p-2.5 rounded-xl bg-[#B8862D] text-white shadow-sm">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-2xl font-black text-white font-serif tracking-wide flex items-center gap-2">
+            <h2 className="text-2xl font-black text-[#1F2933] font-serif tracking-wide flex items-center gap-2">
               <span>Latest Offers</span>
             </h2>
-            <p className="text-xs text-gray-400">
+            <p className="text-xs text-[#5F6368]">
               Exclusive discount promo codes for online food delivery orders
             </p>
           </div>
@@ -113,8 +109,8 @@ export const OffersSection: React.FC = () => {
             discount="20% OFF"
             description="Sign up now and get 20% off your first order with code WELCOME20."
             code="WELCOME20"
-            bgGradient="bg-gradient-to-br from-orange-950/80 via-[#181818] to-[#121212]"
-            badgeBg="bg-orange-600"
+            bgGradient=""
+            badgeBg="bg-[#D95F0A]"
             icon={<Percent className="w-5 h-5" />}
           />
 
@@ -123,8 +119,8 @@ export const OffersSection: React.FC = () => {
             discount="FREE DEL"
             description="Enjoy free home delivery on all orders above Rs. 500 across campus & hostels."
             code="FREEDEL"
-            bgGradient="bg-gradient-to-br from-amber-950/80 via-[#181818] to-[#121212]"
-            badgeBg="bg-amber-600"
+            bgGradient=""
+            badgeBg="bg-[#B8862D]"
             icon={<Truck className="w-5 h-5" />}
           />
 
@@ -133,8 +129,8 @@ export const OffersSection: React.FC = () => {
             discount="50% OFF"
             description="Order any biryani and get one free on select weekdays."
             code="BIRYANI12"
-            bgGradient="bg-gradient-to-br from-rose-950/80 via-[#181818] to-[#121212]"
-            badgeBg="bg-rose-600"
+            bgGradient=""
+            badgeBg="bg-[#C0392B]"
             icon={<Gift className="w-5 h-5" />}
           />
         </div>
