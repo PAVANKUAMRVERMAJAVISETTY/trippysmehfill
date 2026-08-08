@@ -63,7 +63,7 @@ const OfferCard: React.FC<OfferCardProps> = ({
 
         <button
           onClick={handleCopy}
-          className={`px-3 py-1.5 rounded-xl font-extrabold text-xs transition flex items-center gap-1.5 shadow-md ${
+          className={`px-3 min-h-[44px] rounded-xl font-extrabold text-xs transition flex items-center gap-1.5 shadow-md ${
             copied
               ? 'bg-emerald-500 text-black'
               : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'

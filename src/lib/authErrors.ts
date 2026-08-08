@@ -64,16 +64,21 @@ export function toFriendlyAuthError(error: unknown): FriendlyAuthError {
     };
   }
 
+  if (text.includes('invalid login credentials') || text.includes('invalid_credentials')) {
+    return { kind: 'unknown', message: 'Invalid email or password. Please check your credentials and try again.' };
+  }
+
+  if (text.includes('user already registered') || text.includes('already exists') || text.includes('already registered')) {
+    return { kind: 'unknown', message: 'An account with this email address already exists. Please sign in.' };
+  }
+
   if (text.includes('expired')) {
     return {
       kind: 'expired_otp',
-      message: 'That code has expired. Please request a new one.'
+      message: 'Your session or link has expired. Please try again.'
     };
   }
 
-  // Checked BEFORE the invalid-code branch: Supabase phrases this as
-  // "Signups not allowed for otp", which would otherwise match on "otp" and
-  // tell an unknown user their code was wrong.
   if (text.includes('user not found') || text.includes('signups not allowed')) {
     return {
       kind: 'user_not_found',
@@ -88,10 +93,6 @@ export function toFriendlyAuthError(error: unknown): FriendlyAuthError {
     };
   }
 
-  if (text.includes('email address') && text.includes('invalid')) {
-    return { kind: 'invalid_email', message: 'Please enter a valid email address.' };
-  }
-
   if (
     text.includes('invalid token') ||
     text.includes('token has expired or is invalid') ||
@@ -101,7 +102,7 @@ export function toFriendlyAuthError(error: unknown): FriendlyAuthError {
   ) {
     return {
       kind: 'invalid_otp',
-      message: 'That code is incorrect. Please check the 6-digit code in your email and try again.'
+      message: 'Invalid credentials or verification code. Please check and try again.'
     };
   }
 
@@ -110,10 +111,6 @@ export function toFriendlyAuthError(error: unknown): FriendlyAuthError {
       kind: 'network',
       message: 'The authentication service is temporarily unavailable. Please try again shortly.'
     };
-  }
-
-  if (text.includes('invalid login credentials')) {
-    return { kind: 'invalid_otp', message: 'Invalid credentials. Please try again.' };
   }
 
   return {

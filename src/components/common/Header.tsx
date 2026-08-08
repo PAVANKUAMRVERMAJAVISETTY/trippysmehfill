@@ -4,7 +4,7 @@ import { useCart } from '../../context/CartContext';
 import { ShoppingBag, User, LogOut, Shield, Bike, HelpCircle, Bell } from 'lucide-react';
 import { AuthModal } from './AuthModal';
 import { SupportModal } from './SupportModal';
-import { UserRole } from '../../types';
+import { AppSection, UserRole } from '../../types';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 
 interface OrderNotificationItem {
@@ -21,8 +21,8 @@ interface OrderNotificationItem {
 }
 
 interface HeaderProps {
-  activeSection: 'menu' | 'track' | 'admin' | 'kitchen' | 'driver';
-  setActiveSection: (sec: 'menu' | 'track' | 'admin' | 'kitchen' | 'driver') => void;
+  activeSection: AppSection;
+  setActiveSection: (sec: AppSection) => void;
   onOpenCart: () => void;
   onOpenOrders: () => void;
   onLogoClick?: () => void;

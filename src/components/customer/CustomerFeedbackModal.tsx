@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Order, Feedback } from '../../types';
 import { X, Star, Check } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
+import { feedbackService } from '../../services/supabase';
 
 interface CustomerFeedbackModalProps {
   order: Order | null;
@@ -63,7 +64,8 @@ export const CustomerFeedbackModal: React.FC<CustomerFeedbackModalProps> = ({
 
     if (isSupabaseConfigured) {
       try {
-        await supabase.from('feedback').insert([newFeedback]);
+        const saved = await feedbackService.submitFeedback(newFeedback);
+        newFeedback.id = saved.id;
       } catch (err) {
         console.error('Failed to save feedback to Supabase', err);
       }

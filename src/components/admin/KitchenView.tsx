@@ -2,6 +2,31 @@ import React, { useState } from 'react';
 import { Order, OrderStatus } from '../../types';
 import { CookingPot, Volume2, CheckCircle2, Clock, ArrowRight } from 'lucide-react';
 import { playKitchenAlertSound } from '../../lib/sound';
+import { paymentLabel, paymentTone } from '../../lib/orderStatus';
+
+/**
+ * How the payment reads on a kitchen ticket.
+ *
+ * The kitchen sees every order the moment it is placed, paid or not, so the
+ * badge is the only thing telling them whether the money arrived. Wording and
+ * colour come from the shared helpers, so this cannot drift away from what the
+ * customer is being told on their own screen.
+ *
+ * A rejected payment is deliberately the loudest state on the ticket: it is the
+ * one case where cooking the food is actively wrong.
+ */
+const paymentBadge = (order: Order) => {
+  switch (paymentTone(order)) {
+    case 'success':
+      return { icon: '🟢', text: paymentLabel(order), className: 'bg-emerald-100 text-emerald-900 border-emerald-300' };
+    case 'error':
+      return { icon: '⛔', text: `${paymentLabel(order)} — do not prepare`, className: 'bg-rose-100 text-rose-900 border-rose-400' };
+    case 'pending':
+      return { icon: '⚠️', text: paymentLabel(order), className: 'bg-amber-100 text-amber-900 border-amber-300' };
+    default:
+      return { icon: '🚚', text: paymentLabel(order), className: 'bg-gray-100 text-gray-700 border-gray-300' };
+  }
+};
 
 interface KitchenViewProps {
   orders: Order[];
@@ -28,7 +53,9 @@ export const KitchenView: React.FC<KitchenViewProps> = ({ orders, onUpdateOrderS
             <span>Kitchen Display System (KDS)</span>
           </h1>
           <p className="text-xs text-gray-500 mt-1">
-            Paid orders arrive here automatically with a sound alert. Move each ticket through the stages.
+            Orders arrive here automatically with a sound alert — <strong>including UPI orders whose
+            payment has not been confirmed yet</strong>. Check the payment badge on each ticket before
+            you start cooking.
           </p>
         </div>
 
@@ -65,6 +92,20 @@ export const KitchenView: React.FC<KitchenViewProps> = ({ orders, onUpdateOrderS
                     {order.status}
                   </span>
                 </div>
+
+                {/* Payment state — the only signal the kitchen has about whether
+                    the money arrived, so it sits above the food, not below it. */}
+                {(() => {
+                  const badge = paymentBadge(order);
+                  return (
+                    <div
+                      className={`mb-3 px-3 py-2 rounded-xl border-2 flex items-center gap-2 ${badge.className}`}
+                    >
+                      <span aria-hidden="true" className="text-base leading-none">{badge.icon}</span>
+                      <span className="text-xs font-black uppercase tracking-wide">{badge.text}</span>
+                    </div>
+                  );
+                })()}
 
                 {/* Items to Cook */}
                 <div className="space-y-2">

@@ -1,185 +1,51 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { useCart } from '../../context/CartContext';
 import { useAuth } from '../../context/AuthContext';
-import { ShoppingBag, Trash2, Plus, Minus, MapPin, QrCode, DollarSign, CheckCircle2, Shield, AlertCircle } from 'lucide-react';
-import { Order, PaymentMethod } from '../../types';
-import { supabase, isSupabaseConfigured } from '../../lib/supabase';
-import { playKitchenAlertSound } from '../../lib/sound';
-
-import { captureFullSecurityContext } from '../../lib/geoUtils';
+import { ShoppingBag, Trash2, Plus, Minus, ArrowRight } from 'lucide-react';
 
 interface RightOrderPanelProps {
-  onOrderSuccess: (order: Order) => void;
+  /** Opens the auth modal; the customer returns straight to checkout afterwards. */
   onRequireAuth: () => void;
-  existingOrders?: Order[];
+  /** Navigates to the checkout page, where details and payment are collected. */
+  onProceedToCheckout: () => void;
   isDrawer?: boolean;
   onCloseDrawer?: () => void;
 }
 
+/**
+ * The cart: what is in it, how much it costs, and the way onward.
+ *
+ * Address, payment and order creation live on the checkout page rather than
+ * here. This panel renders in two places at once -- as a sidebar on the menu
+ * and inside the cart drawer -- so keeping order submission out of it means
+ * there is exactly one place an order can be created, not two.
+ */
 export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
-  onOrderSuccess,
   onRequireAuth,
-  existingOrders = [],
+  onProceedToCheckout,
   isDrawer = false,
   onCloseDrawer
 }) => {
   const { cart, updateQuantity, removeFromCart, clearCart, subtotal, deliveryFee, taxAmount, grandTotal, settings } = useCart();
   const { user } = useAuth();
 
-  const [deliveryAddress, setDeliveryAddress] = useState(user?.hostel_address || 'Main Campus Hostel, Block B Room 204');
-  const [landmark, setLandmark] = useState(user?.landmark || '');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('COD');
-  const [upiTxnId, setUpiTxnId] = useState('');
-  const [isPlacing, setIsPlacing] = useState(false);
-  const [errorMsg, setErrorMsg] = useState('');
-  const [placedOrderSuccess, setPlacedOrderSuccess] = useState<Order | null>(null);
-
-  // Auto-update default delivery address whenever user profile changes or updates
-  React.useEffect(() => {
-    if (user?.hostel_address) {
-      setDeliveryAddress(user.hostel_address);
-    }
-    if (user?.landmark) {
-      setLandmark(user.landmark);
-    }
-  }, [user]);
-
   const isMinOrderMet = subtotal >= settings.min_order_value;
+  const itemCount = cart.reduce((s, i) => s + i.quantity, 0);
 
-  const handlePlaceOrder = async () => {
-    setErrorMsg('');
-
-    if (!settings.is_open) {
-      setErrorMsg(`Restaurant is currently closed. Orders will resume at ${settings.opening_time || '09:00 AM'}.`);
-      return;
-    }
-
+  const handleCheckoutClick = () => {
     if (!user) {
       onRequireAuth();
       return;
     }
-
-    if (!deliveryAddress.trim()) {
-      setErrorMsg('Please enter your hostel / room delivery address.');
-      return;
-    }
-
-    if (!isMinOrderMet) {
-      setErrorMsg(`Minimum order value is ₹${settings.min_order_value}. Add ₹${settings.min_order_value - subtotal} more.`);
-      return;
-    }
-
-    if (paymentMethod === 'UPI' && !upiTxnId.trim()) {
-      setErrorMsg('Please enter the 12-digit UPI transaction reference ID.');
-      return;
-    }
-
-    setIsPlacing(true);
-
-    const sec = await captureFullSecurityContext();
-
-    // Compute sequential order number (#1001, #1002, #1003...)
-    const orderNums = existingOrders.map(o => {
-      const match = o.order_number?.match(/\d+/);
-      return match ? parseInt(match[0], 10) : 1000;
-    });
-    const maxNum = orderNums.length > 0 ? Math.max(...orderNums) : 1000;
-    const nextSeq = Math.max(maxNum + 1, 1005);
-    const newOrderNumber = `#${nextSeq}`;
-
-    // Payload for Supabase insert - DO NOT pass string 'ord-...' as id (PostgreSQL column id is UUID)
-    const orderPayload = {
-      order_number: newOrderNumber,
-      customer_id: user.id,
-      customer_name: user.full_name,
-      customer_phone: user.phone || '6301196547',
-      delivery_address: deliveryAddress,
-      landmark,
-      items: cart.map(c => ({
-        dish_id: c.menuItem.id,
-        dish_name: c.menuItem.name,
-        quantity: c.quantity,
-        price: c.menuItem.price,
-        is_veg: c.menuItem.is_veg
-      })),
-      subtotal,
-      tax_amount: taxAmount,
-      delivery_fee: deliveryFee,
-      total_amount: grandTotal,
-      payment_method: paymentMethod,
-      payment_status: paymentMethod === 'UPI' ? 'pending_verification' : 'pending',
-      upi_transaction_id: paymentMethod === 'UPI' ? upiTxnId.trim() : undefined,
-      utr_number: paymentMethod === 'UPI' ? upiTxnId.trim() : undefined,
-      payment_time: paymentMethod === 'UPI' ? new Date().toISOString() : undefined,
-      status: 'pending',
-      customer_ip: sec.ipAddress,
-      order_latitude: sec.latitude,
-      order_longitude: sec.longitude,
-      gps_accuracy: sec.accuracyMeters,
-      gps_allowed: sec.gpsAllowed,
-      distance_km: sec.distanceKm,
-      device_type: sec.deviceType,
-      os_name: sec.osName,
-      browser_name: sec.browserName,
-      city: sec.city,
-      state: sec.state,
-      pin_code: sec.pinCode,
-      google_maps_url: sec.googleMapsUrl,
-      fraud_risk_level: sec.fraudRiskLevel,
-      fraud_risk_reasons: sec.fraudRiskReasons,
-      created_at: new Date().toLocaleString()
-    };
-
-    let newOrder: Order;
-
-    if (isSupabaseConfigured) {
-      try {
-        const { data: insertedOrder, error: insertError } = await supabase
-          .from('orders')
-          .insert([orderPayload])
-          .select()
-          .single();
-
-        if (insertError) {
-          console.error('Failed to sync order to Supabase:', insertError.message);
-          throw new Error(insertError.message);
-        }
-
-        newOrder = insertedOrder as Order;
-      } catch (err: any) {
-        console.error('Order database insert error:', err);
-        setErrorMsg(`Order creation failed: ${err?.message || 'Database error'}`);
-        setIsPlacing(false);
-        return;
-      }
-    } else {
-      newOrder = {
-        ...orderPayload,
-        id: crypto.randomUUID()
-      } as Order;
-    }
-
-    // Play kitchen alert chime
-    playKitchenAlertSound();
-
-    setIsPlacing(false);
-    clearCart();
-    setPlacedOrderSuccess(newOrder);
-    onOrderSuccess(newOrder);
-
-    if (isDrawer && onCloseDrawer) {
-      setTimeout(() => onCloseDrawer(), 2500);
-    }
+    if (isDrawer && onCloseDrawer) onCloseDrawer();
+    onProceedToCheckout();
   };
-
-  const activeUpiId = settings.restaurant_upi_id || '9876543210@ybl';
-  const upiDeepLink = `upi://pay?pa=${encodeURIComponent(activeUpiId)}&pn=${encodeURIComponent("Trippy's Mehfill")}&am=${grandTotal}&cu=INR&tn=${encodeURIComponent('Food Order Payment')}`;
 
   return (
     <div className={`bg-[#121212] border border-white/10 rounded-3xl p-5 shadow-2xl flex flex-col justify-between text-gray-200 ${
       isDrawer ? 'h-full border-none rounded-none' : 'sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto'
     }`}>
-      
+
       {/* Panel Header */}
       <div className="pb-4 border-b border-white/10 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
@@ -187,9 +53,9 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
             <ShoppingBag className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-extrabold text-white font-serif tracking-tight">Your Order Summary</h2>
+            <h2 className="text-base font-extrabold text-white font-serif tracking-tight">Your Cart</h2>
             <p className="text-[11px] text-gray-400">
-              {cart.length === 0 ? 'Cart is empty' : `${cart.reduce((s, i) => s + i.quantity, 0)} items selected`}
+              {cart.length === 0 ? 'Cart is empty' : `${itemCount} item${itemCount === 1 ? '' : 's'} selected`}
             </p>
           </div>
         </div>
@@ -206,24 +72,7 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
 
       {/* Main Body */}
       <div className="py-4 space-y-4 flex-1">
-        
-        {/* Order Success Message Banner */}
-        {placedOrderSuccess ? (
-          <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl text-center space-y-2 animate-in fade-in">
-            <CheckCircle2 className="w-8 h-8 text-emerald-400 mx-auto" />
-            <h3 className="text-sm font-black text-white">Order {placedOrderSuccess.order_number} Successfully Placed!</h3>
-            <p className="text-xs text-emerald-300">
-              Sent to kitchen! Your food is now being prepared fresh.
-            </p>
-            <button
-              onClick={() => setPlacedOrderSuccess(null)}
-              className="mt-2 text-xs font-bold bg-emerald-500 text-black px-4 py-1.5 rounded-xl hover:bg-emerald-400 transition"
-            >
-              Order More Items
-            </button>
-          </div>
-        ) : cart.length === 0 ? (
-          /* Empty Cart State */
+        {cart.length === 0 ? (
           <div className="text-center py-10 space-y-3">
             <div className="w-16 h-16 bg-[#181818] border border-white/10 rounded-2xl flex items-center justify-center mx-auto text-gray-500">
               <ShoppingBag className="w-8 h-8 text-[#C5A059]" />
@@ -236,17 +85,8 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
             </div>
           </div>
         ) : (
-          /* Cart Items List */
           <div className="space-y-3">
-            
-            {errorMsg && (
-              <div className="p-3 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs rounded-xl flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 shrink-0" />
-                <span>{errorMsg}</span>
-              </div>
-            )}
-
-            <div className="space-y-2.5 max-h-56 overflow-y-auto pr-1">
+            <div className="space-y-2.5 max-h-72 overflow-y-auto pr-1">
               {cart.map((item) => (
                 <div
                   key={item.menuItem.id}
@@ -268,6 +108,7 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
                       onClick={() => removeFromCart(item.menuItem.id)}
                       className="text-gray-500 hover:text-rose-400 transition p-0.5"
                       title="Remove item"
+                      aria-label={`Remove ${item.menuItem.name}`}
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -277,6 +118,7 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
                     <div className="flex items-center gap-2 bg-[#121212] border border-white/10 rounded-lg px-2 py-0.5">
                       <button
                         onClick={() => updateQuantity(item.menuItem.id, -1)}
+                        aria-label={`Decrease ${item.menuItem.name}`}
                         className="w-5 h-5 rounded hover:bg-white/10 flex items-center justify-center font-bold text-gray-300"
                       >
                         <Minus className="w-3 h-3" />
@@ -286,6 +128,7 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
                       </span>
                       <button
                         onClick={() => updateQuantity(item.menuItem.id, 1)}
+                        aria-label={`Increase ${item.menuItem.name}`}
                         className="w-5 h-5 rounded hover:bg-white/10 flex items-center justify-center font-bold text-gray-300"
                       >
                         <Plus className="w-3 h-3" />
@@ -299,120 +142,6 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
                   </div>
                 </div>
               ))}
-            </div>
-
-            {/* Delivery Location Section */}
-            <div className="pt-3 border-t border-white/10 space-y-2">
-              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                Delivery Location
-              </label>
-              <div className="relative">
-                <MapPin className="w-4 h-4 text-[#C5A059] absolute left-3 top-3" />
-                <input
-                  type="text"
-                  value={deliveryAddress}
-                  onChange={(e) => setDeliveryAddress(e.target.value)}
-                  placeholder="Hostel Room / Gate No / Building Address"
-                  className="w-full pl-9 pr-3 py-2 bg-[#181818] border border-white/10 rounded-xl text-xs font-medium text-white placeholder-gray-500 focus:border-[#C5A059] outline-none"
-                />
-              </div>
-              <input
-                type="text"
-                value={landmark}
-                onChange={(e) => setLandmark(e.target.value)}
-                placeholder="Landmark (Optional)"
-                className="w-full px-3 py-1.5 bg-[#181818] border border-white/10 rounded-xl text-xs font-medium text-white placeholder-gray-500 focus:border-[#C5A059] outline-none"
-              />
-            </div>
-
-            {/* Payment Method Selector */}
-            <div className="pt-3 border-t border-white/10 space-y-2">
-              <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                Payment Option
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('COD')}
-                  className={`p-2.5 rounded-xl border text-left font-bold text-xs flex items-center gap-1.5 transition ${
-                    paymentMethod === 'COD'
-                      ? 'border-[#C5A059] bg-[#C5A059]/10 text-[#C5A059]'
-                      : 'border-white/10 bg-[#181818] text-gray-400 hover:bg-white/5'
-                  }`}
-                >
-                  <DollarSign className="w-4 h-4 text-[#C5A059]" />
-                  <span>Cash on Delivery</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setPaymentMethod('UPI')}
-                  className={`p-2.5 rounded-xl border text-left font-bold text-xs flex items-center gap-1.5 transition ${
-                    paymentMethod === 'UPI'
-                      ? 'border-[#C5A059] bg-[#C5A059]/10 text-[#C5A059]'
-                      : 'border-white/10 bg-[#181818] text-gray-400 hover:bg-white/5'
-                  }`}
-                >
-                  <QrCode className="w-4 h-4 text-[#C5A059]" />
-                  <span>Instant UPI QR</span>
-                </button>
-              </div>
-
-              {/* UPI Payment Section */}
-              {paymentMethod === 'UPI' && (
-                <div className="p-3.5 bg-[#181818] rounded-2xl border border-white/10 text-center space-y-3">
-                  <div className="space-y-1">
-                    <p className="text-xs font-extrabold text-[#C5A059]">
-                      Scan & Pay ₹{grandTotal}
-                    </p>
-                    <p className="text-[10px] text-gray-400 max-w-xs mx-auto">
-                      Scan QR code with any UPI app or tap below to open in Google Pay / PhonePe / Paytm.
-                    </p>
-                  </div>
-
-                  {/* QR Code Container */}
-                  <div className="bg-white p-2.5 rounded-2xl inline-block border border-white/20 shadow-md">
-                    <img
-                      src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(upiDeepLink)}`}
-                      alt="UPI QR Code"
-                      className="w-32 h-32 mx-auto"
-                    />
-                  </div>
-
-                  <p className="font-mono text-xs text-amber-300 bg-[#121212] py-1 px-2.5 rounded-xl border border-[#C5A059]/30 inline-block font-bold">
-                    {activeUpiId}
-                  </p>
-
-                  {/* Open in UPI Apps Deep Link Button */}
-                  <a
-                    href={upiDeepLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition"
-                  >
-                    <QrCode className="w-4 h-4" />
-                    <span>Open in UPI Apps (GPay / PhonePe / Paytm / BHIM)</span>
-                  </a>
-
-                  {/* Verification Notice */}
-                  <div className="p-2.5 bg-[#121212] border border-amber-500/30 rounded-xl text-left space-y-1">
-                    <p className="text-[10px] font-bold text-amber-400 uppercase tracking-wider">
-                      ⚠️ Manual Payment Verification Required
-                    </p>
-                    <p className="text-[10px] text-gray-300 leading-relaxed">
-                      Static QR codes cannot automatically verify bank settlements. After making your payment, please enter your 12-digit UPI UTR Ref ID below so kitchen admin can approve and prepare your food.
-                    </p>
-                  </div>
-
-                  <input
-                    type="text"
-                    value={upiTxnId}
-                    onChange={(e) => setUpiTxnId(e.target.value)}
-                    placeholder="Enter 12-digit UPI UTR / Txn Ref ID"
-                    className="w-full px-3 py-2 bg-[#121212] border border-white/15 rounded-xl text-xs font-mono text-white outline-none focus:border-[#C5A059] placeholder-gray-500"
-                  />
-                </div>
-              )}
             </div>
 
             {/* Bill Calculation Summary */}
@@ -438,14 +167,12 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
                 <span className="text-[#C5A059] text-base">₹{grandTotal}</span>
               </div>
             </div>
-
           </div>
         )}
-
       </div>
 
-      {/* Footer Checkout Button */}
-      {cart.length > 0 && !placedOrderSuccess && (
+      {/* Footer */}
+      {cart.length > 0 && (
         <div className="pt-3 border-t border-white/10">
           {!isMinOrderMet && (
             <p className="text-[11px] text-[#C5A059] font-semibold mb-2 text-center bg-[#181818] p-1.5 rounded-xl border border-white/10">
@@ -453,38 +180,16 @@ export const RightOrderPanel: React.FC<RightOrderPanelProps> = ({
             </p>
           )}
 
-          {!user ? (
-            <button
-              onClick={onRequireAuth}
-              className="w-full py-3 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold rounded-xl shadow-lg transition text-xs"
-            >
-              Sign In to Place Order
-            </button>
-          ) : (
-            <button
-              onClick={handlePlaceOrder}
-              disabled={isPlacing || !isMinOrderMet || !settings.is_open}
-              className={`w-full py-3 font-extrabold rounded-xl shadow-lg flex items-center justify-center gap-2 transition text-xs sm:text-sm ${
-                !settings.is_open
-                  ? 'bg-rose-950 text-rose-300 border border-rose-500/40 cursor-not-allowed opacity-90'
-                  : 'bg-[#C5A059] hover:bg-[#b38f48] active:scale-[0.99] text-black shadow-[#C5A059]/20 disabled:opacity-50'
-              }`}
-            >
-              {!settings.is_open ? (
-                <span>🔴 Restaurant Closed (Resumes at {settings.opening_time || '09:00 AM'})</span>
-              ) : isPlacing ? (
-                <span>Sending to Kitchen...</span>
-              ) : (
-                <>
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>Place Order • ₹{grandTotal}</span>
-                </>
-              )}
-            </button>
-          )}
+          <button
+            onClick={handleCheckoutClick}
+            disabled={!isMinOrderMet}
+            className="w-full py-3 bg-[#C5A059] hover:bg-[#b38f48] active:scale-[0.99] text-black font-extrabold rounded-xl shadow-lg shadow-[#C5A059]/20 flex items-center justify-center gap-2 transition text-xs sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <span>{user ? `Proceed to Checkout • ₹${grandTotal}` : 'Sign In to Continue'}</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
         </div>
       )}
-
     </div>
   );
 };

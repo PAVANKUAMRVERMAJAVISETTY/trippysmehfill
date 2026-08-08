@@ -9,7 +9,12 @@
     "preview": "vite preview",
     "clean": "rm -rf dist",
     "lint": "tsc --noEmit",
-    "test": "tsx --test *.test.ts"
+    "test": "tsx --test tests/*.test.ts",
+    "e2e": "node e2e/smoke.mjs && node e2e/journey.mjs && node e2e/admin-status.mjs",
+    "typecheck": "tsc --noEmit",
+    "e2e:smoke": "node e2e/smoke.mjs",
+    "e2e:journey": "node e2e/journey.mjs",
+    "e2e:admin": "node e2e/admin-status.mjs"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",
@@ -17,6 +22,7 @@
     "@supabase/supabase-js": "^2.111.0",
     "@tailwindcss/vite": "^4.1.14",
     "@vitejs/plugin-react": "^5.0.4",
+    "jspdf": "^4.2.1",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "react": "^19.0.1",
@@ -27,7 +33,10 @@
   },
   "devDependencies": {
     "@types/node": "^22.14.0",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.4",
     "autoprefixer": "^10.4.21",
+    "playwright": "^1.62.1",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",

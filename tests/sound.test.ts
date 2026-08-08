@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test, afterEach } from 'node:test';
-import { playKitchenAlertSound } from './src/lib/sound';
+import { playKitchenAlertSound } from '../src/lib/sound';
 
 interface ScheduledNote {
   frequency: number;

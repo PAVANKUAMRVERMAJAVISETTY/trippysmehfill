@@ -31,3 +31,20 @@
   scrollbar-width: none;
 }
 
+
+/*
+ * Contain stray horizontal overflow at the document level.
+ *
+ * Playwright measured documentElement.scrollWidth at 396px on a 390px iPhone
+ * viewport once signed in: a few pixels of a decorative element escaped its
+ * container and made the whole page scroll sideways. `clip` stops that without
+ * creating a scroll container, so the intentional horizontal scrollers inside
+ * the page (category pills, admin nav) keep working normally.
+ *
+ * `overflow-y` is deliberately left alone -- setting both would break sticky
+ * positioning on the checkout bar.
+ */
+html,
+body {
+  overflow-x: clip;
+}

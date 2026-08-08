@@ -3,11 +3,16 @@ import { Order, OrderStatus, PaymentStatus, UserProfile } from '../../types';
 import { Bike, Phone, MapPin, CheckCircle2, Clock, XCircle, ChevronDown, ShieldCheck, AlertTriangle } from 'lucide-react';
 import { supabase, isSupabaseConfigured } from '../../lib/supabase';
 import { formatDistanceText, getRouteDirectionsUrl } from '../../lib/geoUtils';
+// Rows written by the parallel build hold 'paid' / 'pending_verification',
+// which this deployment's CHECK constraint no longer accepts. Reads normalise
+// them so those orders still render; writes below use the five values the
+// database actually allows.
+import { normalizePaymentStatus } from '../../lib/orderStatus';
 
 interface LiveOrdersViewProps {
   orders: Order[];
   drivers: UserProfile[];
-  onUpdateOrderStatus: (orderId: string, status: OrderStatus, driverId?: string, driverName?: string, paymentStatus?: PaymentStatus) => void;
+  onUpdateOrderStatus: (orderId: string, status: OrderStatus, driverId?: string, driverName?: string, driverPhone?: string, paymentStatus?: PaymentStatus) => void;
 }
 
 export const LiveOrdersView: React.FC<LiveOrdersViewProps> = ({
@@ -20,7 +25,10 @@ export const LiveOrdersView: React.FC<LiveOrdersViewProps> = ({
   const handleAssignAndStatus = (orderId: string, status: OrderStatus, paymentStatus?: PaymentStatus) => {
     const driverId = selectedDrivers[orderId];
     const driverObj = drivers.find(d => d.id === driverId);
-    onUpdateOrderStatus(orderId, status, driverObj?.id, driverObj?.full_name, paymentStatus);
+    // driverPhone sits in position 5 now that both branches' parameters are
+    // present. It was previously never passed, so assignDriver stored an empty
+    // driver_phone and the customer had no number to call.
+    onUpdateOrderStatus(orderId, status, driverObj?.id, driverObj?.full_name, driverObj?.phone, paymentStatus);
   };
 
   return (
@@ -134,15 +142,16 @@ export const LiveOrdersView: React.FC<LiveOrdersViewProps> = ({
               {/* UPI Payment Settlement Verification Card */}
               {order.payment_method === 'UPI' && (
                 <div className={`p-3 rounded-xl border space-y-2 text-xs ${
-                  order.payment_status === 'paid'
+                  normalizePaymentStatus(order.payment_status) === 'completed'
                     ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
-                    : order.payment_status === 'failed'
+                    : normalizePaymentStatus(order.payment_status) === 'failed'
+                    || normalizePaymentStatus(order.payment_status) === 'rejected'
                     ? 'bg-rose-50 border-rose-300 text-rose-900'
                     : 'bg-amber-50 border-amber-300 text-amber-900'
                 }`}>
                   <div className="flex items-center justify-between">
                     <span className="font-extrabold text-[10px] uppercase tracking-wider flex items-center gap-1">
-                      {order.payment_status === 'paid' ? (
+                      {normalizePaymentStatus(order.payment_status) === 'completed' ? (
                         <>
                           <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                           <span>✓ UPI Payment Verified & Paid</span>
@@ -172,16 +181,16 @@ export const LiveOrdersView: React.FC<LiveOrdersViewProps> = ({
                     )}
                   </div>
 
-                  {(order.payment_status === 'pending_verification' || order.payment_status === 'pending') && (
+                  {normalizePaymentStatus(order.payment_status) === 'pending' && (
                     <div className="grid grid-cols-2 gap-2 pt-1">
                       <button
-                        onClick={() => handleAssignAndStatus(order.id, 'cooking', 'paid')}
+                        onClick={() => handleAssignAndStatus(order.id, 'cooking', 'completed')}
                         className="py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold rounded-lg text-xs transition shadow-sm"
                       >
                         ✓ Approve & Cook
                       </button>
                       <button
-                        onClick={() => handleAssignAndStatus(order.id, 'cancelled', 'failed')}
+                        onClick={() => handleAssignAndStatus(order.id, 'cancelled', 'rejected')}
                         className="py-1.5 bg-rose-600 hover:bg-rose-700 text-white font-extrabold rounded-lg text-xs transition shadow-sm"
                       >
                         ✕ Reject Payment

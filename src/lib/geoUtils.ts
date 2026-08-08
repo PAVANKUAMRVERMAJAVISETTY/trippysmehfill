@@ -63,9 +63,11 @@ export async function fetchPublicIP(): Promise<string> {
       if (data?.ip) return data.ip;
     }
   } catch {
-    // Fallback IP
+    // Lookup failed -- fall through.
   }
-  return '103.211.14.82';
+  // Empty rather than a hardcoded address: stamping a fixed IP on every profile
+  // whose lookup failed records something that was never true of that customer.
+  return '';
 }
 
 export interface GeoLocationResult {

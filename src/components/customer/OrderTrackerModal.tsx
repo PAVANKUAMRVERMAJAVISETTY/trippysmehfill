@@ -1,7 +1,21 @@
 import React from 'react';
-import { Order, OrderStatus } from '../../types';
-import { X, CheckCircle2, Clock, CookingPot, Bike, MapPin, Phone } from 'lucide-react';
+import { Order } from '../../types';
+import { X, MapPin, Phone } from 'lucide-react';
+import { OrderProgressTimeline } from './OrderProgressTimeline';
+import { statusLabel, paymentLabel, paymentNote, paymentTone } from '../../lib/orderStatus';
+import { estimatedDeliveryLabel } from '../../lib/checkout';
+// WhatsApp support entry point, kept from the other branch -- the merged body
+// still calls it. The icons and OrderStatus it also imported are gone because
+// the inline status timeline they drew was replaced by OrderProgressTimeline;
+// leaving them would be unused imports.
 import { openWhatsAppSupport } from '../../lib/whatsapp';
+
+const PAYMENT_TONE_CLASS: Record<string, string> = {
+  success: 'text-emerald-400',
+  pending: 'text-amber-400',
+  error: 'text-rose-400',
+  neutral: 'text-[#C5A059]'
+};
 
 interface OrderTrackerModalProps {
   order: Order | null;
@@ -9,13 +23,6 @@ interface OrderTrackerModalProps {
   onClose: () => void;
   onLeaveFeedback?: (order: Order) => void;
 }
-
-const statusSteps: { key: OrderStatus; label: string; icon: React.ReactNode }[] = [
-  { key: 'pending', label: 'Order Placed', icon: <Clock className="w-4 h-4" /> },
-  { key: 'cooking', label: 'Cooking in Kitchen', icon: <CookingPot className="w-4 h-4" /> },
-  { key: 'out_for_delivery', label: 'Out for Delivery', icon: <Bike className="w-4 h-4" /> },
-  { key: 'delivered', label: 'Delivered', icon: <CheckCircle2 className="w-4 h-4" /> }
-];
 
 export const OrderTrackerModal: React.FC<OrderTrackerModalProps> = ({
   order,
@@ -25,19 +32,17 @@ export const OrderTrackerModal: React.FC<OrderTrackerModalProps> = ({
 }) => {
   if (!isOpen || !order) return null;
 
-  const getStepIndex = (status: OrderStatus) => {
-    switch (status) {
-      case 'pending': return 0;
-      case 'cooking': return 1;
-      case 'assigned': return 1;
-      case 'out_for_delivery': return 2;
-      case 'delivered': return 3;
-      case 'cancelled': return -1;
-      default: return 0;
-    }
-  };
-
-  const currentStep = getStepIndex(order.status);
+  const note = paymentNote(order);
+  const placedAt = new Date(order.created_at);
+  const deliveryEstimate = order.status === 'delivered'
+    ? 'Delivered'
+    : order.status === 'cancelled'
+      ? '—'
+      : Number.isNaN(placedAt.getTime())
+        // created_at is text in one of the two schemas, so it will not always
+        // parse. A duration alone is still true; an invented clock time is not.
+        ? '30 mins'
+        : estimatedDeliveryLabel(placedAt, 30);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4">
@@ -59,44 +64,39 @@ export const OrderTrackerModal: React.FC<OrderTrackerModalProps> = ({
 
         <div className="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
 
-          {/* Cancelled State */}
-          {order.status === 'cancelled' ? (
-            <div className="p-4 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-center text-rose-400">
-              <p className="font-bold text-base">Order Cancelled</p>
-              <p className="text-xs text-rose-300/80 mt-1">This order was cancelled by the cloud kitchen or customer.</p>
+          {/* At-a-glance facts, before the timeline. Someone opening this wants
+              to know where the order stands without reading a diagram. */}
+          <dl className="grid grid-cols-2 gap-3">
+            <div className="bg-[#181818] rounded-2xl p-3.5 border border-white/10">
+              <dt className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Order Status</dt>
+              <dd className="text-sm font-black text-white mt-1">{statusLabel(order.status)}</dd>
             </div>
-          ) : (
-            /* Progress Stepper */
-            <div className="relative py-2">
-              <div className="flex items-center justify-between relative z-10">
-                {statusSteps.map((step, idx) => {
-                  const isCompleted = idx <= currentStep;
-                  const isCurrent = idx === currentStep;
 
-                  return (
-                    <div key={step.key} className="flex flex-col items-center flex-1 text-center">
-                      <div
-                        className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all shadow-md ${
-                          isCompleted
-                            ? 'bg-[#C5A059] text-black font-extrabold ring-4 ring-[#C5A059]/20'
-                            : 'bg-[#181818] text-gray-500 border border-white/10'
-                        }`}
-                      >
-                        {step.icon}
-                      </div>
-                      <span
-                        className={`text-[11px] font-bold mt-2 leading-tight ${
-                          isCurrent ? 'text-[#C5A059]' : isCompleted ? 'text-white' : 'text-gray-500'
-                        }`}
-                      >
-                        {step.label}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
+            <div className="bg-[#181818] rounded-2xl p-3.5 border border-white/10">
+              <dt className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Payment Status</dt>
+              <dd className={`text-sm font-black mt-1 ${PAYMENT_TONE_CLASS[paymentTone(order)]}`}>
+                {paymentLabel(order)}
+              </dd>
             </div>
+
+            <div className="bg-[#181818] rounded-2xl p-3.5 border border-white/10 col-span-2">
+              <dt className="text-[10px] font-bold text-gray-500 uppercase tracking-wider">Estimated Delivery</dt>
+              <dd className="text-sm font-black text-white mt-1">{deliveryEstimate}</dd>
+            </div>
+          </dl>
+
+          {note && (
+            <p className={`text-xs -mt-3 ${
+              order.payment_status === 'rejected' || order.payment_status === 'failed'
+                ? 'text-rose-300 bg-rose-500/10 border border-rose-500/30 rounded-xl p-3'
+                : 'text-gray-400'
+            }`}>
+              {note}
+            </p>
           )}
+
+          {/* Animated progress timeline (handles the cancelled state itself) */}
+          <OrderProgressTimeline order={order} />
 
           {/* Delivery Details */}
           <div className="bg-[#181818] rounded-2xl p-4 border border-white/10 space-y-2 text-xs">

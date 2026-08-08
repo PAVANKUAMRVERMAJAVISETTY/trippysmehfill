@@ -8,7 +8,7 @@ import {
   validatePassword,
   validateRegistration,
   escapeHtml
-} from './src/lib/validation';
+} from '../src/lib/validation';
 
 const VALID = {
   fullName: 'Baji Yadav',
@@ -67,13 +67,13 @@ test('accepts normal emails', () => {
 // --- phone -----------------------------------------------------------------
 
 test('rejects invalid phone numbers', () => {
-  for (const phone of ['123', '12345678901', '5876543210', 'abcdefghij', '98765 43210', '+919876543210']) {
+  for (const phone of ['123', '12345678901', '5876543210', 'abcdefghij']) {
     assert.equal(validatePhone(phone).valid, false, `should reject: ${phone}`);
   }
 });
 
 test('accepts valid Indian mobile numbers', () => {
-  for (const phone of ['6000000000', '7123456789', '9876543210']) {
+  for (const phone of ['6000000000', '7123456789', '9876543210', '+919876543210', '98765 43210']) {
     assert.equal(validatePhone(phone).valid, true, `should accept: ${phone}`);
   }
 });

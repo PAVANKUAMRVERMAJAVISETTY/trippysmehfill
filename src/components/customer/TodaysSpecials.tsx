@@ -3,6 +3,7 @@ import { MenuItem } from '../../types';
 import { useCart } from '../../context/CartContext';
 import { Sparkles, Plus, Check, Lock, Loader2 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { initialKitchenSettings } from '../../lib/initialData';
 
 interface TodaysSpecialsProps {
   items?: MenuItem[];
@@ -17,7 +18,12 @@ export const TodaysSpecials: React.FC<TodaysSpecialsProps> = ({
   isLoading = false,
   onRequireAuth = () => {}
 }) => {
-  const { cart = [], addToCart = () => {}, settings = { is_open: true } } = useCart() || {};
+  // The defensive defaults are kept -- they are what stopped this component
+  // black-screening on null data. The settings fallback is the full
+  // initialKitchenSettings rather than `{ is_open: true }`, because a partial
+  // object widens the inferred type to `KitchenSettings | { is_open: true }`
+  // and every other field, opening_time included, then fails to typecheck.
+  const { cart = [], addToCart = () => {}, settings = initialKitchenSettings } = useCart() || {};
   const { user } = useAuth() || {};
 
   // Safely resolve items array regardless of whether parent passes 'items' or 'specials'

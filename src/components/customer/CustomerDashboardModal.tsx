@@ -1121,7 +1121,9 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                   {/* Phone / Login ID */}
                   <div className="bg-[#0d0d0d] p-3.5 rounded-2xl border border-white/10 space-y-1">
                     <span className="text-[10px] text-gray-400 uppercase font-bold block">Login Phone / Username</span>
-                    <span className="text-white font-mono font-black text-sm">{user.phone || user.username || '9876543210'}</span>
+                    <span className="text-white font-mono font-black text-sm">
+                      {user.phone || user.username || <span className="text-gray-500 font-normal">Not set</span>}
+                    </span>
                   </div>
 
                   {/* Email */}

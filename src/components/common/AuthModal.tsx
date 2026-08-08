@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { supabase } from '../../lib/supabase';
-import { X, Lock, Mail, User, Phone, MapPin, AlertCircle, ShieldCheck, Key, RefreshCw, CheckCircle, Navigation, ShieldAlert } from 'lucide-react';
+import { X, Lock, Mail, User, Phone, MapPin, AlertCircle, ShieldCheck, Key, RefreshCw, CheckCircle, Navigation, ShieldAlert, Eye, EyeOff } from 'lucide-react';
 import { UserProfile } from '../../types';
 import { sendEmailVerificationOTP, verifyEmailOTPCode, sendPasswordResetOTP, resetPasswordWithOTP } from '../../lib/emailService';
+import OtpInput from './OtpInput';
 import { validateRegistration, validateEmail, validateFullName, validatePhone, validateAddress } from '../../lib/validation';
 import { requestValidatedLocation, KITCHEN_LAT, KITCHEN_LNG, MAX_SERVICE_RADIUS_KM } from '../../lib/geoUtils';
 
@@ -28,6 +29,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   // Forgot password flow state: 'none' | 'email_input' | 'otp_input'
   const [forgotStep, setForgotStep] = useState<'none' | 'email_input' | 'otp_input'>('none');
+
+  // Show/hide for every password field. A password the user cannot read is a
+  // password they mistype -- especially on a phone keyboard, and especially
+  // when they are asked to type it twice.
+  const [showForgotNew, setShowForgotNew] = useState(false);
+  const [showForgotConfirm, setShowForgotConfirm] = useState(false);
+  const [showSignIn, setShowSignIn] = useState(false);
+  const [showSignUp, setShowSignUp] = useState(false);
   const [forgotEmail, setForgotEmail] = useState('');
   const [forgotNewPassword, setForgotNewPassword] = useState('');
   const [forgotConfirmPassword, setForgotConfirmPassword] = useState('');
@@ -55,8 +64,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [distanceFromKitchen, setDistanceFromKitchen] = useState<number>(0);
-  const [ipAddress, setIpAddress] = useState<string>('103.211.14.82');
-  const [locationCity, setLocationCity] = useState<string>('Sohna GLS Homes near GDGU, Haryana');
+  // Start empty -- these are filled from the real capture, never seeded with a
+  // sample address that would otherwise be written to a customer's profile.
+  const [ipAddress, setIpAddress] = useState<string>('');
+  const [locationCity, setLocationCity] = useState<string>('');
 
   // Email OTP state. The code itself lives on the server -- the browser only
   // ever holds what the user typed in.
@@ -97,7 +108,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setActiveTab(defaultTab);
   }, [defaultTab, isOpen]);
 
-  // Restore OTP verification state on open
+  // Restore OTP verification state on open, so a customer who reloads or
+  // switches away mid-verification is not sent back to the start of signup.
   useEffect(() => {
     if (!isOpen) return;
     try {
@@ -124,18 +136,34 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   }, [isOpen]);
 
-  // Resend Timer countdown
+  // Resend Timer countdown. Every OTP screen sets resendTimer, so the countdown
+  // is driven by the timer alone -- gating it on regStep left the Google and
+  // password-reset screens stuck at 60s with the resend link never appearing.
   useEffect(() => {
-    let interval: any = null;
-    if (regStep === 'otp_verify' && resendTimer > 0) {
-      interval = setInterval(() => {
-        setResendTimer(prev => prev - 1);
-      }, 1000);
-    }
+    if (resendTimer <= 0) return;
+    const interval = setInterval(() => {
+      setResendTimer(prev => (prev > 0 ? prev - 1 : 0));
+    }, 1000);
     return () => clearInterval(interval);
-  }, [regStep, resendTimer]);
+  }, [resendTimer > 0]);
 
   if (!isOpen) return null;
+
+  // Phone fields hold exactly ten digits and nothing else. Filtering on the way
+  // in means letters, spaces, +91 prefixes and an eleventh digit never land in
+  // state at all, so what is submitted is always what the field displays.
+  const PHONE_LENGTH = 10;
+  const toPhoneDigits = (raw: string) => raw.replace(/\D/g, '').slice(0, PHONE_LENGTH);
+
+  /** Live, per-keystroke message. Empty string means "nothing to complain about yet". */
+  const phoneFieldError = (value: string): string => {
+    if (!value) return '';
+    if (value.length < PHONE_LENGTH) {
+      return `Mobile number must be exactly ${PHONE_LENGTH} digits.`;
+    }
+    const check = validatePhone(value);
+    return check.valid ? '' : check.message;
+  };
 
   // Real-Time Hardware Geolocation (Radius restriction removed - open service)
   const captureSecurityDetails = async (): Promise<{ lat: number; lng: number; ip: string; isOK: boolean }> => {
@@ -210,8 +238,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setTimeout(() => {
       setForgotStep('none');
       setActiveTab('signin');
-      setSignInIdentifier(forgotEmail.trim());
-      setSignInPassword(forgotNewPassword);
+      // The sign-in form is left empty on purpose -- nothing about the customer
+      // is carried across, not even the address they just typed.
+      setSignInIdentifier('');
+      setSignInPassword('');
       setEnteredOtp('');
     }, 1500);
   };
@@ -338,10 +368,27 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setIsSendingOtp(true);
 
     try {
-      console.log('[AuthModal] Resending 6-digit OTP code to:', email);
-      const result = await sendEmailVerificationOTP(email.trim().toLowerCase(), fullName.trim());
+      const cleanEmail = email.trim().toLowerCase();
+
+      // Send the OTP that belongs to the screen the user is actually on.
+      // This always sent the SIGNUP verification code, so pressing "Resend
+      // Code" on the password-reset screen mailed the wrong kind of OTP --
+      // which then failed verification, with no clue why.
+      const isPasswordReset = forgotStep === 'otp_input';
+
+      console.log('[AuthModal] Resending 6-digit OTP code to:', cleanEmail,
+        isPasswordReset ? '(password reset)' : '(signup verification)');
+
+      const result = isPasswordReset
+        ? await sendPasswordResetOTP(cleanEmail)
+        : await sendEmailVerificationOTP(cleanEmail, fullName.trim());
+
       setResendTimer(60);
-      savePendingOtpState(email.trim().toLowerCase(), fullName.trim(), phone.trim(), hostelAddress.trim(), 'otp_verify');
+
+      // Only the signup flow has pending state worth restoring after a reload.
+      if (!isPasswordReset) {
+        savePendingOtpState(cleanEmail, fullName.trim(), phone.trim(), hostelAddress.trim(), 'otp_verify');
+      }
 
       if (!result.success) {
         console.warn('[AuthModal] Resend OTP returned warning/error:', result.message);
@@ -357,8 +404,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  const handleVerifyOtpSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  // The event is optional so OtpInput can fire this the moment the sixth digit
+  // lands, without the user reaching for the button.
+  const handleVerifyOtpSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (isVerifyingOtp) return;
     setErrorMsg('');
     setInfoMsg('');
 
@@ -441,11 +491,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const handleStartGoogleSignInFlow = () => {
     setErrorMsg('');
     setInfoMsg('');
-    const prefillEmail = email.trim() || (signInIdentifier.includes('@') ? signInIdentifier.trim() : '');
-    setGoogleEmailInput(prefillEmail);
-    if (fullName) setGoogleFullName(fullName);
-    if (phone) setGooglePhone(phone);
-    if (hostelAddress) setGoogleAddress(hostelAddress);
+    // Nothing is carried over from the other tabs -- the customer types their
+    // own details here rather than inheriting whatever was left in a form.
+    setGoogleEmailInput('');
+    setGoogleFullName('');
+    setGooglePhone('');
+    setGoogleAddress('');
     setEnteredOtp('');
     setIsGoogleOtpSent(false);
     setRegStep('google_verify');
@@ -495,7 +546,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
       }
     }
 
-    const result = await sendEmailVerificationOTP(cleanEmail, cleanName || 'Google Customer');
+    const result = await sendEmailVerificationOTP(cleanEmail, cleanName);
     if (!result.success) {
       setErrorMsg(result.message);
       return;
@@ -505,8 +556,9 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setInfoMsg(result.message);
   };
 
-  const handleVerifyGoogleOtpSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleVerifyGoogleOtpSubmit = async (e?: React.FormEvent) => {
+    e?.preventDefault();
+    if (isVerifyingOtp) return;
     setErrorMsg('');
 
     const cleanEmail = googleEmailInput.trim().toLowerCase();
@@ -520,9 +572,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
 
     try {
-      const cleanName = googleFullName.trim() || 'Google Customer';
-      const cleanPhone = googlePhone.trim() || '9876543210';
-      const cleanAddress = googleAddress.trim() || 'Campus Hostel Block A';
+      // These passed validateFullName/validatePhone/validateAddress before the
+      // code was sent, so they are the customer's own details -- no fallbacks.
+      const cleanName = googleFullName.trim();
+      const cleanPhone = googlePhone.trim();
+      const cleanAddress = googleAddress.trim();
 
       await signInWithGoogle(
         cleanEmail,
@@ -530,8 +584,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         cleanPhone,
         cleanAddress,
         ipAddress,
-        latitude || 17.3850,
-        longitude || 78.4867
+        latitude || KITCHEN_LAT,
+        longitude || KITCHEN_LNG
       );
 
       const newGoogleCustomer: UserProfile = {
@@ -545,8 +599,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         is_active: true,
         auth_provider: 'Google',
         ip_address: ipAddress,
-        latitude: latitude || 17.3850,
-        longitude: longitude || 78.4867,
+        latitude: latitude || KITCHEN_LAT,
+        longitude: longitude || KITCHEN_LNG,
         location_city: locationCity,
         created_at: new Date().toLocaleString()
       };
@@ -555,10 +609,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         onRegisterSuccess(newGoogleCustomer);
       }
 
-      setInfoMsg(`Verified & Signed in with Google as ${cleanEmail}!`);
-      setTimeout(() => {
-        onClose();
-      }, 800);
+      // Signed in already -- go straight to the menu.
+      onClose();
     } catch (err: any) {
       setErrorMsg(err.message || 'Failed to authenticate Google user.');
     } finally {
@@ -700,7 +752,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         value={googleFullName}
                         onChange={(e) => setGoogleFullName(e.target.value)}
                         required
-                        placeholder="e.g. Naga Pavan"
+                        placeholder="Enter your full name"
                         className="w-full pl-9 pr-3 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
                       />
                     </div>
@@ -714,13 +766,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                       <Phone className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
                       <input
                         type="tel"
+                        inputMode="numeric"
+                        maxLength={PHONE_LENGTH}
                         value={googlePhone}
-                        onChange={(e) => setGooglePhone(e.target.value)}
+                        onChange={(e) => setGooglePhone(toPhoneDigits(e.target.value))}
                         required
-                        placeholder="e.g. 9876543210"
-                        className="w-full pl-9 pr-3 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
+                        aria-invalid={!!phoneFieldError(googlePhone) || undefined}
+                        placeholder="10-digit mobile number"
+                        className={`w-full pl-9 pr-3 py-2.5 bg-[#181818] border rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none ${
+                          phoneFieldError(googlePhone)
+                            ? 'border-red-500/60 focus:border-red-500'
+                            : 'border-white/10 focus:border-blue-500'
+                        }`}
                       />
                     </div>
+                    {phoneFieldError(googlePhone) && (
+                      <p className="text-[11px] text-red-400 mt-1">{phoneFieldError(googlePhone)}</p>
+                    )}
                   </div>
 
                   <div>
@@ -734,7 +796,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         value={googleAddress}
                         onChange={(e) => setGoogleAddress(e.target.value)}
                         required
-                        placeholder="e.g. Block A, Room 104"
+                        placeholder="Enter your delivery address"
                         className="w-full pl-9 pr-3 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
                       />
                     </div>
@@ -751,7 +813,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         value={googleEmailInput}
                         onChange={(e) => setGoogleEmailInput(e.target.value)}
                         required
-                        placeholder="e.g. nagapavankumarjavisetty@gmail.com"
+                        placeholder="Enter your email"
                         className="w-full pl-9 pr-3 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-blue-500"
                       />
                     </div>
@@ -803,18 +865,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     <label className="block text-xs font-bold text-gray-300 mb-1">
                       Enter Google OTP *
                     </label>
-                    <div className="relative">
-                      <Key className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                      <input
-                        type="text"
-                        maxLength={8}
-                        value={enteredOtp}
-                        onChange={(e) => setEnteredOtp(e.target.value)}
-                        required
-                        placeholder="OTP Code"
-                        className="w-full pl-9 pr-3 py-3 bg-[#181818] border border-white/10 rounded-xl text-center text-lg font-mono tracking-widest text-orange-400 font-black outline-none focus:border-orange-500"
-                      />
-                    </div>
+                    <OtpInput
+                      value={enteredOtp}
+                      onChange={setEnteredOtp}
+                      onComplete={() => handleVerifyGoogleOtpSubmit()}
+                      disabled={isVerifyingOtp}
+                      hasError={!!errorMsg}
+                      autoFocus
+                      label="Google verification code"
+                    />
                   </div>
 
                   <button
@@ -866,8 +925,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={forgotEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
                     required
-                    placeholder="name@example.com"
-                    className="w-full pl-9 pr-3 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
+                    placeholder="Enter your email"
+                    className="w-full pl-9 pr-12 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
                   />
                 </div>
               </div>
@@ -915,18 +974,16 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <label className="block text-xs font-bold text-gray-300 mb-1">
                   Enter Verification OTP Code *
                 </label>
-                <div className="relative">
-                  <Key className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    maxLength={8}
-                    value={enteredOtp}
-                    onChange={(e) => setEnteredOtp(e.target.value)}
-                    required
-                    placeholder="Enter Code"
-                    className="w-full pl-9 pr-3 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-center text-base font-mono tracking-widest text-orange-400 font-black outline-none focus:border-orange-500"
-                  />
-                </div>
+                {/* No onComplete here -- the same form still needs the new password,
+                    so submitting on the sixth digit would fire too early. */}
+                <OtpInput
+                  value={enteredOtp}
+                  onChange={setEnteredOtp}
+                  disabled={isResettingPassword}
+                  hasError={!!errorMsg}
+                  autoFocus
+                  label="Password reset code"
+                />
               </div>
 
               <div>
@@ -936,13 +993,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <div className="relative">
                   <Lock className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
-                    type="password"
+                    type={showForgotNew ? 'text' : 'password'}
                     value={forgotNewPassword}
                     onChange={(e) => setForgotNewPassword(e.target.value)}
                     required
-                    placeholder="Min 6 characters"
-                    className="w-full pl-9 pr-3 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
+                    placeholder="Enter your password"
+                    className="w-full pl-9 pr-12 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotNew(v => !v)}
+                    aria-label={showForgotNew ? 'Hide new password' : 'Show new password'}
+                    aria-pressed={showForgotNew}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-orange-500/60 transition"
+                  >
+                    {showForgotNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
@@ -953,13 +1019,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <div className="relative">
                   <Lock className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
-                    type="password"
+                    type={showForgotConfirm ? 'text' : 'password'}
                     value={forgotConfirmPassword}
                     onChange={(e) => setForgotConfirmPassword(e.target.value)}
                     required
-                    placeholder="Re-enter new password"
-                    className="w-full pl-9 pr-3 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
+                    placeholder="Re-enter your password"
+                    className="w-full pl-9 pr-12 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotConfirm(v => !v)}
+                    aria-label={showForgotConfirm ? 'Hide confirmed new password' : 'Show confirmed new password'}
+                    aria-pressed={showForgotConfirm}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-orange-500/60 transition"
+                  >
+                    {showForgotConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
@@ -1004,8 +1079,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={signInIdentifier}
                     onChange={(e) => setSignInIdentifier(e.target.value)}
                     required
-                    placeholder="Enter phone or email (e.g. 9876543210)"
-                    className="w-full pl-9 pr-3 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
+                    placeholder="Enter your phone or email"
+                    className="w-full pl-9 pr-12 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
                   />
                 </div>
               </div>
@@ -1031,12 +1106,21 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <div className="relative">
                   <Lock className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
-                    type="password"
+                    type={showSignIn ? 'text' : 'password'}
                     value={signInPassword}
                     onChange={(e) => setSignInPassword(e.target.value)}
                     placeholder="Enter password"
-                    className="w-full pl-9 pr-3 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
+                    className="w-full pl-9 pr-12 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowSignIn(v => !v)}
+                    aria-label={showSignIn ? 'Hide password' : 'Show password'}
+                    aria-pressed={showSignIn}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-orange-500/60 transition"
+                  >
+                    {showSignIn ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
@@ -1079,8 +1163,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     required
-                    placeholder="e.g. Naga Pavan Kumar"
-                    className="w-full pl-9 pr-3 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
+                    placeholder="Enter your full name"
+                    className="w-full pl-9 pr-12 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
                   />
                 </div>
               </div>
@@ -1091,13 +1175,23 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <Phone className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
                     type="tel"
+                    inputMode="numeric"
+                    maxLength={PHONE_LENGTH}
                     value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(toPhoneDigits(e.target.value))}
                     required
+                    aria-invalid={!!phoneFieldError(phone) || undefined}
                     placeholder="10-digit mobile number"
-                    className="w-full pl-9 pr-3 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
+                    className={`w-full pl-9 pr-3 py-2.5 bg-[#181818] border rounded-xl text-xs text-white placeholder-gray-500 outline-none ${
+                      phoneFieldError(phone)
+                        ? 'border-red-500/60 focus:border-red-500'
+                        : 'border-white/10 focus:border-orange-500'
+                    }`}
                   />
                 </div>
+                {phoneFieldError(phone) && (
+                  <p className="text-[11px] text-red-400 mt-1">{phoneFieldError(phone)}</p>
+                )}
               </div>
 
               <div>
@@ -1109,8 +1203,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
-                    placeholder="name@example.com"
-                    className="w-full pl-9 pr-3 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
+                    placeholder="Enter your email"
+                    className="w-full pl-9 pr-12 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
                   />
                 </div>
               </div>
@@ -1124,8 +1218,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={hostelAddress}
                     onChange={(e) => setHostelAddress(e.target.value)}
                     required
-                    placeholder="Hostel Gate / Room Number"
-                    className="w-full pl-9 pr-3 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
+                    placeholder="Enter your delivery address"
+                    className="w-full pl-9 pr-12 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
                   />
                 </div>
               </div>
@@ -1135,13 +1229,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <div className="relative">
                   <Lock className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
-                    type="password"
+                    type={showSignUp ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    placeholder="Min 6 characters"
-                    className="w-full pl-9 pr-3 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
+                    placeholder="Enter your password"
+                    className="w-full pl-9 pr-12 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowSignUp(v => !v)}
+                    aria-label={showSignUp ? 'Hide password' : 'Show password'}
+                    aria-pressed={showSignUp}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 h-9 w-9 flex items-center justify-center rounded-lg text-gray-400 hover:text-white hover:bg-white/5 focus:outline-none focus:ring-2 focus:ring-orange-500/60 transition"
+                  >
+                    {showSignUp ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  </button>
                 </div>
               </div>
 
@@ -1205,18 +1308,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <label className="block text-xs font-bold text-gray-300 mb-1">
                   Enter Email OTP Code *
                 </label>
-                <div className="relative">
-                  <Key className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
-                  <input
-                    type="text"
-                    maxLength={8}
-                    value={enteredOtp}
-                    onChange={(e) => setEnteredOtp(e.target.value)}
-                    required
-                    placeholder="Enter Code"
-                    className="w-full pl-9 pr-3 py-3 bg-[#181818] border border-white/10 rounded-xl text-center text-lg font-mono tracking-widest text-orange-400 font-black outline-none focus:border-orange-500"
-                  />
-                </div>
+                <OtpInput
+                  value={enteredOtp}
+                  onChange={setEnteredOtp}
+                  onComplete={() => handleVerifyOtpSubmit()}
+                  disabled={isVerifyingOtp}
+                  hasError={!!errorMsg}
+                  autoFocus
+                  label="Email verification code"
+                />
               </div>
 
               {/* Resend Timer & Button */}

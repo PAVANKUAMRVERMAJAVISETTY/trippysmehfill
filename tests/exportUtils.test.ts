@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test, afterEach } from 'node:test';
-import { exportOrdersToExcel, exportOrdersToPDF } from './src/lib/exportUtils';
-import { Order } from './src/types';
+import { exportOrdersToExcel, exportOrdersToPDF } from '../src/lib/exportUtils';
+import { Order } from '../src/types';
 
 const ORDER: Order = {
   id: 'o1',

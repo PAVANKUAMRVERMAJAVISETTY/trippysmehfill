@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { toFriendlyAuthError } from './src/lib/authErrors';
+import { toFriendlyAuthError } from '../src/lib/authErrors';
 
 test('maps an expired OTP', () => {
   const r = toFriendlyAuthError({ message: 'Token has expired or is invalid', status: 401 });

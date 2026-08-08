@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { CartItem, MenuItem, KitchenSettings } from '../types';
 import { initialKitchenSettings } from '../lib/initialData';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { settingsService } from '../services/supabase/settings';
 
 interface CartContextType {
   cart: CartItem[];
@@ -16,71 +17,52 @@ interface CartContextType {
   grandTotal: number;
   settings: KitchenSettings;
   updateSettings: (newSettings: Partial<KitchenSettings>) => Promise<void>;
+  refreshSettings: () => Promise<void>;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    const saved = localStorage.getItem('trippys_cart');
-    if (saved) {
-      try { return JSON.parse(saved); } catch { return []; }
-    }
-    return [];
-  });
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [settings, setSettings] = useState<KitchenSettings>(initialKitchenSettings);
 
-  const [settings, setSettings] = useState<KitchenSettings>(() => {
-    const saved = localStorage.getItem('trippys_settings');
-    if (saved) {
-      try { return JSON.parse(saved); } catch { return initialKitchenSettings; }
+  const refreshSettings = async () => {
+    try {
+      const liveSettings = await settingsService.fetchKitchenSettings();
+      setSettings(liveSettings);
+    } catch (err) {
+      console.error('Failed to load kitchen settings from Supabase:', err);
     }
-    return initialKitchenSettings;
-  });
+  };
 
   useEffect(() => {
-    localStorage.setItem('trippys_cart', JSON.stringify(cart));
-  }, [cart]);
+    refreshSettings();
+  }, []);
 
-  useEffect(() => {
-    localStorage.setItem('trippys_settings', JSON.stringify(settings));
-  }, [settings]);
-
-  // Load latest global restaurant settings from Supabase & subscribe to Realtime updates
+  // Global restaurant-status sync: when a team member opens or closes the
+  // kitchen, every open browser follows without a refresh.
+  //
+  // Both branches added a loader here. Keeping both would run two fetches on
+  // mount that race to set the same state. refreshSettings() is the survivor
+  // because it goes through settingsService, which does three things the raw
+  // row spread does not: coerces the numeric columns (PostgREST returns
+  // numerics as strings, and `subtotal >= settings.free_delivery_above` on a
+  // string compares wrong), carries `id` so a later save updates this row
+  // rather than inserting a second one, and falls back to an EMPTY
+  // restaurant_upi_id instead of a hardcoded VPA.
+  //
+  // The Realtime event therefore re-reads through the same path rather than
+  // spreading payload.new directly, so a synced update is shaped exactly like
+  // a loaded one.
   useEffect(() => {
     if (!isSupabaseConfigured) return;
 
-    async function loadKitchenSettings() {
-      try {
-        const { data, error } = await supabase
-          .from('kitchen_settings')
-          .select('*')
-          .eq('id', 1)
-          .single();
-
-        if (!error && data) {
-          console.log('[CartContext] Loaded global kitchen settings from Supabase:', data);
-          setSettings(prev => ({ ...prev, ...data }));
-        }
-      } catch (err) {
-        console.error('[CartContext] Error loading kitchen settings:', err);
-      }
-    }
-
-    loadKitchenSettings();
-
-    // Supabase Realtime channel for global settings sync
     const channel = supabase
       .channel('public:kitchen_settings:realtime')
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'kitchen_settings' },
-        (payload) => {
-          console.log('[Realtime Settings] Global setting update received:', payload);
-          if (payload.new) {
-            const updated = payload.new as KitchenSettings;
-            setSettings(prev => ({ ...prev, ...updated }));
-          }
-        }
+        () => { refreshSettings(); }
       )
       .subscribe();
 
@@ -124,20 +106,16 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const clearCart = () => setCart([]);
 
   const updateSettings = async (newSettings: Partial<KitchenSettings>) => {
-    const merged = { ...settings, ...newSettings, id: 1 };
-    setSettings(merged);
-    if (isSupabaseConfigured) {
-      try {
-        const { error } = await supabase
-          .from('kitchen_settings')
-          .upsert([merged]);
-
-        if (error) {
-          console.error('[CartContext] Failed to upsert kitchen_settings to Supabase:', error.message);
-        }
-      } catch (err) {
-        console.error('[CartContext] Error upserting kitchen settings:', err);
-      }
+    // `id` is carried through deliberately. settingsService UPDATEs when an id
+    // is present and INSERTs when it is not, so dropping it here would write
+    // the admin's change to a brand-new row that nothing reads -- settings
+    // would appear to save and then quietly have no effect.
+    const updated = { ...settings, ...newSettings, id: settings.id };
+    setSettings(updated);
+    try {
+      await settingsService.updateKitchenSettings(updated);
+    } catch (err) {
+      console.error('Failed to persist kitchen settings in Supabase:', err);
     }
   };
 
@@ -165,7 +143,8 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({ children
         taxAmount,
         grandTotal,
         settings,
-        updateSettings
+        updateSettings,
+        refreshSettings,
       }}
     >
       {children}

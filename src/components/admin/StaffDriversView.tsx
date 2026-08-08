@@ -23,13 +23,15 @@ export const StaffDriversView: React.FC<StaffDriversViewProps> = ({
 
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName) return;
+    // Phone required rather than defaulted -- it fell back to '9876543210',
+    // giving a staff record a contact number that belongs to nobody.
+    if (!fullName || !phone.trim()) return;
 
     const newStaff: UserProfile = {
       id: 'staff-' + Date.now(),
       email: `${fullName.toLowerCase().replace(/\s+/g, '')}@trippys.com`,
       full_name: fullName,
-      phone: phone || '9876543210',
+      phone: phone.trim(),
       role,
       is_approved: true,
       is_active: true

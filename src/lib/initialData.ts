@@ -10,7 +10,10 @@ export const initialKitchenSettings: KitchenSettings = {
   delivery_charge: 30,
   tax_percent: 0,
   estimated_delivery_mins: 30,
-  restaurant_upi_id: "7671018757@ybl",
+  // Empty on purpose -- see services/supabase/settings.ts. Never ship a
+  // payment destination as a default; an unconfigured kitchen must show no QR
+  // rather than a QR pointing at someone else's account.
+  restaurant_upi_id: "",
   whatsapp_number: "8569955929",
   closed_banner_message: "RESTAURANT IS CURRENTLY CLOSED (Opening Hours: 9:00 AM to 10:00 PM) - you can still browse the menu.",
   lat: 17.4483,
@@ -253,19 +256,7 @@ export const initialStaffAndDrivers: UserProfile[] = [
   }
 ];
 
-export const initialPendingRegistrations: UserProfile[] = [
-  {
-    id: 'u-pending-1',
-    email: 'haripriyamalyala31@gmail.com',
-    full_name: 'Malyala Haripriya',
-    phone: '6301716175',
-    hostel_address: 'G4 Goemka university gate no 5',
-    role: 'customer',
-    is_approved: false,
-    is_active: true,
-    created_at: '1/8/2026, 5:25:09 pm'
-  }
-];
+export const initialPendingRegistrations: UserProfile[] = [];
 
 export const initialOrders: Order[] = [
   {
@@ -344,72 +335,10 @@ export const initialOrders: Order[] = [
   }
 ];
 
-export const initialCustomers: UserProfile[] = [
-  {
-    id: 'c-1001',
-    email: 'sajid@gmail.com',
-    full_name: 'Sajid',
-    phone: '7396475834',
-    hostel_address: 'Gls campus hostel',
-    role: 'customer',
-    is_approved: true,
-    is_active: true,
-    auth_provider: 'Email',
-    ip_address: '103.211.14.82',
-    latitude: 28.3681,
-    longitude: 77.0384,
-    location_city: 'Gurugram / Sohna',
-    created_at: '24/7/2026, 11:20:00 am'
-  },
-  {
-    id: 'c-1002',
-    email: 'rakesh.ranjan@gmail.com',
-    full_name: 'Rakesh Ranjan',
-    phone: '7050918132',
-    hostel_address: 'Gls - Gls axewell homes tower 3 1201',
-    role: 'customer',
-    is_approved: true,
-    is_active: true,
-    auth_provider: 'Google',
-    ip_address: '49.36.192.110',
-    latitude: 28.3695,
-    longitude: 77.0410,
-    location_city: 'Gurugram',
-    created_at: '25/7/2026, 2:15:30 pm'
-  },
-  {
-    id: 'c-1003',
-    email: 'shruti@gmail.com',
-    full_name: 'Shruti',
-    phone: '8302923111',
-    hostel_address: 'Hcbs Sports villa u1216',
-    role: 'customer',
-    is_approved: true,
-    is_active: true,
-    auth_provider: 'Email',
-    ip_address: '152.57.10.42',
-    latitude: 28.3650,
-    longitude: 77.0320,
-    location_city: 'Sohna Road',
-    created_at: '26/7/2026, 9:45:10 am'
-  },
-  {
-    id: 'c-1004',
-    email: 'utfi.keity@gmail.com',
-    full_name: 'Utfi - Keity',
-    phone: '8302923111',
-    hostel_address: 'Hcb Sports villa u1216',
-    role: 'customer',
-    is_approved: true,
-    is_active: true,
-    auth_provider: 'Google',
-    ip_address: '103.22.44.19',
-    latitude: 28.3672,
-    longitude: 77.0355,
-    location_city: 'Goenka Campus Area',
-    created_at: '27/7/2026, 3:30:00 pm'
-  }
-];
+// Emptied in Phase 1: these were fabricated customer records (real-looking
+// names, emails and phone numbers) shipped in the bundle and seeded straight
+// into state. Real customers now come from Supabase.
+export const initialCustomers: UserProfile[] = [];
 
 export const initialGalleryItems: GalleryItem[] = [
   {

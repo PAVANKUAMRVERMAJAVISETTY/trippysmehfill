@@ -1,5 +1,17 @@
 export type UserRole = 'customer' | 'admin' | 'staff' | 'driver';
 
+/**
+ * The top-level sections App.tsx can render.
+ *
+ * This list must contain only values that actually render something. It
+ * previously also allowed 'track' and 'kitchen', neither of which had a render
+ * branch -- setting either would have produced a blank page with no error.
+ * Nothing set them, so the bug was latent rather than live, but the type
+ * permitted it. Kitchen is an admin tab, not a top-level section, and tracking
+ * is a modal.
+ */
+export type AppSection = 'menu' | 'checkout' | 'orders' | 'admin' | 'driver';
+
 export interface UserProfile {
   id: string;
   email: string;
@@ -69,9 +81,50 @@ export interface MenuItem {
   created_at?: string;
 }
 
-export type OrderStatus = 'pending' | 'cooking' | 'assigned' | 'out_for_delivery' | 'delivered' | 'cancelled';
+/**
+ * Order lifecycle.
+ *
+ * The Phase 2 vocabulary is pending -> accepted -> preparing -> ready ->
+ * delivered, with cancelled available throughout. The older 'cooking',
+ * 'assigned' and 'out_for_delivery' values are retained rather than renamed
+ * because the admin, kitchen and driver screens still write them and those
+ * screens are out of scope for this phase; every customer-facing surface
+ * understands both sets. See PHASE2_ORDER_REPORT.md.
+ */
+export type OrderStatus =
+  | 'pending'
+  | 'accepted'
+  | 'preparing'
+  | 'ready'
+  | 'delivered'
+  | 'cancelled'
+  // Legacy values still emitted by admin / kitchen / driver.
+  | 'cooking'
+  | 'assigned'
+  | 'out_for_delivery';
 export type PaymentMethod = 'COD' | 'UPI' | 'Card' | 'Razorpay';
-export type PaymentStatus = 'pending' | 'pending_verification' | 'completed' | 'paid' | 'failed' | 'refunded';
+/**
+ * Payment lifecycle. These five values are exactly what the production CHECK
+ * constraint on orders.payment_status accepts -- the type is not free to be
+ * wider than the database.
+ *
+ * The other branch carried 'pending_verification' and 'paid'. Both are refused
+ * by the live constraint (23514), and it lacked 'rejected', which the admin
+ * rejection flow writes. They map onto this vocabulary rather than being added
+ * to it:
+ *
+ *   pending_verification -> 'pending'    a UTR has been claimed but not checked;
+ *                                        it is still an unsettled payment
+ *   paid                 -> 'completed'  settled, and only a team member may say so
+ */
+export type PaymentStatus =
+  | 'pending'
+  | 'completed'
+  // Refused by a team member after review -- the transfer never arrived, or did
+  // not match. Distinct from 'failed', which means a gateway declined it.
+  | 'rejected'
+  | 'failed'
+  | 'refunded';
 
 export interface OrderItem {
   dish_id: string;
@@ -97,8 +150,16 @@ export interface Order {
   payment_method: PaymentMethod;
   payment_status: PaymentStatus;
   upi_transaction_id?: string;
+  // Customer-supplied reference for a UPI transfer. A CLAIM that a payment was
+  // sent -- never proof that it arrived. Only an admin verifying it settles the
+  // order, which is why this is separate from the audit fields below.
   utr_number?: string;
   payment_time?: string;
+  // Written by migration 0007's trigger when a team member settles the payment.
+  // Never sent from the client -- the server stamps who it actually saw.
+  payment_verified_at?: string;
+  payment_verified_by?: string;
+  payment_rejection_reason?: string;
   status: OrderStatus;
   driver_id?: string;
   driver_name?: string;

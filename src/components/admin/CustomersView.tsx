@@ -201,14 +201,18 @@ CREATE OR REPLACE TRIGGER on_auth_user_created
 
   const handleCreateCustomer = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!fullName || !email) return;
+    // Phone is required, not defaulted. This previously fell back to
+    // '9876543210' and an invented hostel address when left blank, so a record
+    // could look complete while carrying a phone number and address that belong
+    // to nobody -- which a driver would then call and drive to.
+    if (!fullName || !email || !phone.trim()) return;
 
     const newCust: UserProfile = {
       id: 'c-' + Date.now(),
       email: email.trim().toLowerCase(),
       full_name: fullName.trim(),
-      phone: phone.trim() || '9876543210',
-      hostel_address: hostelAddress.trim() || 'Goenka University Campus - Hostel Gate 5',
+      phone: phone.trim(),
+      hostel_address: hostelAddress.trim(),
       role: 'customer',
       account_status: 'active',
       is_whatsapp_verified: false,

@@ -1,9 +1,10 @@
 import React from 'react';
-import { LayoutDashboard, Radio, CookingPot, UserCheck, UtensilsCrossed, Package, History, MessageSquare, BarChart3, Users, Settings, Image } from 'lucide-react';
+import { LayoutDashboard, Radio, CookingPot, UserCheck, UtensilsCrossed, Package, History, MessageSquare, BarChart3, Users, Settings, Image, ShieldCheck } from 'lucide-react';
 
 export type AdminTab =
   | 'dashboard'
   | 'live_orders'
+  | 'payments'
   | 'kitchen'
   | 'registrations'
   | 'menu'
@@ -20,11 +21,14 @@ interface AdminHeaderNavProps {
   activeTab: AdminTab;
   setActiveTab: (tab: AdminTab) => void;
   pendingCount?: number;
+  /** UPI orders waiting for someone to confirm the transfer arrived. */
+  pendingPaymentsCount?: number;
 }
 
 const tabs: { id: AdminTab; label: string; icon: React.ReactNode }[] = [
   { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard className="w-4 h-4" /> },
   { id: 'live_orders', label: 'Live Orders', icon: <Radio className="w-4 h-4" /> },
+  { id: 'payments', label: 'Payment Verification', icon: <ShieldCheck className="w-4 h-4" /> },
   { id: 'kitchen', label: 'Kitchen', icon: <CookingPot className="w-4 h-4" /> },
   { id: 'registrations', label: 'Pending Registrations', icon: <UserCheck className="w-4 h-4" /> },
   { id: 'menu', label: 'Menu', icon: <UtensilsCrossed className="w-4 h-4" /> },
@@ -41,7 +45,8 @@ const tabs: { id: AdminTab; label: string; icon: React.ReactNode }[] = [
 export const AdminHeaderNav: React.FC<AdminHeaderNavProps> = ({
   activeTab,
   setActiveTab,
-  pendingCount = 0
+  pendingCount = 0,
+  pendingPaymentsCount = 0
 }) => {
   return (
     <div className="bg-[#0d0d0d] text-white border-t border-b border-white/10 overflow-x-auto no-scrollbar">
@@ -63,6 +68,11 @@ export const AdminHeaderNav: React.FC<AdminHeaderNavProps> = ({
               {tab.id === 'registrations' && pendingCount > 0 && (
                 <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full animate-pulse">
                   {pendingCount}
+                </span>
+              )}
+              {tab.id === 'payments' && pendingPaymentsCount > 0 && (
+                <span className="bg-rose-500 text-white text-[10px] font-black px-1.5 py-0.2 rounded-full animate-pulse">
+                  {pendingPaymentsCount}
                 </span>
               )}
             </button>

@@ -34,8 +34,33 @@ export const supabaseConfigError: string | null = (() => {
     return 'Supabase credentials are still set to placeholder values.';
   }
 
-  if (rawAnonKey.startsWith('sb_publishable_')) {
-    return "VITE_SUPABASE_ANON_KEY is set to a publishable key ('sb_publishable_...'). Please replace it with the JWT anon public key ('eyJhbGci...').";
+  // Two client key formats are valid, and both are accepted:
+  //
+  //   eyJhbGci...        the legacy anon JWT
+  //   sb_publishable_... the current publishable key
+  //
+  // This previously rejected `sb_publishable_`, which was wrong -- it is the
+  // format Supabase now issues, and it was verified working against this
+  // project's REST API. Rejecting it showed the configuration error screen to a
+  // correctly configured deployment.
+  //
+  // What must never appear here is a SECRET key. `service_role` JWTs and
+  // `sb_secret_` keys bypass row-level security entirely, and anything in a
+  // VITE_* variable is inlined into the JavaScript bundle every visitor
+  // downloads. That is a total compromise of the database, so it is refused.
+  if (rawAnonKey.startsWith('sb_secret_')) {
+    return "VITE_SUPABASE_ANON_KEY is set to a SECRET key ('sb_secret_...'). Never ship a secret key to the browser — it bypasses row-level security. Use the publishable key ('sb_publishable_...') or the anon JWT ('eyJhbGci...').";
+  }
+
+  if (rawAnonKey.includes('service_role')) {
+    return "VITE_SUPABASE_ANON_KEY appears to be the service_role key. Never ship it to the browser — it bypasses row-level security. Use the publishable key ('sb_publishable_...') or the anon JWT ('eyJhbGci...').";
+  }
+
+  const isPublishable = rawAnonKey.startsWith('sb_publishable_');
+  const isAnonJwt = rawAnonKey.startsWith('eyJ');
+
+  if (!isPublishable && !isAnonJwt) {
+    return `VITE_SUPABASE_ANON_KEY is not a recognised Supabase client key. Expected a publishable key ('sb_publishable_...') or an anon JWT ('eyJhbGci...').`;
   }
 
   if (!/^https?:\/\/[a-z0-9-.]+/i.test(rawUrl)) {

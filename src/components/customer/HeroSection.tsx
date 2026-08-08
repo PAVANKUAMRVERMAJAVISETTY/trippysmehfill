@@ -169,7 +169,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                 type="button"
                 onClick={handleUseCurrentLocation}
                 disabled={isLocating}
-                className="text-[10px] text-[#C5A059] hover:underline font-bold block"
+                className="text-[10px] text-[#C5A059] hover:underline font-bold flex items-center min-h-[44px]"
               >
                 {isLocating ? 'Fetching GPS...' : 'GPS Auto-detect'}
               </button>

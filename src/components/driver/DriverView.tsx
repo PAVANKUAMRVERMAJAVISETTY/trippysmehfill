@@ -12,12 +12,31 @@ export const DriverView: React.FC<DriverViewProps> = ({ orders, onUpdateOrderSta
   const { user } = useAuth();
   const [navigatingOrderId, setNavigatingOrderId] = useState<string | null>(null);
 
+  /**
+   * Is this order assigned to the signed-in driver?
+   *
+   * Matched on `driver_id` first. The list previously included every order with
+   * status 'assigned' or 'out_for_delivery' regardless of who it belonged to,
+   * so every driver saw every other driver's deliveries -- including the
+   * customer's name, phone number and home address.
+   *
+   * The `driver_name` comparison is kept only as a fallback for rows that were
+   * assigned before `driver_id` was populated. It is a weaker check: two drivers
+   * sharing a name would match each other. Once no such rows remain it should
+   * be removed.
+   */
+  const isAssignedToMe = (order: Order): boolean => {
+    if (!user) return false;
+    if (order.driver_id) return order.driver_id === user.id;
+    return Boolean(order.driver_name) && order.driver_name === user.full_name;
+  };
+
   const assignedOrders = orders.filter(
-    o => o.status === 'out_for_delivery' || o.status === 'assigned' || (o.driver_name === user?.full_name && o.status !== 'delivered' && o.status !== 'cancelled')
+    o => isAssignedToMe(o) && o.status !== 'delivered' && o.status !== 'cancelled'
   );
 
   const completedOrders = orders.filter(
-    o => o.driver_name === user?.full_name && o.status === 'delivered'
+    o => isAssignedToMe(o) && o.status === 'delivered'
   );
 
   return (
@@ -99,10 +118,23 @@ export const DriverView: React.FC<DriverViewProps> = ({ orders, onUpdateOrderSta
               {navigatingOrderId === order.id && (
                 <div className="p-3 bg-blue-500/10 border border-blue-500/30 text-blue-300 rounded-xl text-xs space-y-1">
                   <div className="flex items-center gap-2 font-bold">
-                    <Navigation className="w-4 h-4 text-blue-400 animate-pulse" />
-                    <span>Live GPS Navigation Active</span>
+                    <Navigation className="w-4 h-4 text-blue-400" />
+                    <span>Navigation</span>
                   </div>
-                  <p className="text-[11px] text-blue-300/80">Estimated distance: 1.2 km • Time: 5 mins to Campus Hostel</p>
+                  {/* Previously hardcoded "1.2 km • 5 mins to Campus Hostel" and
+                      showed it for every order regardless of destination, under
+                      a heading claiming live GPS was active. Nothing here reads
+                      the device's location. Show the stored distance when the
+                      order actually has one, and otherwise claim nothing. */}
+                  {typeof order.distance_km === 'number' ? (
+                    <p className="text-[11px] text-blue-300/80">
+                      Approximately {order.distance_km.toFixed(1)} km to the delivery address.
+                    </p>
+                  ) : (
+                    <p className="text-[11px] text-blue-300/80">
+                      Use the address above with your preferred maps app.
+                    </p>
+                  )}
                 </div>
               )}
 
@@ -113,7 +145,10 @@ export const DriverView: React.FC<DriverViewProps> = ({ orders, onUpdateOrderSta
                   className="py-2.5 bg-[#181818] border border-white/10 hover:bg-white/5 text-gray-200 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-md transition"
                 >
                   <Navigation className="w-4 h-4 text-blue-400" />
-                  <span>{navigatingOrderId === order.id ? 'Stop GPS' : 'Start GPS'}</span>
+                  {/* "Start GPS" promised live tracking this does not do -- no
+                      geolocation is read and nothing is transmitted. It only
+                      expands the address panel, so the label now says that. */}
+                  <span>{navigatingOrderId === order.id ? 'Hide Directions' : 'Directions'}</span>
                 </button>
 
                 <button

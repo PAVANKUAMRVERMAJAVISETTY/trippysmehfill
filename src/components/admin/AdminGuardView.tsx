@@ -64,19 +64,28 @@ export const AdminGuardView: React.FC<AdminGuardViewProps> = ({
           </button>
         </div>
 
-        {/* Quick Demo Switcher Hint */}
-        <div className="pt-4 border-t border-white/10 space-y-2">
-          <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
-            Demo Environment Quick Switch
-          </p>
-          <button
-            onClick={() => switchDemoRole('admin')}
-            className="px-4 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-extrabold text-xs rounded-xl border border-amber-500/30 transition flex items-center justify-center gap-1.5 mx-auto"
-          >
-            <Lock className="w-3.5 h-3.5" />
-            <span>Switch Role to Admin</span>
-          </button>
-        </div>
+        {/* Development-only role switcher.
+            switchDemoRole() already refuses to act outside development, so in
+            production this rendered a button that did nothing while
+            advertising, on a security screen, that role switching exists.
+            Gated on the same flag so it is not rendered at all. */}
+        {/* `import.meta.env.DEV` inline rather than the imported constant:
+            Vite substitutes it literally at build time, so Rollup removes this
+            whole branch from the bundle instead of merely never running it. */}
+        {import.meta.env.DEV && (
+          <div className="pt-4 border-t border-white/10 space-y-2">
+            <p className="text-[10px] text-gray-500 uppercase tracking-wider font-bold">
+              Demo Environment Quick Switch
+            </p>
+            <button
+              onClick={() => switchDemoRole('admin')}
+              className="px-4 py-1.5 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-extrabold text-xs rounded-xl border border-amber-500/30 transition flex items-center justify-center gap-1.5 mx-auto"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span>Switch Role to Admin</span>
+            </button>
+          </div>
+        )}
 
       </div>
     </div>

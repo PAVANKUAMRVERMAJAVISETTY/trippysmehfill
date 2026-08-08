@@ -124,14 +124,18 @@ export function validateEmail(raw: string): ValidationResult {
   return ok;
 }
 
-/** Indian mobile numbers: 10 digits starting 6-9. */
+/** Indian mobile numbers: 10 digits starting 6-9, optionally prefixed with +91. */
 export function validatePhone(raw: string): ValidationResult {
-  const phone = (raw || '').trim();
+  const phone = (raw || '').trim().replace(/\s+/g, '');
   if (!phone) return fail('Mobile number is required.');
-  if (!/^[6-9]\d{9}$/.test(phone)) {
-    return fail('Enter a valid 10-digit mobile number (e.g. 9876543210).');
+  const digitsOnly = phone.replace(/\D/g, '');
+  if (digitsOnly.length === 10 && /^[6-9]\d{9}$/.test(digitsOnly)) {
+    return ok;
   }
-  return ok;
+  if (digitsOnly.length === 12 && digitsOnly.startsWith('91') && /^91[6-9]\d{9}$/.test(digitsOnly)) {
+    return ok;
+  }
+  return fail('Enter a valid 10-digit mobile number (e.g. 9876543210).');
 }
 
 export function validateFullName(raw: string): ValidationResult {

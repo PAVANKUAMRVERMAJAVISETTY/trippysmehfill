@@ -9,9 +9,11 @@ import {
   fetchPublicIP,
   detectDeviceAndOS,
   captureLiveLocation
-} from './src/lib/geoUtils';
+} from '../src/lib/geoUtils';
 
-const FALLBACK_IP = '103.211.14.82';
+// No fabricated fallback: a failed lookup yields an empty string so a profile
+// is never stamped with an IP that was never the customer's.
+const FALLBACK_IP = '';
 
 const globals = globalThis as unknown as {
   fetch: typeof fetch;
@@ -112,7 +114,7 @@ test('returns the ip reported by the lookup service', async () => {
   assert.equal(await fetchPublicIP(), '1.2.3.4');
 });
 
-test('falls back when the lookup service errors, fails or omits the ip', async () => {
+test('returns empty when the lookup service errors, fails or omits the ip', async () => {
   globals.fetch = (async () => {
     throw new Error('network down');
   }) as unknown as typeof fetch;

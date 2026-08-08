@@ -31,6 +31,11 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, onRequireAuth }) => {
           <img
             src={item.image_url || 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80'}
             alt={item.name}
+            // One of these renders per dish, most below the fold on a phone.
+            // Without lazy loading the browser fetches every menu image before
+            // first paint, on a connection that is often a mobile network.
+            loading="lazy"
+            decoding="async"
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
           <div className="absolute top-2 left-2 bg-[#121212]/90 backdrop-blur-md px-2 py-0.5 rounded-md text-[10px] font-extrabold flex items-center gap-1 shadow-sm border border-white/10">

@@ -11,7 +11,7 @@ import {
   initialGalleryItems,
   initialFeedback,
   initialBanners
-} from './src/lib/initialData';
+} from '../src/lib/initialData';
 
 function duplicates(values: string[]): string[] {
   const seen = new Set<string>();
@@ -56,9 +56,24 @@ test('kitchen settings use sane money and time values', () => {
 });
 
 test('kitchen settings carry the contact details the checkout flow needs', () => {
-  assert.match(initialKitchenSettings.restaurant_upi_id, /^[\w.-]+@[\w]+$/);
   assert.match(initialKitchenSettings.whatsapp_number, /^\d{10}$/);
   assert.ok(initialKitchenSettings.closed_banner_message.length > 0);
+});
+
+test('the seed carries NO payment destination', () => {
+  // This assertion is deliberately the inverse of what it used to be. The seed
+  // previously shipped a hardcoded VPA, and it was not the restaurant's: the
+  // code said 7671018757@ybl while the live kitchen_settings row says
+  // 7671018717-2@ybl. Whenever the settings fetch failed, or before it
+  // resolved, checkout rendered a QR pointing at that other account -- so a
+  // customer could pay real money to the wrong person.
+  //
+  // An unconfigured kitchen must offer no UPI at all rather than guess a
+  // destination. CheckoutView gates the UPI option on this being non-empty.
+  assert.equal(
+    initialKitchenSettings.restaurant_upi_id, '',
+    'the seed must never contain a UPI ID — an empty value disables UPI, a wrong value takes money'
+  );
 });
 
 // --- menu -------------------------------------------------------------------

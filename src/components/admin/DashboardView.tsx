@@ -164,6 +164,27 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ orders, feedback }
   const todayStats = chartData.find((d) => d.dateKey === todayKey) || { totalOrders: 0, revenue: 0 };
   const todayProfit = Math.round(todayStats.revenue * 0.62);
 
+  // Month-to-date revenue from delivered orders. This tile previously showed
+  // `totalRevenue * 3.4` -- an invented multiplier presented to the owner as a
+  // real figure. Derived from actual orders now, or zero when there are none.
+  const monthStart = (() => { const d = new Date(); return new Date(d.getFullYear(), d.getMonth(), 1); })();
+  const monthlyRevenue = orders
+    .filter((o) => o.status === 'delivered' && parseOrderDate(o.created_at) >= monthStart)
+    .reduce((sum, o) => sum + o.total_amount, 0);
+
+  // Top customer by spend, from real orders. Previously hardcoded to
+  // "Rahul Sharma (Hostel 4) - Rs 1,240 spent - 4 orders", which is a person
+  // who does not exist, shown to the client as their best customer.
+  const customerSpend = new Map<string, { spent: number; orders: number }>();
+  orders
+    .filter((o) => o.status === 'delivered' && o.customer_name)
+    .forEach((o) => {
+      const prev = customerSpend.get(o.customer_name) || { spent: 0, orders: 0 };
+      customerSpend.set(o.customer_name, { spent: prev.spent + o.total_amount, orders: prev.orders + 1 });
+    });
+  const topCustomer = [...customerSpend.entries()]
+    .sort((a, b) => b[1].spent - a[1].spent)[0];
+
   // Top selling dish calculation
   const dishCounts: { [name: string]: number } = {};
   orders.forEach((o) => {
@@ -172,7 +193,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ orders, feedback }
       dishCounts[dName] = (dishCounts[dName] || 0) + i.quantity;
     });
   });
-  let topDish = 'Chicken Dum Biryani';
+  let topDish = '';
   let topDishCount = 0;
   Object.entries(dishCounts).forEach(([name, count]) => {
     if (count > topDishCount) {
@@ -296,8 +317,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ orders, feedback }
             <p className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">Monthly Revenue</p>
             <Award className="w-4 h-4 text-purple-400" />
           </div>
-          <p className="text-2xl font-black text-white mt-1">₹{(totalRevenue * 3.4).toFixed(0)}</p>
-          <p className="text-[10px] text-purple-400 font-bold mt-1">Target 94% achieved</p>
+          <p className="text-2xl font-black text-white mt-1">₹{monthlyRevenue.toFixed(0)}</p>
+          <p className="text-[10px] text-purple-400 font-bold mt-1">Delivered orders, month to date</p>
         </div>
       </div>
 
@@ -310,8 +331,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ orders, feedback }
           </div>
           <div>
             <span className="text-[10px] font-black uppercase text-[#C5A059]">Top Selling Dish</span>
-            <h4 className="font-extrabold text-white text-sm font-serif line-clamp-1">{topDish}</h4>
-            <p className="text-[11px] text-gray-400 font-mono">{topDishCount > 0 ? `${topDishCount} orders today` : 'High demand item'}</p>
+            <h4 className="font-extrabold text-white text-sm font-serif line-clamp-1">{topDish || 'No orders yet'}</h4>
+            <p className="text-[11px] text-gray-400 font-mono">{topDishCount > 0 ? `${topDishCount} sold` : 'Awaiting the first order'}</p>
           </div>
         </div>
 
@@ -321,9 +342,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ orders, feedback }
             <AlertTriangle className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-[10px] font-black uppercase text-rose-400">Inventory Low Alert</span>
-            <h4 className="font-extrabold text-white text-sm">Basmati Rice (4.5kg left)</h4>
-            <p className="text-[11px] text-gray-400">Re-order threshold reached</p>
+            <span className="text-[10px] font-black uppercase text-rose-400">Inventory</span>
+            <h4 className="font-extrabold text-white text-sm">Check the Inventory tab</h4>
+            <p className="text-[11px] text-gray-400">Live stock levels and low-stock alerts</p>
           </div>
         </div>
 
@@ -333,9 +354,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ orders, feedback }
             <Award className="w-6 h-6" />
           </div>
           <div>
-            <span className="text-[10px] font-black uppercase text-purple-400">Top Customer Today</span>
-            <h4 className="font-extrabold text-white text-sm">Rahul Sharma (Hostel 4)</h4>
-            <p className="text-[11px] text-gray-400 font-mono">₹1,240 spent • 4 orders</p>
+            <span className="text-[10px] font-black uppercase text-purple-400">Top Customer</span>
+            <h4 className="font-extrabold text-white text-sm">{topCustomer ? topCustomer[0] : 'No orders yet'}</h4>
+            <p className="text-[11px] text-gray-400 font-mono">
+              {topCustomer
+                ? `₹${topCustomer[1].spent.toFixed(0)} spent • ${topCustomer[1].orders} order${topCustomer[1].orders === 1 ? '' : 's'}`
+                : 'Awaiting the first delivered order'}
+            </p>
           </div>
         </div>
       </div>
