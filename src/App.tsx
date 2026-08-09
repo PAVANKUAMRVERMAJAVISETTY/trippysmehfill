@@ -3,6 +3,7 @@ import { AuthProvider, useAuth } from './context/AuthContext';
 import { CartProvider, useCart } from './context/CartContext';
 import { ToastProvider, useToast } from './context/ToastContext';
 import { PresenceProvider, usePresence } from './context/PresenceContext';
+import { RestaurantSettingsProvider, useRestaurantSettings } from './context/RestaurantSettingsContext';
 import { Header } from './components/common/Header';
 import { NotificationBanner } from './components/common/NotificationBanner';
 import { HeroSection } from './components/customer/HeroSection';
@@ -55,7 +56,7 @@ import {
   initialInventory,
   initialBanners
 } from './lib/initialData';
-import { AppSection, FoodCategory, MenuItem, Order, OrderStatus, PaymentStatus, UserProfile, InventoryItem, Feedback, PromotionalBanner, GalleryItem } from './types';
+import { AppSection, FoodCategory, MenuItem, Order, OrderStatus, PaymentStatus, UserProfile, InventoryItem, Feedback, PromotionalBanner, GalleryItem, HomePromotion, Offer } from './types';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
 import { playKitchenAlertSound } from './lib/sound';
 import {
@@ -65,6 +66,8 @@ import {
   feedbackService,
   galleryService,
   bannersService,
+  homeContentService,
+  offersService,
   realtimeService,
 } from './services/supabase';
 
@@ -74,6 +77,7 @@ function MainApp() {
   // the restaurant open/closed gate, `cart` for the header badge. Both are used
   // further down, so both are taken.
   const { cart, settings } = useCart();
+  const { restaurantSettings } = useRestaurantSettings();
   const { showToast } = useToast();
   const cartItemCount = cart.length;
   
@@ -120,6 +124,8 @@ function MainApp() {
   const [inventory, setInventory] = useState<InventoryItem[]>(initialInventory);
   const [feedback, setFeedback] = useState<Feedback[]>([]);
   const [banners, setBanners] = useState<PromotionalBanner[]>(initialBanners);
+  const [homePromotions, setHomePromotions] = useState<HomePromotion[]>([]);
+  const [offers, setOffers] = useState<Offer[]>([]);
 
   // Presence Context Hook
   const { liveCount, setIsLiveModalOpen, updateCurrentActivity } = usePresence();
@@ -164,6 +170,8 @@ function MainApp() {
         fetchedFeedback,
         fetchedGallery,
         fetchedBanners,
+        fetchedHomePromos,
+        fetchedOffers,
       ] = await Promise.all([
         menuService.fetchMenuItems().catch(() => null),
         ordersService.fetchOrders().catch(() => null),
@@ -171,6 +179,8 @@ function MainApp() {
         feedbackService.fetchFeedback().catch(() => null),
         galleryService.fetchGalleryItems().catch(() => null),
         bannersService.fetchBanners().catch(() => null),
+        homeContentService.fetchHomePromotions().catch(() => null),
+        offersService.fetchOffers().catch(() => null),
       ]);
 
       if (fetchedMenu && fetchedMenu.length > 0) setMenuItems(fetchedMenu);
@@ -179,6 +189,8 @@ function MainApp() {
       if (fetchedFeedback && fetchedFeedback.length > 0) setFeedback(fetchedFeedback);
       if (fetchedGallery && fetchedGallery.length > 0) setGalleryItems(fetchedGallery);
       if (fetchedBanners && fetchedBanners.length > 0) setBanners(fetchedBanners);
+      if (fetchedHomePromos && fetchedHomePromos.length > 0) setHomePromotions(fetchedHomePromos);
+      if (fetchedOffers && fetchedOffers.length > 0) setOffers(fetchedOffers);
 
       // Fetch Profile Roles & Pending Registrations
       const { data: profs } = await supabase.from('profiles').select('*');
@@ -658,10 +670,43 @@ function MainApp() {
             selectedLocation={selectedLocation}
             setSelectedLocation={setSelectedLocation}
             onLogoClick={handleLogoClick}
+            promotions={homePromotions}
           />
 
+          {/* Dynamic Active Promotional Banners Section */}
+          {banners.filter(b => b.is_active).length > 0 && (
+            <section className="py-6 bg-[#F4F1E8] border-b border-[#DDD6C8]">
+              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
+                {banners.filter(b => b.is_active).map((banner) => (
+                  <div key={banner.id} className="bg-white rounded-3xl overflow-hidden border-2 border-[#B8862D]/40 hover:border-[#B8862D] shadow-md grid grid-cols-1 md:grid-cols-12 items-center transition-all">
+                    <div className="md:col-span-5 aspect-video md:aspect-auto h-48 md:h-56 overflow-hidden bg-[#F7F4EC] relative">
+                      <img src={banner.poster_url} alt={banner.title} className="w-full h-full object-cover object-center select-none" />
+                    </div>
+                    <div className="md:col-span-7 p-6 space-y-3">
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFF0CC] text-[#8A5A00] text-xs font-black uppercase rounded-lg border border-[#E8C66A]">
+                        <span>🔥 Special Promotion</span>
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-black text-[#1F2933] font-serif leading-tight">{banner.title}</h3>
+                      {banner.link_url && (
+                        <a
+                          href={banner.link_url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold text-xs rounded-xl shadow-sm border border-[#B94D00] transition cursor-pointer"
+                        >
+                          <span>View Special Offer</span>
+                          <span>→</span>
+                        </a>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           {/* Promotional Discount Codes & Offers Section */}
-          <OffersSection />
+          <OffersSection offers={offers} />
 
           {/* Interactive Public Gallery Section with Fullscreen Lightbox Zoom */}
           <GallerySection galleryItems={galleryItems} />
@@ -821,21 +866,90 @@ function MainApp() {
             {adminTab === 'menu' && (
               <MenuManagerView
                 menuItems={menuItems}
-                onSaveDish={(dish) => setMenuItems(prev => {
-                  const exists = prev.some(m => m.id === dish.id);
-                  return exists ? prev.map(m => m.id === dish.id ? dish : m) : [dish, ...prev];
-                })}
-                onDeleteDish={(id) => setMenuItems(prev => prev.filter(m => m.id !== id))}
-                onToggleAvailable={(id) => setMenuItems(prev => prev.map(m => m.id === id ? { ...m, is_available: !m.is_available } : m))}
-                onToggleSpecial={(id) => setMenuItems(prev => prev.map(m => m.id === id ? { ...m, is_todays_special: !m.is_todays_special } : m))}
+                onSaveDish={async (dish) => {
+                  try {
+                    if (dish.id?.startsWith('m-')) {
+                      const { id, ...rest } = dish;
+                      const created = await menuService.createMenuItem(rest as any);
+                      setMenuItems(prev => [created, ...prev]);
+                      showToast({ title: 'Dish Created', description: `"${created.name}" has been added to menu.`, tone: 'success' });
+                    } else {
+                      const updated = await menuService.updateMenuItem(dish.id, dish);
+                      setMenuItems(prev => prev.map(m => m.id === updated.id ? updated : m));
+                      showToast({ title: 'Dish Updated', description: `"${updated.name}" has been updated.`, tone: 'success' });
+                    }
+                  } catch (err: any) {
+                    console.error('Failed to save dish in Supabase:', err);
+                    showToast({ title: 'Error Saving Dish', description: err.message || 'Database error', tone: 'error' });
+                  }
+                }}
+                onDeleteDish={async (id) => {
+                  try {
+                    await menuService.deleteMenuItem(id);
+                    setMenuItems(prev => prev.filter(m => m.id !== id));
+                    showToast({ title: 'Dish Retired', description: 'Item disabled on menu.', tone: 'info' });
+                  } catch (err: any) {
+                    console.error('Failed to delete dish:', err);
+                    showToast({ title: 'Delete Failed', description: err.message, tone: 'error' });
+                  }
+                }}
+                onToggleAvailable={async (id) => {
+                  const dish = menuItems.find(m => m.id === id);
+                  if (!dish) return;
+                  const nextAvail = !dish.is_available;
+                  setMenuItems(prev => prev.map(m => m.id === id ? { ...m, is_available: nextAvail } : m));
+                  try {
+                    await menuService.updateMenuItem(id, { is_available: nextAvail });
+                  } catch (err) {
+                    setMenuItems(prev => prev.map(m => m.id === id ? { ...m, is_available: dish.is_available } : m));
+                  }
+                }}
+                onToggleSpecial={async (id) => {
+                  const dish = menuItems.find(m => m.id === id);
+                  if (!dish) return;
+                  const nextSpecial = !dish.is_todays_special;
+                  setMenuItems(prev => prev.map(m => m.id === id ? { ...m, is_todays_special: nextSpecial } : m));
+                  try {
+                    await menuService.updateMenuItem(id, { is_todays_special: nextSpecial });
+                  } catch (err) {
+                    setMenuItems(prev => prev.map(m => m.id === id ? { ...m, is_todays_special: dish.is_todays_special } : m));
+                  }
+                }}
               />
             )}
             {adminTab === 'gallery' && (
               <GalleryView
                 galleryItems={galleryItems}
-                onAddGalleryItem={(item) => setGalleryItems(prev => [item, ...prev])}
-                onUpdateGalleryItem={(item) => setGalleryItems(prev => prev.map(g => g.id === item.id ? item : g))}
-                onDeleteGalleryItem={(id) => setGalleryItems(prev => prev.filter(g => g.id !== id))}
+                onAddGalleryItem={async (item) => {
+                  try {
+                    const created = await galleryService.addGalleryItem({ title: item.title, caption: item.caption, image_url: item.image_url });
+                    setGalleryItems(prev => [created, ...prev]);
+                    showToast({ title: 'Gallery Item Added', description: `"${created.title}" published.`, tone: 'success' });
+                  } catch (err: any) {
+                    console.error('Failed to add gallery item:', err);
+                    showToast({ title: 'Gallery Upload Failed', description: err.message, tone: 'error' });
+                  }
+                }}
+                onUpdateGalleryItem={async (item) => {
+                  try {
+                    const updated = await galleryService.updateGalleryItem(item.id, item);
+                    setGalleryItems(prev => prev.map(g => g.id === updated.id ? updated : g));
+                    showToast({ title: 'Gallery Item Updated', description: 'Changes saved to Supabase.', tone: 'success' });
+                  } catch (err: any) {
+                    console.error('Failed to update gallery item:', err);
+                    showToast({ title: 'Update Failed', description: err.message, tone: 'error' });
+                  }
+                }}
+                onDeleteGalleryItem={async (id) => {
+                  try {
+                    await galleryService.deleteGalleryItem(id);
+                    setGalleryItems(prev => prev.filter(g => g.id !== id));
+                    showToast({ title: 'Gallery Item Deleted', description: 'Item removed from database.', tone: 'info' });
+                  } catch (err: any) {
+                    console.error('Failed to delete gallery item:', err);
+                    showToast({ title: 'Delete Failed', description: err.message, tone: 'error' });
+                  }
+                }}
               />
             )}
             {adminTab === 'inventory' && (
@@ -882,7 +996,85 @@ function MainApp() {
             {adminTab === 'settings' && (
               <SettingsView
                 banners={banners}
-                onAddBanner={(b) => setBanners(prev => [b, ...prev])}
+                onAddBanner={async (b) => {
+                  try {
+                    const created = await bannersService.createBanner({ title: b.title, poster_url: b.poster_url, link_url: b.link_url, is_active: b.is_active });
+                    setBanners(prev => [created, ...prev]);
+                    showToast({ title: 'Banner Published', description: `"${created.title}" is live.`, tone: 'success' });
+                  } catch (err: any) {
+                    console.error('Failed to create banner:', err);
+                    showToast({ title: 'Banner Publish Failed', description: err.message, tone: 'error' });
+                  }
+                }}
+                onDeleteBanner={async (id) => {
+                  try {
+                    await bannersService.deleteBanner(id);
+                    setBanners(prev => prev.filter(b => b.id !== id));
+                    showToast({ title: 'Banner Deleted', description: 'Banner removed.', tone: 'info' });
+                  } catch (err: any) {
+                    console.error('Failed to delete banner:', err);
+                  }
+                }}
+                homePromotions={homePromotions}
+                onAddHomePromotion={async (promo) => {
+                  try {
+                    const created = await homeContentService.createHomePromotion(promo);
+                    setHomePromotions(prev => [...prev, created]);
+                    showToast({ title: 'Home Promo Published', description: `"${created.title}" is now on Home Page.`, tone: 'success' });
+                  } catch (err: any) {
+                    console.error('Failed to create home promo:', err);
+                    showToast({ title: 'Publish Failed', description: err.message, tone: 'error' });
+                  }
+                }}
+                onUpdateHomePromotion={async (id, updates) => {
+                  try {
+                    const updated = await homeContentService.updateHomePromotion(id, updates);
+                    setHomePromotions(prev => prev.map(h => h.id === id ? updated : h));
+                    showToast({ title: 'Home Promo Updated', description: 'Changes saved.', tone: 'success' });
+                  } catch (err: any) {
+                    console.error('Failed to update home promo:', err);
+                    showToast({ title: 'Update Failed', description: err.message, tone: 'error' });
+                  }
+                }}
+                onDeleteHomePromotion={async (id) => {
+                  try {
+                    await homeContentService.deleteHomePromotion(id);
+                    setHomePromotions(prev => prev.filter(h => h.id !== id));
+                    showToast({ title: 'Promo Deleted', description: 'Removed from Home Page.', tone: 'info' });
+                  } catch (err: any) {
+                    console.error('Failed to delete home promo:', err);
+                  }
+                }}
+                offers={offers}
+                onAddOffer={async (offer) => {
+                  try {
+                    const created = await offersService.createOffer(offer);
+                    setOffers(prev => [...prev, created]);
+                    showToast({ title: 'Offer Published', description: `Code ${created.code} is now active.`, tone: 'success' });
+                  } catch (err: any) {
+                    console.error('Failed to create offer:', err);
+                    showToast({ title: 'Offer Creation Failed', description: err.message, tone: 'error' });
+                  }
+                }}
+                onUpdateOffer={async (id, updates) => {
+                  try {
+                    const updated = await offersService.updateOffer(id, updates);
+                    setOffers(prev => prev.map(o => o.id === id ? updated : o));
+                    showToast({ title: 'Offer Updated', description: 'Changes saved.', tone: 'success' });
+                  } catch (err: any) {
+                    console.error('Failed to update offer:', err);
+                    showToast({ title: 'Update Failed', description: err.message, tone: 'error' });
+                  }
+                }}
+                onDeleteOffer={async (id) => {
+                  try {
+                    await offersService.deleteOffer(id);
+                    setOffers(prev => prev.filter(o => o.id !== id));
+                    showToast({ title: 'Offer Deleted', description: 'Offer removed.', tone: 'info' });
+                  } catch (err: any) {
+                    console.error('Failed to delete offer:', err);
+                  }
+                }}
               />
             )}
           </main>
@@ -974,25 +1166,36 @@ function MainApp() {
         settings={settings}
       />
 
-      {/* Footer */}
-      <footer className="bg-[#080808] text-gray-400 text-xs py-10 px-4 border-t border-white/10 mt-auto">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+      {/* Dynamic Footer */}
+      <footer className="bg-black border-t border-white/10 text-white py-12 px-4 sm:px-6 lg:px-8 mt-20">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Info */}
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#181818] border border-[#C5A059] flex items-center justify-center p-1 shadow-md">
-                <div className="text-center leading-none">
-                  <div className="text-[8px] font-black text-[#C5A059]">TRIPPY'S</div>
-                  <div className="text-[7px] font-bold text-white">MEHFIL</div>
-                </div>
+              <div className="w-10 h-10 rounded-xl bg-[#181818] border border-[#C5A059] flex items-center justify-center p-1 overflow-hidden shadow-md">
+                {restaurantSettings.logo_url ? (
+                  <img
+                    src={restaurantSettings.logo_url}
+                    alt={restaurantSettings.restaurant_name}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="text-center leading-none">
+                    <div className="text-[8px] font-black text-[#C5A059]">TRIPPY'S</div>
+                    <div className="text-[7px] font-bold text-white">MEHFIL</div>
+                  </div>
+                )}
               </div>
               <div>
-                <span className="text-sm font-black text-white font-serif tracking-tight">TRIPPY'S MEHFIL</span>
-                <p className="text-[10px] text-[#C5A059] font-bold uppercase tracking-widest">CLOUD KITCHEN ERP</p>
+                <span className="text-sm font-black text-white font-serif tracking-tight uppercase">{restaurantSettings.restaurant_name}</span>
+                <p className="text-[10px] text-[#C5A059] font-bold uppercase tracking-widest">Cloud Kitchen & Food Delivery</p>
               </div>
             </div>
             <p className="text-xs text-gray-400 max-w-sm leading-relaxed">
               Authentic Indian cloud kitchen delivering fresh, flavourful meals to your doorstep & hostel gates.
+            </p>
+            <p className="text-gray-400 text-xs flex items-start gap-1 pt-1">
+              <span className="text-[#C5A059] font-bold">📍 Address:</span> {restaurantSettings.address}
             </p>
           </div>
 
@@ -1001,17 +1204,17 @@ function MainApp() {
             <p className="text-xs font-black text-white uppercase tracking-wider font-serif">Quick Links</p>
             <ul className="space-y-1.5 text-xs text-gray-300">
               <li>
-                <button onClick={() => { setActiveSection('menu'); setTimeout(() => document.getElementById('gallery-section')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="hover:text-[#C5A059] transition min-h-[44px] flex items-center">
+                <button onClick={() => { setActiveSection('menu'); setTimeout(() => document.getElementById('gallery-section')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="hover:text-[#C5A059] transition min-h-[44px] flex items-center cursor-pointer">
                   Gallery
                 </button>
               </li>
               <li>
-                <button onClick={() => { setActiveSection('menu'); setTimeout(() => document.getElementById('offers-section')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="hover:text-[#C5A059] transition min-h-[44px] flex items-center">
+                <button onClick={() => { setActiveSection('menu'); setTimeout(() => document.getElementById('offers-section')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="hover:text-[#C5A059] transition min-h-[44px] flex items-center cursor-pointer">
                   Offers
                 </button>
               </li>
               <li>
-                <button onClick={() => { setActiveSection('menu'); setTimeout(() => document.getElementById('menu-section')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="hover:text-[#C5A059] transition min-h-[44px] flex items-center">
+                <button onClick={() => { setActiveSection('menu'); setTimeout(() => document.getElementById('menu-section')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="hover:text-[#C5A059] transition min-h-[44px] flex items-center cursor-pointer">
                   Menu
                 </button>
               </li>
@@ -1020,18 +1223,33 @@ function MainApp() {
 
           {/* Contact Details */}
           <div className="space-y-2">
-            <p className="text-xs font-black text-white uppercase tracking-wider font-serif">Contact</p>
+            <p className="text-xs font-black text-white uppercase tracking-wider font-serif">Contact Information</p>
             <div className="space-y-1.5 text-xs text-gray-300 font-mono">
-              <p>📞 +91 85699 55929</p>
+              <p>📞 Phone: {restaurantSettings.primary_contact}</p>
+              <p>📱 WhatsApp: <a href="https://wa.me/916301196547" target="_blank" rel="noopener noreferrer" className="text-[#C5A059] hover:underline">6301196547</a> / <a href="https://wa.me/919030196547" target="_blank" rel="noopener noreferrer" className="text-[#C5A059] hover:underline">9030196547</a></p>
               <p>✉️ trippysmehfill.kitchen@gmail.com</p>
-              <p className="text-gray-500 text-[11px] font-sans">📍 Sohna GLS Homes, Near GD Goenka University (GDGU), Sohna, Haryana</p>
+            </div>
+          </div>
+
+          {/* Website / Developer Information */}
+          <div className="space-y-2">
+            <p className="text-xs font-black text-white uppercase tracking-wider font-serif">Website Information</p>
+            <div className="space-y-1 text-xs text-gray-300">
+              <p className="text-white font-bold">Created by: Naga Pavan Kumar</p>
+              <p className="text-gray-400 text-[11px]">For website-related support/contact:</p>
+              <div className="flex items-center gap-2 pt-1 font-mono text-[11px]">
+                <span className="text-[#C5A059] font-bold">WhatsApp:</span>
+                <a href="https://wa.me/916301196547" target="_blank" rel="noopener noreferrer" className="text-[#C5A059] hover:underline">6301196547</a>
+                <span>/</span>
+                <a href="https://wa.me/919030196547" target="_blank" rel="noopener noreferrer" className="text-[#C5A059] hover:underline">9030196547</a>
+              </div>
             </div>
           </div>
         </div>
 
         <div className="max-w-7xl mx-auto pt-8 mt-8 border-t border-white/10 text-center text-[11px] text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-2">
-          <p>© 2026 Trippy's Mehfill. All rights reserved.</p>
-          <p className="text-[#C5A059]">Sohna GLS Homes (Near GDGU, Haryana) Cloud Kitchen & Food Delivery Service</p>
+          <p>© 2026 {restaurantSettings.restaurant_name}. All rights reserved.</p>
+          <p className="text-[#C5A059]">{restaurantSettings.address} Cloud Kitchen & Food Delivery Service</p>
         </div>
       </footer>
 
@@ -1061,12 +1279,14 @@ export default function App() {
   return (
     <AuthProvider>
       <PresenceProvider>
-        <CartProvider>
-          <ToastProvider>
-            <AppGate />
-            <ToastHost />
-          </ToastProvider>
-        </CartProvider>
+        <RestaurantSettingsProvider>
+          <CartProvider>
+            <ToastProvider>
+              <AppGate />
+              <ToastHost />
+            </ToastProvider>
+          </CartProvider>
+        </RestaurantSettingsProvider>
       </PresenceProvider>
     </AuthProvider>
   );

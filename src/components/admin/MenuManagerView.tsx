@@ -13,8 +13,11 @@ import {
   Sparkles,
   RefreshCw,
   Flame,
-  CheckCircle2
+  CheckCircle2,
+  Loader2
 } from 'lucide-react';
+import { storageService } from '../../services/supabase/storage';
+
 
 interface MenuManagerViewProps {
   menuItems: MenuItem[];
@@ -72,18 +75,27 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
     setIsModalOpen(true);
   };
 
+  // Storage Upload state
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+
   // Process selected image file (from Camera or Gallery input)
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = (uploadEvent) => {
-        const result = uploadEvent.target?.result as string;
-        if (result && editingDish) {
-          setEditingDish({ ...editingDish, image_url: result });
-        }
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    setIsUploadingImage(true);
+    setUploadError(null);
+    try {
+      const publicUrl = await storageService.uploadAsset(file, 'menu');
+      if (editingDish) {
+        setEditingDish({ ...editingDish, image_url: publicUrl });
+      }
+    } catch (err: any) {
+      console.error('Failed to upload dish photo to Supabase storage:', err);
+      setUploadError('Image upload failed: ' + (err.message || 'Storage error'));
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -120,8 +132,8 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
     setIsCameraActive(false);
   };
 
-  // Snap photo from live camera canvas
-  const capturePhotoFromStream = () => {
+  // Snap photo from live camera canvas and upload to Supabase Storage
+  const capturePhotoFromStream = async () => {
     if (!videoRef.current) return;
     const video = videoRef.current;
     const canvas = document.createElement('canvas');
@@ -131,11 +143,24 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
     const ctx = canvas.getContext('2d');
     if (ctx) {
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-      if (editingDish) {
-        setEditingDish({ ...editingDish, image_url: dataUrl });
-      }
-      stopLiveCamera();
+      canvas.toBlob(async (blob) => {
+        if (!blob) return;
+        const file = new File([blob], `dish_camera_${Date.now()}.jpg`, { type: 'image/jpeg' });
+        setIsUploadingImage(true);
+        setUploadError(null);
+        try {
+          const publicUrl = await storageService.uploadAsset(file, 'menu');
+          if (editingDish) {
+            setEditingDish({ ...editingDish, image_url: publicUrl });
+          }
+        } catch (err: any) {
+          console.error('Failed to upload camera photo:', err);
+          setUploadError('Photo upload failed: ' + err.message);
+        } finally {
+          setIsUploadingImage(false);
+          stopLiveCamera();
+        }
+      }, 'image/jpeg', 0.85);
     }
   };
 

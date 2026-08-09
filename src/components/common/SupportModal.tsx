@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Phone, Mail, MapPin, Clock, MessageSquare, ShieldCheck, HelpCircle } from 'lucide-react';
 import { openWhatsAppSupport } from '../../lib/whatsapp';
+import { useRestaurantSettings } from '../../context/RestaurantSettingsContext';
 
 interface SupportModalProps {
   isOpen: boolean;
@@ -8,6 +9,7 @@ interface SupportModalProps {
 }
 
 export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) => {
+  const { restaurantSettings } = useRestaurantSettings();
   if (!isOpen) return null;
 
   return (
@@ -28,7 +30,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
             <HelpCircle className="w-6 h-6" />
           </div>
           <div>
-            <h2 className="text-xl font-black font-serif text-white">Trippy's Mehfill Customer Support</h2>
+            <h2 className="text-xl font-black font-serif text-white">{restaurantSettings.restaurant_name} Support</h2>
             <p className="text-xs text-gray-400">24/7 Cloud Kitchen Hotline & Hostel Delivery Assistance</p>
           </div>
         </div>
@@ -38,14 +40,14 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
           <button
             type="button"
             onClick={() => openWhatsAppSupport()}
-            className="p-4 bg-[#181818] hover:bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3 transition group text-left w-full"
+            className="p-4 bg-[#181818] hover:bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3 transition group text-left w-full cursor-pointer"
           >
             <div className="p-2.5 rounded-xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition">
               <Phone className="w-5 h-5" />
             </div>
             <div>
               <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Kitchen Hotline / WhatsApp</p>
-              <p className="text-sm font-extrabold text-white font-mono">+91 85699 55929</p>
+              <p className="text-sm font-extrabold text-white font-mono">{restaurantSettings.whatsapp_numbers || restaurantSettings.primary_contact}</p>
             </div>
           </button>
 
@@ -72,7 +74,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
 
           <div className="flex items-start gap-2 text-gray-300">
             <MapPin className="w-4 h-4 text-orange-500 shrink-0 mt-0.5" />
-            <span>Sohna GLS Homes, Near GD Goenka University (GDGU), Sohna, Haryana</span>
+            <span>{restaurantSettings.address}</span>
           </div>
         </div>
 

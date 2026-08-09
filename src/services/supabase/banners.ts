@@ -4,17 +4,23 @@ import { PromotionalBanner } from '../../types';
 
 export const bannersService = {
   async fetchBanners(): Promise<PromotionalBanner[]> {
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('banners')
       .select('*')
       .order('display_order', { ascending: true });
 
+    if (error && !isTableNotProvisioned(error, 'banners')) {
+      const fallback = await supabase.from('banners').select('*');
+      if (!fallback.error) {
+        data = fallback.data;
+        error = null;
+      }
+    }
+
     if (error) {
-      // A table that was never provisioned is a dormant feature, not a
-      // failure. Without this every page load threw and logged an error.
-      if (isTableNotProvisioned(error)) return [];
-      console.error('Error fetching banners:', error);
-      throw error;
+      if (isTableNotProvisioned(error, 'banners')) return [];
+      console.warn('Unable to fetch banners:', error.message);
+      return [];
     }
 
     return (data || []).map((row) => ({

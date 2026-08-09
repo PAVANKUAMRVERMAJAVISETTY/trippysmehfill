@@ -4,17 +4,23 @@ import { GalleryItem } from '../../types';
 
 export const galleryService = {
   async fetchGalleryItems(): Promise<GalleryItem[]> {
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('gallery_items')
       .select('*')
       .order('display_order', { ascending: true });
 
+    if (error && !isTableNotProvisioned(error, 'gallery_items')) {
+      const fallback = await supabase.from('gallery_items').select('*');
+      if (!fallback.error) {
+        data = fallback.data;
+        error = null;
+      }
+    }
+
     if (error) {
-      // A table that was never provisioned is a dormant feature, not a
-      // failure. Without this every page load threw and logged an error.
-      if (isTableNotProvisioned(error)) return [];
-      console.error('Error fetching gallery items:', error);
-      throw error;
+      if (isTableNotProvisioned(error, 'gallery_items')) return [];
+      console.warn('Unable to fetch gallery items:', error.message);
+      return [];
     }
 
     return (data || []).map((item) => ({
@@ -53,6 +59,33 @@ export const galleryService = {
     };
   },
 
+  async updateGalleryItem(id: string, updates: Partial<GalleryItem>): Promise<GalleryItem> {
+    const payload: Record<string, any> = {};
+    if (updates.title !== undefined) payload.title = updates.title;
+    if (updates.caption !== undefined) payload.caption = updates.caption;
+    if (updates.image_url !== undefined) payload.image_url = updates.image_url;
+
+    const { data, error } = await supabase
+      .from('gallery_items')
+      .update(payload)
+      .eq('id', id)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating gallery item:', error);
+      throw error;
+    }
+
+    return {
+      id: data.id,
+      title: data.title,
+      caption: data.caption || undefined,
+      image_url: data.image_url,
+      created_at: data.created_at,
+    };
+  },
+
   async deleteGalleryItem(id: string): Promise<void> {
     const { error } = await supabase
       .from('gallery_items')
@@ -65,3 +98,4 @@ export const galleryService = {
     }
   },
 };
+

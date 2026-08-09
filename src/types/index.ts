@@ -259,7 +259,47 @@ export interface PromotionalBanner {
   created_at?: string;
 }
 
+export interface HomePromotion {
+  id: string;
+  title: string;
+  subtitle?: string;
+  image_url: string;
+  button_text?: string;
+  button_link?: string;
+  badge?: string;
+  is_active: boolean;
+  display_order?: number;
+  created_at?: string;
+}
+
 export interface CartItem {
   menuItem: MenuItem;
   quantity: number;
 }
+
+export interface Offer {
+  id: string;
+  title: string;
+  description?: string;
+  code: string;
+  discount_label: string;
+  discount_type?: 'percentage' | 'fixed' | 'free_delivery';
+  discount_value?: number;
+  min_order_amount?: number;
+  image_url?: string;
+  is_active: boolean;
+  display_order?: number;
+  valid_until?: string;
+  created_at?: string;
+}
+
+export interface RestaurantSettings {
+  id?: string;
+  restaurant_name: string;
+  address: string;
+  primary_contact: string;
+  whatsapp_numbers: string;
+  logo_url?: string | null;
+  updated_at?: string;
+}
+

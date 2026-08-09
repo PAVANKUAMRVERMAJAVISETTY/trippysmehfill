@@ -49,9 +49,24 @@ export const PresenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
   const liveCount = liveCustomers.length;
 
-  // 1. PRESENCE TRACKER FOR AUTHENTICATED CUSTOMERS
+  // Helper to get or generate persistent guest session ID for unauthenticated visitors
+  const getGuestId = useCallback((): string => {
+    try {
+      let gid = sessionStorage.getItem('trippys_guest_id');
+      if (!gid) {
+        gid = 'guest-' + Math.random().toString(36).substring(2, 9);
+        sessionStorage.setItem('trippys_guest_id', gid);
+      }
+      return gid;
+    } catch {
+      return 'guest-' + Math.random().toString(36).substring(2, 9);
+    }
+  }, []);
+
+  // 1. PRESENCE TRACKER FOR ALL VISITORS (CUSTOMERS & GUESTS)
   useEffect(() => {
-    if (!user || user.role !== 'customer') {
+    // Admins and Staff act as listeners, not customer room members
+    if (user && (user.role === 'admin' || user.role === 'staff')) {
       if (presenceChannelRef.current) {
         supabase.removeChannel(presenceChannelRef.current);
         presenceChannelRef.current = null;
@@ -59,14 +74,14 @@ export const PresenceProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       return;
     }
 
-    const userId = user.id;
+    const userId = user ? user.id : getGuestId();
     const sessionData = (): CustomerPresenceSession => ({
       user_id: userId,
-      full_name: user.full_name || 'Customer',
-      email: user.email || '',
-      phone: user.phone || '',
-      hostel_address: user.hostel_address || '',
-      is_whatsapp_verified: Boolean(user.is_whatsapp_verified),
+      full_name: user ? (user.full_name || 'Customer') : 'Guest Visitor',
+      email: user ? (user.email || '') : '',
+      phone: user ? (user.phone || '') : '',
+      hostel_address: user ? (user.hostel_address || '') : '',
+      is_whatsapp_verified: user ? Boolean(user.is_whatsapp_verified) : false,
       activity: currentActivityRef.current || 'Active on website',
       last_seen: new Date().toISOString()
     });

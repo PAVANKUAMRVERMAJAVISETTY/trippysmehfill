@@ -2,8 +2,8 @@ import { PostgrestError } from '@supabase/supabase-js';
 
 /**
  * Some tables this application reads from are not provisioned on every
- * deployment -- `gallery_items`, `banners` and `notifications` are absent from
- * the production database today.
+ * deployment -- `gallery_items`, `banners` and `notifications` were historically absent from
+ * the production database.
  *
  * PostgREST answers a query against a missing table with PGRST205
  * ("Could not find the table ... in the schema cache"), and a missing column
@@ -15,12 +15,74 @@ import { PostgrestError } from '@supabase/supabase-js';
  * empty, while a genuine error (a permission failure, a network fault) still
  * throws, because those need to be seen.
  */
-const NOT_PROVISIONED = new Set(['PGRST205', 'PGRST200', '42P01']);
+const NOT_PROVISIONED = new Set([
+  'PGRST205',
+  'PGRST204',
+  'PGRST200',
+  'PGRST106',
+  '42P01',
+  '42703',
+  '404',
+]);
 
-export function isTableNotProvisioned(error: PostgrestError | null): boolean {
+const unprovisionedTables = new Set<string>(['notifications']);
+
+// Load session-cached unprovisioned table names if present
+try {
+  if (typeof window !== 'undefined' && window.sessionStorage) {
+    const cached = window.sessionStorage.getItem('supabase_unprovisioned_tables');
+    if (cached) {
+      JSON.parse(cached).forEach((t: string) => unprovisionedTables.add(t));
+    }
+  }
+} catch (e) {
+  // ignore storage errors
+}
+
+function saveStorage() {
+  try {
+    if (typeof window !== 'undefined' && window.sessionStorage) {
+      window.sessionStorage.setItem(
+        'supabase_unprovisioned_tables',
+        JSON.stringify(Array.from(unprovisionedTables))
+      );
+    }
+  } catch (e) {
+    // ignore storage errors
+  }
+}
+
+export function markTableNotProvisioned(tableName: string): void {
+  if (!unprovisionedTables.has(tableName)) {
+    unprovisionedTables.add(tableName);
+    saveStorage();
+    noticeOnce(tableName);
+  }
+}
+
+export function clearTableNotProvisioned(tableName: string): void {
+  unprovisionedTables.delete(tableName);
+  saveStorage();
+}
+
+export function isTableKnownNotProvisioned(tableName: string): boolean {
+  return unprovisionedTables.has(tableName);
+}
+
+export function isTableNotProvisioned(error: PostgrestError | any, tableName?: string): boolean {
   if (!error) return false;
-  if (NOT_PROVISIONED.has(error.code)) return true;
-  return /could not find the table|relation .* does not exist/i.test(error.message || '');
+  const isNotProv =
+    error.status === 404 ||
+    error.status === '404' ||
+    NOT_PROVISIONED.has(error.code) ||
+    NOT_PROVISIONED.has(String(error.status)) ||
+    /could not find the table|could not find the .* column|relation .* does not exist|not found|404/i.test(error.message || '');
+
+  if (isNotProv && tableName) {
+    markTableNotProvisioned(tableName);
+  }
+
+  return isNotProv;
 }
 
 /**
@@ -36,8 +98,7 @@ export function rowsOrEmpty<T>(
   error: PostgrestError | null
 ): T[] {
   if (error) {
-    if (isTableNotProvisioned(error)) {
-      noticeOnce(label);
+    if (isTableNotProvisioned(error, label)) {
       return [];
     }
     console.error(`Error fetching ${label}:`, error);
@@ -55,3 +116,4 @@ function noticeOnce(label: string) {
     `Create the table to enable it.`
   );
 }
+

@@ -1,16 +1,26 @@
 import { supabase } from '../../lib/supabase';
+import { isTableNotProvisioned } from './optionalTable';
 import { MenuItem } from '../../types';
 
 export const menuService = {
   async fetchMenuItems(): Promise<MenuItem[]> {
-    const { data, error } = await supabase
+    let { data, error } = await supabase
       .from('menu_items')
       .select('*')
       .order('display_order', { ascending: true });
 
+    if (error && !isTableNotProvisioned(error, 'menu_items')) {
+      const fallback = await supabase.from('menu_items').select('*');
+      if (!fallback.error) {
+        data = fallback.data;
+        error = null;
+      }
+    }
+
     if (error) {
-      console.error('Error fetching menu items:', error);
-      throw error;
+      if (isTableNotProvisioned(error, 'menu_items')) return [];
+      console.warn('Unable to fetch menu items:', error.message);
+      return [];
     }
 
     return (data || []).map((item) => ({

@@ -8,3 +8,7 @@ export * from './settings';
 export * from './notifications';
 export * from './storage';
 export * from './realtime';
+export * from './homeContent';
+export * from './offers';
+export * from './restaurantSettings';
+

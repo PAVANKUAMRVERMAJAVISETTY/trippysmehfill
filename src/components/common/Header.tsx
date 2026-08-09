@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useCart } from '../../context/CartContext';
+import { useRestaurantSettings } from '../../context/RestaurantSettingsContext';
 import { ShoppingBag, User, LogOut, Shield, Bike, HelpCircle, Bell } from 'lucide-react';
 import { AuthModal } from './AuthModal';
 import { SupportModal } from './SupportModal';
@@ -41,6 +42,7 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const { user, signOut, switchDemoRole } = useAuth();
   const { totalCount } = useCart();
+  const { restaurantSettings } = useRestaurantSettings();
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authDefaultTab, setAuthDefaultTab] = useState<'signin' | 'register'>('signin');
   const [isSupportOpen, setIsSupportOpen] = useState(false);
@@ -183,18 +185,26 @@ export const Header: React.FC<HeaderProps> = ({
               className="flex items-center gap-3 cursor-pointer group"
               onClick={handleLogoClick}
             >
-              <div className="w-11 h-11 rounded-2xl bg-[#F7F4EC] border-2 border-[#B8862D] flex items-center justify-center p-1.5 shadow-sm group-hover:scale-105 transition-transform">
-                <div className="text-center leading-none">
-                  <div className="text-[9px] font-black text-[#B8862D] tracking-wider">TRIPPY'S</div>
-                  <div className="text-[8px] font-extrabold text-[#1F2933]">MEHFIL</div>
-                </div>
+              <div className="w-11 h-11 rounded-2xl bg-[#F7F4EC] border-2 border-[#B8862D] flex items-center justify-center p-1 overflow-hidden shadow-sm group-hover:scale-105 transition-transform">
+                {restaurantSettings.logo_url ? (
+                  <img
+                    src={restaurantSettings.logo_url}
+                    alt={restaurantSettings.restaurant_name}
+                    className="w-full h-full object-contain"
+                  />
+                ) : (
+                  <div className="text-center leading-none">
+                    <div className="text-[9px] font-black text-[#B8862D] tracking-wider">TRIPPY'S</div>
+                    <div className="text-[8px] font-extrabold text-[#1F2933]">MEHFIL</div>
+                  </div>
+                )}
               </div>
               <div>
                 <span className="block text-[9px] font-extrabold text-[#B8862D] tracking-widest uppercase">
                   CLOUD KITCHEN ERP
                 </span>
                 <span className="text-lg sm:text-xl font-black tracking-tight text-[#1F2933] font-serif">
-                  Trippy's Mehfill
+                  {restaurantSettings.restaurant_name || "Trippy's Mehfill"}
                 </span>
               </div>
             </div>

@@ -1,5 +1,5 @@
 import { supabase } from '../../lib/supabase';
-import { isTableNotProvisioned } from './optionalTable';
+import { isTableNotProvisioned, isTableKnownNotProvisioned } from './optionalTable';
 
 export interface AppNotification {
   id: string;
@@ -11,18 +11,22 @@ export interface AppNotification {
   created_at: string;
 }
 
+const TABLE = 'notifications';
+
 export const notificationsService = {
   async fetchNotifications(userId: string): Promise<AppNotification[]> {
+    if (isTableKnownNotProvisioned(TABLE)) {
+      return [];
+    }
+
     const { data, error } = await supabase
-      .from('notifications')
+      .from(TABLE)
       .select('*')
       .eq('user_id', userId)
       .order('created_at', { ascending: false });
 
     if (error) {
-      // A table that was never provisioned is a dormant feature, not a
-      // failure. Without this every page load threw and logged an error.
-      if (isTableNotProvisioned(error)) return [];
+      if (isTableNotProvisioned(error, TABLE)) return [];
       console.error('Error fetching notifications:', error);
       throw error;
     }
@@ -31,20 +35,25 @@ export const notificationsService = {
   },
 
   async markAsRead(notificationId: string): Promise<void> {
+    if (isTableKnownNotProvisioned(TABLE)) return;
+
     const { error } = await supabase
-      .from('notifications')
+      .from(TABLE)
       .update({ is_read: true })
       .eq('id', notificationId);
 
     if (error) {
+      if (isTableNotProvisioned(error, TABLE)) return;
       console.error('Error marking notification as read:', error);
       throw error;
     }
   },
 
   async sendNotification(userId: string, title: string, message: string, type: string = 'info'): Promise<void> {
+    if (isTableKnownNotProvisioned(TABLE)) return;
+
     const { error } = await supabase
-      .from('notifications')
+      .from(TABLE)
       .insert([
         {
           user_id: userId,
@@ -55,7 +64,9 @@ export const notificationsService = {
       ]);
 
     if (error) {
+      if (isTableNotProvisioned(error, TABLE)) return;
       console.error('Error sending notification:', error);
     }
   },
 };
+

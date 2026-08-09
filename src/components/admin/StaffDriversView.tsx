@@ -83,7 +83,7 @@ export const StaffDriversView: React.FC<StaffDriversViewProps> = ({
 
         const newUserId = signUpData.user.id;
 
-        const { data: updatedProf, error: updateErr } = await supabase
+        let { data: updatedProf, error: updateErr } = await supabase
           .from('profiles')
           .update({
             full_name: fullName.trim(),
@@ -98,8 +98,33 @@ export const StaffDriversView: React.FC<StaffDriversViewProps> = ({
           .select()
           .maybeSingle();
 
-        if (updateErr) {
-          console.warn('[StaffDriversView] Profile update warning:', updateErr.message);
+        if (updateErr || !updatedProf) {
+          // If update returned empty or error, fallback to explicit upsert
+          const { data: upsertedProf, error: upsertErr } = await supabase
+            .from('profiles')
+            .upsert([{
+              id: newUserId,
+              email: cleanEmail,
+              full_name: fullName.trim(),
+              phone: sanitizedPhone,
+              role: role,
+              is_approved: true,
+              is_active: true,
+              account_status: 'active',
+              auth_provider: 'Email',
+              created_at: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            }], { onConflict: 'id' })
+            .select()
+            .single();
+
+          if (upsertErr) {
+            console.error('[StaffDriversView] Profile role promotion failed:', upsertErr.message);
+            setErrorMsg(`Role assignment failed: ${upsertErr.message}`);
+            setIsSubmitting(false);
+            return;
+          }
+          updatedProf = upsertedProf;
         }
 
         newStaff = (updatedProf as UserProfile) || {
