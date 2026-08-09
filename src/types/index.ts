@@ -296,10 +296,12 @@ export interface Offer {
 export interface RestaurantSettings {
   id?: string;
   restaurant_name: string;
+  brand_title: string;
   address: string;
-  primary_contact: string;
+  contact_phone: string;
   whatsapp_numbers: string;
   logo_url?: string | null;
+  created_by?: string;
   updated_at?: string;
 }
 

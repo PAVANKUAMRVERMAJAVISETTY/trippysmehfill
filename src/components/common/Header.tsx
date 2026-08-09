@@ -180,12 +180,12 @@ export const Header: React.FC<HeaderProps> = ({
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
             
-            {/* Logo & Brand Title */}
+            {/* Logo & Brand Title Container */}
             <div
-              className="flex items-center gap-3 cursor-pointer group"
+              className="flex items-center gap-3 cursor-pointer group px-3 py-1.5 rounded-2xl bg-[#FDFBF7] border border-[#E8E0D0] hover:border-[#B8862D] transition shadow-xs"
               onClick={handleLogoClick}
             >
-              <div className="w-11 h-11 rounded-2xl bg-[#F7F4EC] border-2 border-[#B8862D] flex items-center justify-center p-1 overflow-hidden shadow-sm group-hover:scale-105 transition-transform">
+              <div className="w-11 h-11 rounded-xl bg-white border border-[#B8862D]/40 flex items-center justify-center p-1 overflow-hidden shadow-xs group-hover:scale-105 transition-transform shrink-0">
                 {restaurantSettings.logo_url ? (
                   <img
                     src={restaurantSettings.logo_url}
@@ -199,11 +199,11 @@ export const Header: React.FC<HeaderProps> = ({
                   </div>
                 )}
               </div>
-              <div>
-                <span className="block text-[9px] font-extrabold text-[#B8862D] tracking-widest uppercase">
-                  CLOUD KITCHEN ERP
+              <div className="flex flex-col justify-center">
+                <span className="block text-[9px] font-black text-[#B8862D] tracking-widest uppercase leading-tight">
+                  {restaurantSettings.brand_title || 'CLOUD KITCHEN ERP'}
                 </span>
-                <span className="text-lg sm:text-xl font-black tracking-tight text-[#1F2933] font-serif">
+                <span className="text-base sm:text-lg font-black tracking-tight text-[#1F2933] font-serif leading-tight">
                   {restaurantSettings.restaurant_name || "Trippy's Mehfill"}
                 </span>
               </div>

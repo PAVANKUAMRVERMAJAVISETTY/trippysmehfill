@@ -48,11 +48,10 @@ export const RestaurantSettingsProvider: React.FC<{ children: React.ReactNode }>
   }, []);
 
   const updateRestaurantSettings = async (updates: Partial<RestaurantSettings>) => {
-    const updated = { ...restaurantSettings, ...updates };
-    setRestaurantSettings(updated);
     try {
-      const saved = await restaurantSettingsService.updateSettings(updated);
+      const saved = await restaurantSettingsService.updateSettings(updates);
       setRestaurantSettings(saved);
+      await refreshRestaurantSettings();
     } catch (err) {
       console.error('Failed to update restaurant identity settings:', err);
       throw err;

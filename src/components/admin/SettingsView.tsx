@@ -47,22 +47,24 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   }, [settings]);
 
   // Restaurant Branding States
+  const [brandTitle, setBrandTitle] = useState(restaurantSettings.brand_title || 'CLOUD KITCHEN ERP');
+  const [restName, setRestName] = useState(restaurantSettings.restaurant_name);
   const [selectedLogoFile, setSelectedLogoFile] = useState<File | null>(null);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState<string | null>(null);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [logoSuccessMessage, setLogoSuccessMessage] = useState<string | null>(null);
 
   // Restaurant Identity & Address States
-  const [restName, setRestName] = useState(restaurantSettings.restaurant_name);
   const [restAddress, setRestAddress] = useState(restaurantSettings.address);
-  const [restContact, setRestContact] = useState(restaurantSettings.primary_contact);
+  const [restContact, setRestContact] = useState(restaurantSettings.contact_phone);
   const [restWhatsapp, setRestWhatsapp] = useState(restaurantSettings.whatsapp_numbers);
   const [isRestInfoSaved, setIsRestInfoSaved] = useState(false);
 
   useEffect(() => {
+    setBrandTitle(restaurantSettings.brand_title || 'CLOUD KITCHEN ERP');
     setRestName(restaurantSettings.restaurant_name);
     setRestAddress(restaurantSettings.address);
-    setRestContact(restaurantSettings.primary_contact);
+    setRestContact(restaurantSettings.contact_phone);
     setRestWhatsapp(restaurantSettings.whatsapp_numbers);
   }, [restaurantSettings]);
 
@@ -85,23 +87,35 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     setLogoPreviewUrl(localUrl);
   };
 
-  const handleSaveLogo = async (e: React.FormEvent) => {
+  const handleSaveBranding = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!selectedLogoFile && !logoPreviewUrl) return;
-
     setIsUploadingLogo(true);
+    setLogoSuccessMessage(null);
     try {
       let finalUrl = restaurantSettings.logo_url;
       if (selectedLogoFile) {
-        finalUrl = await storageService.uploadAsset(selectedLogoFile, 'logo');
+        // Step 1 & 2: Storage Upload & Public URL retrieval
+        const uploadedPath = await storageService.uploadAsset(selectedLogoFile, 'logo');
+        if (!uploadedPath) {
+          throw new Error('Storage upload succeeded but failed to generate a public URL.');
+        }
+        finalUrl = uploadedPath;
       }
-      await updateRestaurantSettings({ logo_url: finalUrl });
+
+      // Step 3, 4, 5: Database UPDATE, verification, and context refresh
+      await updateRestaurantSettings({
+        brand_title: brandTitle,
+        restaurant_name: restName,
+        logo_url: finalUrl,
+      });
+
       setSelectedLogoFile(null);
       setLogoPreviewUrl(null);
-      setLogoSuccessMessage('Restaurant logo saved successfully!');
-      setTimeout(() => setLogoSuccessMessage(null), 3000);
+      setLogoSuccessMessage('Logo uploaded and database updated successfully!');
+      setTimeout(() => setLogoSuccessMessage(null), 4000);
     } catch (err: any) {
-      alert('Logo upload failed: ' + err.message);
+      console.error('Branding update error:', err);
+      alert('Database UPDATE failed: ' + (err.message || 'Unknown Supabase error'));
     } finally {
       setIsUploadingLogo(false);
     }
@@ -127,9 +141,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
     e.preventDefault();
     try {
       await updateRestaurantSettings({
-        restaurant_name: restName,
         address: restAddress,
-        primary_contact: restContact,
+        contact_phone: restContact,
         whatsapp_numbers: restWhatsapp,
       });
       setIsRestInfoSaved(true);
@@ -285,7 +298,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
               <Store className="w-5 h-5 text-[#D95F0A]" />
               <span>RESTAURANT BRANDING</span>
             </h3>
-            <p className="text-xs text-[#5F6368]">Upload or change your official logo. Stored safely in Supabase Storage bucket (`restaurant-logo`).</p>
+            <p className="text-xs text-[#5F6368]">Configure two-line header text (Brand Title & Restaurant Name) and official logo.</p>
           </div>
           {restaurantSettings.logo_url && (
             <button
@@ -307,8 +320,36 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         )}
 
-        <form onSubmit={handleSaveLogo} className="space-y-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
+        <form onSubmit={handleSaveBranding} className="space-y-5">
+          {/* Two-Line Branding Header Inputs */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+            <div>
+              <label className="text-[10px] font-bold text-[#5F6368] uppercase block mb-1">First Line / Brand Title</label>
+              <input
+                type="text"
+                value={brandTitle}
+                onChange={(e) => setBrandTitle(e.target.value)}
+                placeholder="e.g. CLOUD KITCHEN ERP"
+                required
+                className={inputStyle}
+              />
+              <span className="text-[10px] text-[#6B6B63] italic">Small uppercase header tagline above restaurant name.</span>
+            </div>
+            <div>
+              <label className="text-[10px] font-bold text-[#5F6368] uppercase block mb-1">Second Line / Restaurant Name</label>
+              <input
+                type="text"
+                value={restName}
+                onChange={(e) => setRestName(e.target.value)}
+                placeholder="e.g. Trippy's Mehfill"
+                required
+                className={inputStyle}
+              />
+              <span className="text-[10px] text-[#6B6B63] italic">Primary restaurant title used across header and footer.</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6 pt-2 border-t border-[#DDD6C8]">
             {/* Current or Preview Logo Visual Box */}
             <div className="w-32 h-32 rounded-2xl border-2 border-dashed border-[#9F988A] bg-[#F8F6F0] flex items-center justify-center overflow-hidden shrink-0 relative group shadow-inner">
               {logoPreviewUrl ? (
@@ -351,26 +392,24 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
                   )}
                 </div>
               </div>
-
-              {(selectedLogoFile || logoPreviewUrl) && (
-                <div className="pt-2">
-                  <button
-                    type="submit"
-                    disabled={isUploadingLogo}
-                    className="px-6 py-2.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold text-xs rounded-xl shadow-md border border-[#B94D00] transition flex items-center gap-2 cursor-pointer"
-                  >
-                    {isUploadingLogo ? (
-                      <span>Uploading & Saving...</span>
-                    ) : (
-                      <>
-                        <Save className="w-4 h-4" />
-                        <span>Save Logo Changes</span>
-                      </>
-                    )}
-                  </button>
-                </div>
-              )}
             </div>
+          </div>
+
+          <div className="pt-2 border-t border-[#DDD6C8]">
+            <button
+              type="submit"
+              disabled={isUploadingLogo}
+              className="px-6 py-2.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold text-xs rounded-xl shadow-md border border-[#B94D00] transition flex items-center gap-2 cursor-pointer"
+            >
+              {isUploadingLogo ? (
+                <span>Uploading & Saving...</span>
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  <span>Save Branding Changes</span>
+                </>
+              )}
+            </button>
           </div>
         </form>
       </div>
@@ -382,7 +421,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             <Building className="w-5 h-5 text-[#D95F0A]" />
             <span>RESTAURANT ADDRESS & CONTACT</span>
           </h3>
-          <p className="text-xs text-[#5F6368]">Central source of truth for restaurant branding, address, and customer contact numbers.</p>
+          <p className="text-xs text-[#5F6368]">Central source of truth for restaurant location and primary customer contact phone (`contact_phone`).</p>
         </div>
 
         {isRestInfoSaved && (
@@ -393,27 +432,15 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
         )}
 
         <form onSubmit={handleSaveRestInfo} className="space-y-4 text-xs">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="text-[10px] font-bold text-[#5F6368] uppercase block mb-1">Restaurant Name</label>
-              <input
-                type="text"
-                value={restName}
-                onChange={(e) => setRestName(e.target.value)}
-                required
-                className={inputStyle}
-              />
-            </div>
-            <div>
-              <label className="text-[10px] font-bold text-[#5F6368] uppercase block mb-1">Primary Contact Phone</label>
-              <input
-                type="text"
-                value={restContact}
-                onChange={(e) => setRestContact(e.target.value)}
-                required
-                className={inputStyle}
-              />
-            </div>
+          <div>
+            <label className="text-[10px] font-bold text-[#5F6368] uppercase block mb-1">Restaurant Contact Phone (contact_phone)</label>
+            <input
+              type="text"
+              value={restContact}
+              onChange={(e) => setRestContact(e.target.value)}
+              required
+              className={inputStyle}
+            />
           </div>
 
           <div>
@@ -444,7 +471,7 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
             className="px-6 py-2.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold text-xs rounded-xl shadow-md border border-[#B94D00] transition flex items-center gap-2 cursor-pointer"
           >
             <Save className="w-4 h-4" />
-            <span>Save Restaurant Information</span>
+            <span>Save Restaurant Contact & Address</span>
           </button>
         </form>
       </div>

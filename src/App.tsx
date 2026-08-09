@@ -1166,13 +1166,14 @@ function MainApp() {
         settings={settings}
       />
 
-      {/* Dynamic Footer */}
-      <footer className="bg-black border-t border-white/10 text-white py-12 px-4 sm:px-6 lg:px-8 mt-20">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Brand Info */}
+      {/* Dynamic Redesigned 4-Column Footer */}
+      <footer className="bg-[#0B0F17] border-t border-white/10 text-white py-12 px-4 sm:px-6 lg:px-8 mt-20">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+          
+          {/* Column 1: Brand Info */}
           <div className="space-y-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-[#181818] border border-[#C5A059] flex items-center justify-center p-1 overflow-hidden shadow-md">
+              <div className="w-11 h-11 rounded-xl bg-[#141A24] border border-[#C5A059]/40 flex items-center justify-center p-1 overflow-hidden shadow-md shrink-0">
                 {restaurantSettings.logo_url ? (
                   <img
                     src={restaurantSettings.logo_url}
@@ -1181,75 +1182,162 @@ function MainApp() {
                   />
                 ) : (
                   <div className="text-center leading-none">
-                    <div className="text-[8px] font-black text-[#C5A059]">TRIPPY'S</div>
+                    <div className="text-[8px] font-black text-[#C5A059] tracking-wider">TRIPPY'S</div>
                     <div className="text-[7px] font-bold text-white">MEHFIL</div>
                   </div>
                 )}
               </div>
-              <div>
-                <span className="text-sm font-black text-white font-serif tracking-tight uppercase">{restaurantSettings.restaurant_name}</span>
-                <p className="text-[10px] text-[#C5A059] font-bold uppercase tracking-widest">Cloud Kitchen & Food Delivery</p>
+              <div className="min-w-0">
+                <span className="text-[10px] font-black text-[#C5A059] block tracking-widest uppercase truncate">
+                  {restaurantSettings.brand_title || 'CLOUD KITCHEN ERP'}
+                </span>
+                <span className="text-base font-black text-white font-serif tracking-tight truncate block">
+                  {restaurantSettings.restaurant_name || "Trippy's Mehfill"}
+                </span>
               </div>
             </div>
-            <p className="text-xs text-gray-400 max-w-sm leading-relaxed">
+            <p className="text-xs text-gray-400 leading-relaxed">
               Authentic Indian cloud kitchen delivering fresh, flavourful meals to your doorstep & hostel gates.
             </p>
-            <p className="text-gray-400 text-xs flex items-start gap-1 pt-1">
-              <span className="text-[#C5A059] font-bold">📍 Address:</span> {restaurantSettings.address}
+            <p className="text-gray-400 text-xs flex items-start gap-1.5 pt-1">
+              <span className="text-[#C5A059] font-bold shrink-0">📍 Location:</span>
+              <span className="line-clamp-2">{restaurantSettings.address}</span>
             </p>
           </div>
 
-          {/* Quick Links */}
-          <div className="space-y-2">
-            <p className="text-xs font-black text-white uppercase tracking-wider font-serif">Quick Links</p>
-            <ul className="space-y-1.5 text-xs text-gray-300">
+          {/* Column 2: Quick Links */}
+          <div className="space-y-3">
+            <p className="text-xs font-black text-white uppercase tracking-wider font-serif border-b border-white/10 pb-1.5 inline-block">
+              Quick Links
+            </p>
+            <ul className="space-y-2 text-xs text-gray-300">
               <li>
-                <button onClick={() => { setActiveSection('menu'); setTimeout(() => document.getElementById('gallery-section')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="hover:text-[#C5A059] transition min-h-[44px] flex items-center cursor-pointer">
-                  Gallery
+                <button
+                  onClick={() => { setActiveSection('menu'); setTimeout(() => document.getElementById('gallery-section')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+                  className="hover:text-[#C5A059] transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span className="text-[#C5A059] text-[10px]">›</span> Gallery
                 </button>
               </li>
               <li>
-                <button onClick={() => { setActiveSection('menu'); setTimeout(() => document.getElementById('offers-section')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="hover:text-[#C5A059] transition min-h-[44px] flex items-center cursor-pointer">
-                  Offers
+                <button
+                  onClick={() => { setActiveSection('menu'); setTimeout(() => document.getElementById('offers-section')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+                  className="hover:text-[#C5A059] transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span className="text-[#C5A059] text-[10px]">›</span> Offers
                 </button>
               </li>
               <li>
-                <button onClick={() => { setActiveSection('menu'); setTimeout(() => document.getElementById('menu-section')?.scrollIntoView({ behavior: 'smooth' }), 100); }} className="hover:text-[#C5A059] transition min-h-[44px] flex items-center cursor-pointer">
-                  Menu
+                <button
+                  onClick={() => { setActiveSection('menu'); setTimeout(() => document.getElementById('menu-section')?.scrollIntoView({ behavior: 'smooth' }), 100); }}
+                  className="hover:text-[#C5A059] transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span className="text-[#C5A059] text-[10px]">›</span> Menu
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => { setActiveSection('menu'); setTimeout(() => window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }), 100); }}
+                  className="hover:text-[#C5A059] transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span className="text-[#C5A059] text-[10px]">›</span> Contact
                 </button>
               </li>
             </ul>
           </div>
 
-          {/* Contact Details */}
-          <div className="space-y-2">
-            <p className="text-xs font-black text-white uppercase tracking-wider font-serif">Contact Information</p>
-            <div className="space-y-1.5 text-xs text-gray-300 font-mono">
-              <p>📞 Phone: {restaurantSettings.primary_contact}</p>
-              <p>📱 WhatsApp: <a href="https://wa.me/916301196547" target="_blank" rel="noopener noreferrer" className="text-[#C5A059] hover:underline">6301196547</a> / <a href="https://wa.me/919030196547" target="_blank" rel="noopener noreferrer" className="text-[#C5A059] hover:underline">9030196547</a></p>
-              <p>✉️ trippysmehfill.kitchen@gmail.com</p>
+          {/* Column 3: Contact Information */}
+          <div className="space-y-3">
+            <p className="text-xs font-black text-white uppercase tracking-wider font-serif border-b border-white/10 pb-1.5 inline-block">
+              Contact Information
+            </p>
+            <div className="space-y-2 text-xs text-gray-300">
+              <p className="font-mono flex items-center gap-1.5">
+                <span>📞 Phone:</span>
+                <span className="font-bold text-white">{restaurantSettings.contact_phone}</span>
+              </p>
+              <p className="flex items-center gap-1.5 flex-wrap">
+                <span>📱 WhatsApp:</span>
+                {(() => {
+                  const raw = restaurantSettings.whatsapp_numbers || '6301196547 / 9030196547';
+                  const parts = raw.split(/[\/\,\&]+/).map(p => p.trim()).filter(Boolean);
+                  const nums = parts.length > 0 ? parts : ['6301196547', '9030196547'];
+                  return nums.map((num, idx) => {
+                    const digits = num.replace(/\D/g, '');
+                    const waNum = digits.length === 10 ? `91${digits}` : digits;
+                    return (
+                      <React.Fragment key={idx}>
+                        {idx > 0 && <span>/</span>}
+                        <a
+                          href={`https://wa.me/${waNum}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#C5A059] font-mono font-bold hover:underline"
+                        >
+                          {num}
+                        </a>
+                      </React.Fragment>
+                    );
+                  });
+                })()}
+              </p>
+              <p className="truncate flex items-center gap-1.5">
+                <span>✉️ Email:</span>
+                <a href="mailto:trippysmehfill.kitchen@gmail.com" className="text-gray-300 hover:text-white transition">
+                  trippysmehfill.kitchen@gmail.com
+                </a>
+              </p>
+              <p className="text-gray-400 text-[11px] pt-1 leading-relaxed">
+                <span className="text-[#C5A059] font-bold">Address:</span> {restaurantSettings.address}
+              </p>
             </div>
           </div>
 
-          {/* Website / Developer Information */}
-          <div className="space-y-2">
-            <p className="text-xs font-black text-white uppercase tracking-wider font-serif">Website Information</p>
-            <div className="space-y-1 text-xs text-gray-300">
-              <p className="text-white font-bold">Created by: Naga Pavan Kumar</p>
+          {/* Column 4: Website Information */}
+          <div className="space-y-3">
+            <p className="text-xs font-black text-white uppercase tracking-wider font-serif border-b border-white/10 pb-1.5 inline-block">
+              Website Information
+            </p>
+            <div className="space-y-2 text-xs text-gray-300">
+              <p className="text-white font-bold">
+                Created by: <span className="text-[#C5A059]">Naga Pavan Kumar</span>
+              </p>
               <p className="text-gray-400 text-[11px]">For website-related support/contact:</p>
-              <div className="flex items-center gap-2 pt-1 font-mono text-[11px]">
-                <span className="text-[#C5A059] font-bold">WhatsApp:</span>
-                <a href="https://wa.me/916301196547" target="_blank" rel="noopener noreferrer" className="text-[#C5A059] hover:underline">6301196547</a>
-                <span>/</span>
-                <a href="https://wa.me/919030196547" target="_blank" rel="noopener noreferrer" className="text-[#C5A059] hover:underline">9030196547</a>
+              <div className="space-y-1.5 font-mono text-xs pt-0.5">
+                {(() => {
+                  const raw = restaurantSettings.whatsapp_numbers || '6301196547 / 9030196547';
+                  const parts = raw.split(/[\/\,\&]+/).map(p => p.trim()).filter(Boolean);
+                  const nums = parts.length > 0 ? parts : ['6301196547', '9030196547'];
+                  return nums.map((num, idx) => {
+                    const digits = num.replace(/\D/g, '');
+                    const waNum = digits.length === 10 ? `91${digits}` : digits;
+                    return (
+                      <p key={idx} className="flex items-center gap-1.5">
+                        <span>WhatsApp:</span>
+                        <a
+                          href={`https://wa.me/${waNum}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-[#C5A059] hover:underline font-bold"
+                        >
+                          {num}
+                        </a>
+                      </p>
+                    );
+                  });
+                })()}
               </div>
             </div>
           </div>
+
         </div>
 
-        <div className="max-w-7xl mx-auto pt-8 mt-8 border-t border-white/10 text-center text-[11px] text-gray-500 flex flex-col sm:flex-row justify-between items-center gap-2">
-          <p>© 2026 {restaurantSettings.restaurant_name}. All rights reserved.</p>
-          <p className="text-[#C5A059]">{restaurantSettings.address} Cloud Kitchen & Food Delivery Service</p>
+        {/* Footer Bottom Credit Bar */}
+        <div className="max-w-7xl mx-auto pt-6 mt-8 border-t border-white/10 text-center text-[11px] text-gray-400 flex flex-col sm:flex-row justify-between items-center gap-2">
+          <p>© 2026 {restaurantSettings.restaurant_name || "Trippy's Mehfill"}. All rights reserved.</p>
+          <p className="text-gray-400 font-medium">
+            Designed & Developed by <span className="text-[#C5A059] font-bold">Naga Pavan Kumar</span>
+          </p>
         </div>
       </footer>
 

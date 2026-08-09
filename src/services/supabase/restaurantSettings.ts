@@ -3,10 +3,12 @@ import { RestaurantSettings } from '../../types';
 
 export const defaultRestaurantSettings: RestaurantSettings = {
   restaurant_name: "Trippy's Mehfill",
+  brand_title: "CLOUD KITCHEN ERP",
   address: 'Sohna GLS Homes (Near GD Goenka University, GDGU), Sohna, Haryana',
-  primary_contact: '6301196547',
+  contact_phone: '6301196547',
   whatsapp_numbers: '6301196547 / 9030196547',
   logo_url: null,
+  created_by: 'Naga Pavan Kumar',
 };
 
 export const restaurantSettingsService = {
@@ -14,7 +16,7 @@ export const restaurantSettingsService = {
     try {
       const { data, error } = await supabase
         .from('restaurant_settings')
-        .select('*')
+        .select('id, restaurant_name, brand_title, address, contact_phone, whatsapp_numbers, logo_url, created_by, updated_at')
         .limit(1)
         .maybeSingle();
 
@@ -29,11 +31,13 @@ export const restaurantSettingsService = {
 
       return {
         id: data.id,
-        restaurant_name: data.restaurant_name || data.name || defaultRestaurantSettings.restaurant_name,
+        restaurant_name: data.restaurant_name || defaultRestaurantSettings.restaurant_name,
+        brand_title: data.brand_title || defaultRestaurantSettings.brand_title,
         address: data.address || defaultRestaurantSettings.address,
-        primary_contact: data.primary_contact || data.phone || defaultRestaurantSettings.primary_contact,
-        whatsapp_numbers: data.whatsapp_numbers || data.whatsapp || defaultRestaurantSettings.whatsapp_numbers,
-        logo_url: data.logo_url || data.logo || null,
+        contact_phone: data.contact_phone || defaultRestaurantSettings.contact_phone,
+        whatsapp_numbers: data.whatsapp_numbers || defaultRestaurantSettings.whatsapp_numbers,
+        logo_url: data.logo_url ?? null,
+        created_by: data.created_by || defaultRestaurantSettings.created_by,
         updated_at: data.updated_at,
       };
     } catch (err) {
@@ -43,7 +47,28 @@ export const restaurantSettingsService = {
   },
 
   async updateSettings(updates: Partial<RestaurantSettings>): Promise<RestaurantSettings> {
+    // 1. Fetch current settings to merge updates
     const current = await this.fetchSettings();
+
+    // 2. Identify the existing row ID from updates, current, or directly querying the database
+    let existingId: string | undefined = updates.id || current.id;
+
+    if (!existingId) {
+      const { data: existingRow, error: fetchErr } = await supabase
+        .from('restaurant_settings')
+        .select('id')
+        .limit(1)
+        .maybeSingle();
+
+      if (fetchErr) {
+        console.warn('Warning fetching existing restaurant_settings row:', fetchErr.message);
+      }
+
+      if (existingRow?.id) {
+        existingId = existingRow.id;
+      }
+    }
+
     const merged: RestaurantSettings = {
       ...current,
       ...updates,
@@ -52,38 +77,70 @@ export const restaurantSettingsService = {
 
     const payload: Record<string, any> = {
       restaurant_name: merged.restaurant_name,
+      brand_title: merged.brand_title,
       address: merged.address,
-      primary_contact: merged.primary_contact,
+      contact_phone: merged.contact_phone,
       whatsapp_numbers: merged.whatsapp_numbers,
-      logo_url: merged.logo_url ?? null,
+      logo_url: merged.logo_url !== undefined ? merged.logo_url : null,
+      created_by: merged.created_by || 'Naga Pavan Kumar',
       updated_at: merged.updated_at,
     };
 
-    if (current.id) {
+    if (existingId) {
       const { data, error } = await supabase
         .from('restaurant_settings')
         .update(payload)
-        .eq('id', current.id)
-        .select()
+        .eq('id', existingId)
+        .select('id, restaurant_name, brand_title, address, contact_phone, whatsapp_numbers, logo_url, created_by, updated_at')
         .single();
 
       if (error) {
         console.error('Error updating restaurant_settings:', error);
-        throw error;
+        throw new Error(`Database UPDATE failed: ${error.message || JSON.stringify(error)}`);
       }
-      return { ...merged, id: data.id };
+
+      if (!data) {
+        throw new Error('Database UPDATE failed: No data returned from restaurant_settings update.');
+      }
+
+      return {
+        id: data.id,
+        restaurant_name: data.restaurant_name,
+        brand_title: data.brand_title,
+        address: data.address,
+        contact_phone: data.contact_phone,
+        whatsapp_numbers: data.whatsapp_numbers,
+        logo_url: data.logo_url ?? null,
+        created_by: data.created_by,
+        updated_at: data.updated_at,
+      };
     } else {
       const { data, error } = await supabase
         .from('restaurant_settings')
         .insert([payload])
-        .select()
+        .select('id, restaurant_name, brand_title, address, contact_phone, whatsapp_numbers, logo_url, created_by, updated_at')
         .single();
 
       if (error) {
         console.error('Error inserting restaurant_settings:', error);
-        throw error;
+        throw new Error(`Database INSERT failed: ${error.message || JSON.stringify(error)}`);
       }
-      return { ...merged, id: data.id };
+
+      if (!data) {
+        throw new Error('Database INSERT failed: No data returned from restaurant_settings insert.');
+      }
+
+      return {
+        id: data.id,
+        restaurant_name: data.restaurant_name,
+        brand_title: data.brand_title,
+        address: data.address,
+        contact_phone: data.contact_phone,
+        whatsapp_numbers: data.whatsapp_numbers,
+        logo_url: data.logo_url ?? null,
+        created_by: data.created_by,
+        updated_at: data.updated_at,
+      };
     }
   },
 };

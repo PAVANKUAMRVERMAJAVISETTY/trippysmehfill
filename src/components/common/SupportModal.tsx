@@ -47,7 +47,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
             </div>
             <div>
               <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Kitchen Hotline / WhatsApp</p>
-              <p className="text-sm font-extrabold text-white font-mono">{restaurantSettings.whatsapp_numbers || restaurantSettings.primary_contact}</p>
+              <p className="text-sm font-extrabold text-white font-mono">{restaurantSettings.whatsapp_numbers || restaurantSettings.contact_phone}</p>
             </div>
           </button>
 
