@@ -39,7 +39,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <button
             type="button"
-            onClick={() => openWhatsAppSupport()}
+            onClick={() => openWhatsAppSupport({ whatsappNumber: '8569955929' })}
             className="p-4 bg-[#181818] hover:bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3 transition group text-left w-full cursor-pointer"
           >
             <div className="p-2.5 rounded-xl bg-emerald-600/20 border border-emerald-500/30 text-emerald-400 group-hover:bg-emerald-600 group-hover:text-white transition">
@@ -47,7 +47,7 @@ export const SupportModal: React.FC<SupportModalProps> = ({ isOpen, onClose }) =
             </div>
             <div>
               <p className="text-[10px] text-gray-400 uppercase font-bold tracking-wider">Kitchen Hotline / WhatsApp</p>
-              <p className="text-sm font-extrabold text-white font-mono">{restaurantSettings.whatsapp_numbers || restaurantSettings.contact_phone}</p>
+              <p className="text-sm font-extrabold text-white font-mono">8569955929</p>
             </div>
           </button>
 

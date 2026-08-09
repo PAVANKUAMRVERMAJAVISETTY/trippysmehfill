@@ -218,45 +218,68 @@ export async function verifyEmailOTPCode(
 }
 
 /**
- * Sends a password reset OTP code to the user's registered email.
+ * Sends a password reset OTP code to the user's registered email (supports email or phone number lookup).
  */
-export async function sendPasswordResetOTP(email: string): Promise<SendOtpResult> {
-  const cleanEmail = email.trim().toLowerCase();
+export async function sendPasswordResetOTP(identifier: string): Promise<SendOtpResult & { targetEmail?: string }> {
+  const trimmed = identifier.trim();
 
-  const emailCheck = validateEmail(cleanEmail);
-  if (!emailCheck.valid) {
-    return { success: false, message: emailCheck.message };
+  if (!trimmed) {
+    return { success: false, message: 'Please enter your registered mobile number or email address.' };
   }
 
   if (!isSupabaseConfigured) {
     return { success: false, message: NOT_CONFIGURED_MESSAGE };
   }
 
-  try {
-    // Check the account exists first to prevent 500 auth errors on non-existent
-    // addresses. `profiles` is not readable before sign-in, so this goes through
-    // a SECURITY DEFINER function that answers with a boolean only.
-    const { data: exists } = await supabase.rpc('email_exists', { p_email: cleanEmail });
+  const GENERIC_SUCCESS_MSG = 'If an account is associated with this information, recovery instructions have been sent to the registered email.';
 
-    if (!exists) {
-      return {
-        success: false,
-        message: `No account found for "${cleanEmail}". Please click "Create Account" to register.`
-      };
+  try {
+    let targetEmail = trimmed.toLowerCase();
+
+    // If identifier is not an email (e.g. phone number or username), find email from profiles via RPC
+    if (!targetEmail.includes('@')) {
+      const { data: foundEmail } = await supabase.rpc('lookup_login_email', {
+        p_identifier: trimmed
+      });
+
+      if (typeof foundEmail === 'string' && foundEmail) {
+        targetEmail = foundEmail.toLowerCase();
+      } else {
+        // Return generic success to prevent phone number enumeration attacks
+        return {
+          success: true,
+          message: GENERIC_SUCCESS_MSG
+        };
+      }
+    } else {
+      const emailCheck = validateEmail(targetEmail);
+      if (!emailCheck.valid) {
+        return { success: false, message: emailCheck.message };
+      }
     }
 
-    const { error } = await supabase.auth.resetPasswordForEmail(cleanEmail);
+    const { error } = await supabase.auth.resetPasswordForEmail(targetEmail);
 
     if (error) {
-      return { success: false, message: toFriendlyAuthError(error).message };
+      console.warn(`[EmailService] resetPasswordForEmail returned error for ${targetEmail}:`, error.message);
+      // Still return generic success to prevent email enumeration
+      return {
+        success: true,
+        message: GENERIC_SUCCESS_MSG,
+        targetEmail
+      };
     }
 
     return {
       success: true,
-      message: `Password reset OTP code sent to ${cleanEmail}. Check your inbox.`
+      message: GENERIC_SUCCESS_MSG,
+      targetEmail
     };
   } catch (err) {
-    return { success: false, message: toFriendlyAuthError(err).message };
+    return {
+      success: true,
+      message: GENERIC_SUCCESS_MSG
+    };
   }
 }
 

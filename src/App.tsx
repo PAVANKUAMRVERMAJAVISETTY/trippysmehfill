@@ -56,7 +56,7 @@ import {
   initialInventory,
   initialBanners
 } from './lib/initialData';
-import { AppSection, FoodCategory, MenuItem, Order, OrderStatus, PaymentStatus, UserProfile, InventoryItem, Feedback, PromotionalBanner, GalleryItem, HomePromotion, Offer } from './types';
+import { AppSection, FoodCategory, MenuItem, Order, OrderStatus, PaymentStatus, UserProfile, InventoryItem, Feedback, PromotionalBanner, GalleryItem, HomePromotion, Offer, OFFICIAL_CATEGORIES } from './types';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
 import { playKitchenAlertSound } from './lib/sound';
 import {
@@ -184,10 +184,10 @@ function MainApp() {
       ]);
 
       if (fetchedMenu && fetchedMenu.length > 0) setMenuItems(fetchedMenu);
-      if (fetchedOrders && fetchedOrders.length > 0) setOrders(fetchedOrders);
+      if (fetchedOrders !== null) setOrders(fetchedOrders);
       if (fetchedInventory && fetchedInventory.length > 0) setInventory(fetchedInventory);
-      if (fetchedFeedback && fetchedFeedback.length > 0) setFeedback(fetchedFeedback);
-      if (fetchedGallery && fetchedGallery.length > 0) setGalleryItems(fetchedGallery);
+      if (fetchedFeedback !== null) setFeedback(fetchedFeedback);
+      if (fetchedGallery !== null) setGalleryItems(fetchedGallery);
       if (fetchedBanners && fetchedBanners.length > 0) setBanners(fetchedBanners);
       if (fetchedHomePromos && fetchedHomePromos.length > 0) setHomePromotions(fetchedHomePromos);
       if (fetchedOffers && fetchedOffers.length > 0) setOffers(fetchedOffers);
@@ -410,6 +410,30 @@ function MainApp() {
     }
   };
 
+  const refreshMenuFromSupabase = async () => {
+    if (!isSupabaseConfigured) return;
+    try {
+      const fresh = await menuService.fetchMenuItems();
+      if (fresh) {
+        setMenuItems(fresh);
+      }
+    } catch (err) {
+      console.error('[App] Error re-fetching menu items:', err);
+    }
+  };
+
+  const refreshGalleryFromSupabase = async () => {
+    if (!isSupabaseConfigured) return;
+    try {
+      const fresh = await galleryService.fetchGalleryItems();
+      if (fresh) {
+        setGalleryItems(fresh);
+      }
+    } catch (err) {
+      console.error('[App] Error re-fetching gallery items:', err);
+    }
+  };
+
   // Handlers wired to Supabase Data Layer
   // Optimistic local insert so the order shows up immediately for the customer
   // who placed it. Every other client -- admin, kitchen -- gets it from the
@@ -598,13 +622,15 @@ function MainApp() {
     }
   };
 
-  // Filtered menu dishes for customer storefront
-  const filteredDishes = menuItems.filter((dish) => {
+  // Filtered menu dishes for customer storefront — STRICTLY AVAILABLE DISHES ONLY
+  const availableDishes = menuItems.filter((dish) => dish.is_available);
+
+  const filteredDishes = availableDishes.filter((dish) => {
     const matchesCategory =
       selectedCategory === 'All' ? true :
-      selectedCategory === 'Veg' ? dish.is_veg :
-      selectedCategory === 'Non-Veg' ? !dish.is_veg :
-      dish.category.toLowerCase() === selectedCategory.toLowerCase();
+      selectedCategory.toLowerCase() === 'veg' ? dish.is_veg :
+      selectedCategory.toLowerCase() === 'non-veg' ? !dish.is_veg :
+      (dish.category || '').toLowerCase() === selectedCategory.toLowerCase();
 
     const matchesSearch =
       (dish.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -716,6 +742,7 @@ function MainApp() {
             <CategoryPills
               selectedCategory={selectedCategory}
               onSelectCategory={setSelectedCategory}
+              items={menuItems}
             />
 
             {/* Unauthenticated User Prompt Banner */}
@@ -757,27 +784,66 @@ function MainApp() {
 
                 {/* Main Menu Grid */}
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-black text-[#C5A059] font-serif mb-4 tracking-wide">
-                    Today's Menu
-                  </h2>
+                  {selectedCategory === 'All' && !searchQuery ? (
+                    <div className="space-y-8">
+                      {OFFICIAL_CATEGORIES.map(cat => {
+                        const categoryDishes = filteredDishes.filter(dish => {
+                          const itemCat = (dish.category || '').trim().toLowerCase();
+                          return itemCat === cat.name.toLowerCase() || itemCat === cat.display.toLowerCase() || itemCat === cat.id.toLowerCase();
+                        });
 
-                  {filteredDishes.length === 0 ? (
-                    <div className="text-center py-12 bg-[#121212] rounded-2xl border border-white/10 shadow-xl">
-                      <p className="text-gray-200 font-bold">No dishes found matching your search.</p>
-                      <p className="text-xs text-gray-500 mt-1">Try searching for "biryani" or selecting another category.</p>
+                        if (categoryDishes.length === 0) return null; // Hide empty categories!
+
+                        return (
+                          <section key={cat.id} className="space-y-4">
+                            <h2 className="text-lg sm:text-xl font-black text-[#D95F0A] font-serif flex items-center gap-2 border-b border-[#DDD6C8] pb-2">
+                              <span>{cat.emoji}</span>
+                              <span className="uppercase tracking-wider">{cat.name}</span>
+                              <span className="text-xs font-mono font-bold bg-[#FFF0CC] text-[#8A5A00] px-2 py-0.5 rounded-full border border-[#E8C66A]">
+                                {categoryDishes.length}
+                              </span>
+                            </h2>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                              {categoryDishes.map((dish) => (
+                                <MenuCard
+                                  key={dish.id}
+                                  item={dish}
+                                  onRequireAuth={() => {
+                                    setAuthModalTab('signin');
+                                    setIsAuthModalOpen(true);
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          </section>
+                        );
+                      })}
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                      {filteredDishes.map((dish) => (
-                        <MenuCard
-                          key={dish.id}
-                          item={dish}
-                          onRequireAuth={() => {
-                            setAuthModalTab('signin');
-                            setIsAuthModalOpen(true);
-                          }}
-                        />
-                      ))}
+                    <div>
+                      <h2 className="text-xl sm:text-2xl font-black text-[#D95F0A] font-serif mb-4 tracking-wide">
+                        {selectedCategory === 'All' ? 'Search Results' : selectedCategory}
+                      </h2>
+
+                      {filteredDishes.length === 0 ? (
+                        <div className="text-center py-12 bg-white rounded-2xl border border-[#DDD6C8] shadow-sm">
+                          <p className="text-[#1F2933] font-bold">No dishes found matching your selection.</p>
+                          <p className="text-xs text-[#5F6368] mt-1">Try searching for another dish or selecting another category.</p>
+                        </div>
+                      ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                          {filteredDishes.map((dish) => (
+                            <MenuCard
+                              key={dish.id}
+                              item={dish}
+                              onRequireAuth={() => {
+                                setAuthModalTab('signin');
+                                setIsAuthModalOpen(true);
+                              }}
+                            />
+                          ))}
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -871,13 +937,14 @@ function MainApp() {
                     if (dish.id?.startsWith('m-')) {
                       const { id, ...rest } = dish;
                       const created = await menuService.createMenuItem(rest as any);
-                      setMenuItems(prev => [created, ...prev]);
+                      setMenuItems(prev => [created, ...prev.filter(m => m.id !== id)]);
                       showToast({ title: 'Dish Created', description: `"${created.name}" has been added to menu.`, tone: 'success' });
                     } else {
                       const updated = await menuService.updateMenuItem(dish.id, dish);
                       setMenuItems(prev => prev.map(m => m.id === updated.id ? updated : m));
                       showToast({ title: 'Dish Updated', description: `"${updated.name}" has been updated.`, tone: 'success' });
                     }
+                    await refreshMenuFromSupabase();
                   } catch (err: any) {
                     console.error('Failed to save dish in Supabase:', err);
                     showToast({ title: 'Error Saving Dish', description: err.message || 'Database error', tone: 'error' });
@@ -887,7 +954,8 @@ function MainApp() {
                   try {
                     await menuService.deleteMenuItem(id);
                     setMenuItems(prev => prev.filter(m => m.id !== id));
-                    showToast({ title: 'Dish Retired', description: 'Item disabled on menu.', tone: 'info' });
+                    showToast({ title: 'Dish Deleted', description: 'Item permanently deleted from database.', tone: 'info' });
+                    await refreshMenuFromSupabase();
                   } catch (err: any) {
                     console.error('Failed to delete dish:', err);
                     showToast({ title: 'Delete Failed', description: err.message, tone: 'error' });
@@ -900,6 +968,7 @@ function MainApp() {
                   setMenuItems(prev => prev.map(m => m.id === id ? { ...m, is_available: nextAvail } : m));
                   try {
                     await menuService.updateMenuItem(id, { is_available: nextAvail });
+                    await refreshMenuFromSupabase();
                   } catch (err) {
                     setMenuItems(prev => prev.map(m => m.id === id ? { ...m, is_available: dish.is_available } : m));
                   }
@@ -911,6 +980,7 @@ function MainApp() {
                   setMenuItems(prev => prev.map(m => m.id === id ? { ...m, is_todays_special: nextSpecial } : m));
                   try {
                     await menuService.updateMenuItem(id, { is_todays_special: nextSpecial });
+                    await refreshMenuFromSupabase();
                   } catch (err) {
                     setMenuItems(prev => prev.map(m => m.id === id ? { ...m, is_todays_special: dish.is_todays_special } : m));
                   }
@@ -925,6 +995,7 @@ function MainApp() {
                     const created = await galleryService.addGalleryItem({ title: item.title, caption: item.caption, image_url: item.image_url });
                     setGalleryItems(prev => [created, ...prev]);
                     showToast({ title: 'Gallery Item Added', description: `"${created.title}" published.`, tone: 'success' });
+                    await refreshGalleryFromSupabase();
                   } catch (err: any) {
                     console.error('Failed to add gallery item:', err);
                     showToast({ title: 'Gallery Upload Failed', description: err.message, tone: 'error' });
@@ -934,10 +1005,12 @@ function MainApp() {
                   try {
                     const updated = await galleryService.updateGalleryItem(item.id, item);
                     setGalleryItems(prev => prev.map(g => g.id === updated.id ? updated : g));
-                    showToast({ title: 'Gallery Item Updated', description: 'Changes saved to Supabase.', tone: 'success' });
+                    showToast({ title: 'Gallery Item Updated', description: `"${updated.title}" updated in database.`, tone: 'success' });
+                    await refreshGalleryFromSupabase();
                   } catch (err: any) {
-                    console.error('Failed to update gallery item:', err);
-                    showToast({ title: 'Update Failed', description: err.message, tone: 'error' });
+                    console.error('[App] Failed to update gallery item:', err);
+                    showToast({ title: 'Update Failed', description: err.message || 'Database update failed', tone: 'error' });
+                    throw err;
                   }
                 }}
                 onDeleteGalleryItem={async (id) => {
@@ -945,6 +1018,7 @@ function MainApp() {
                     await galleryService.deleteGalleryItem(id);
                     setGalleryItems(prev => prev.filter(g => g.id !== id));
                     showToast({ title: 'Gallery Item Deleted', description: 'Item removed from database.', tone: 'info' });
+                    await refreshGalleryFromSupabase();
                   } catch (err: any) {
                     console.error('Failed to delete gallery item:', err);
                     showToast({ title: 'Delete Failed', description: err.message, tone: 'error' });
@@ -1166,9 +1240,9 @@ function MainApp() {
         settings={settings}
       />
 
-      {/* Dynamic Redesigned 4-Column Footer */}
+      {/* Dynamic 3-Column Footer */}
       <footer className="bg-[#0B0F17] border-t border-white/10 text-white py-12 px-4 sm:px-6 lg:px-8 mt-20">
-        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+        <div className="max-w-7xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10">
           
           {/* Column 1: Brand Info */}
           <div className="space-y-3">
@@ -1201,7 +1275,7 @@ function MainApp() {
             </p>
             <p className="text-gray-400 text-xs flex items-start gap-1.5 pt-1">
               <span className="text-[#C5A059] font-bold shrink-0">📍 Location:</span>
-              <span className="line-clamp-2">{restaurantSettings.address}</span>
+              <span className="line-clamp-2">Sohna GLS Homes (Near GD Goenka University, GDGU), Sohna, Haryana</span>
             </p>
           </div>
 
@@ -1254,32 +1328,18 @@ function MainApp() {
             <div className="space-y-2 text-xs text-gray-300">
               <p className="font-mono flex items-center gap-1.5">
                 <span>📞 Phone:</span>
-                <span className="font-bold text-white">{restaurantSettings.contact_phone}</span>
+                <span className="font-bold text-white">8569955929</span>
               </p>
               <p className="flex items-center gap-1.5 flex-wrap">
                 <span>📱 WhatsApp:</span>
-                {(() => {
-                  const raw = restaurantSettings.whatsapp_numbers || '6301196547 / 9030196547';
-                  const parts = raw.split(/[\/\,\&]+/).map(p => p.trim()).filter(Boolean);
-                  const nums = parts.length > 0 ? parts : ['6301196547', '9030196547'];
-                  return nums.map((num, idx) => {
-                    const digits = num.replace(/\D/g, '');
-                    const waNum = digits.length === 10 ? `91${digits}` : digits;
-                    return (
-                      <React.Fragment key={idx}>
-                        {idx > 0 && <span>/</span>}
-                        <a
-                          href={`https://wa.me/${waNum}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[#C5A059] font-mono font-bold hover:underline"
-                        >
-                          {num}
-                        </a>
-                      </React.Fragment>
-                    );
-                  });
-                })()}
+                <a
+                  href="https://wa.me/918569955929"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#C5A059] font-mono font-bold hover:underline"
+                >
+                  8569955929
+                </a>
               </p>
               <p className="truncate flex items-center gap-1.5">
                 <span>✉️ Email:</span>
@@ -1288,56 +1348,31 @@ function MainApp() {
                 </a>
               </p>
               <p className="text-gray-400 text-[11px] pt-1 leading-relaxed">
-                <span className="text-[#C5A059] font-bold">Address:</span> {restaurantSettings.address}
+                <span className="text-[#C5A059] font-bold">📍 Address:</span> GLS Arawali Homes, Damdama Lake Rd, Sohna Rural, Haryana 122103
               </p>
-            </div>
-          </div>
-
-          {/* Column 4: Website Information */}
-          <div className="space-y-3">
-            <p className="text-xs font-black text-white uppercase tracking-wider font-serif border-b border-white/10 pb-1.5 inline-block">
-              Website Information
-            </p>
-            <div className="space-y-2 text-xs text-gray-300">
-              <p className="text-white font-bold">
-                Created by: <span className="text-[#C5A059]">Naga Pavan Kumar</span>
-              </p>
-              <p className="text-gray-400 text-[11px]">For website-related support/contact:</p>
-              <div className="space-y-1.5 font-mono text-xs pt-0.5">
-                {(() => {
-                  const raw = restaurantSettings.whatsapp_numbers || '6301196547 / 9030196547';
-                  const parts = raw.split(/[\/\,\&]+/).map(p => p.trim()).filter(Boolean);
-                  const nums = parts.length > 0 ? parts : ['6301196547', '9030196547'];
-                  return nums.map((num, idx) => {
-                    const digits = num.replace(/\D/g, '');
-                    const waNum = digits.length === 10 ? `91${digits}` : digits;
-                    return (
-                      <p key={idx} className="flex items-center gap-1.5">
-                        <span>WhatsApp:</span>
-                        <a
-                          href={`https://wa.me/${waNum}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-[#C5A059] hover:underline font-bold"
-                        >
-                          {num}
-                        </a>
-                      </p>
-                    );
-                  });
-                })()}
-              </div>
             </div>
           </div>
 
         </div>
 
         {/* Footer Bottom Credit Bar */}
-        <div className="max-w-7xl mx-auto pt-6 mt-8 border-t border-white/10 text-center text-[11px] text-gray-400 flex flex-col sm:flex-row justify-between items-center gap-2">
+        <div className="max-w-7xl mx-auto pt-6 mt-8 border-t border-white/10 text-center text-[11px] text-gray-400 flex flex-col sm:flex-row justify-between items-center sm:items-end gap-3">
           <p>© 2026 {restaurantSettings.restaurant_name || "Trippy's Mehfill"}. All rights reserved.</p>
-          <p className="text-gray-400 font-medium">
-            Designed & Developed by <span className="text-[#C5A059] font-bold">Naga Pavan Kumar</span>
-          </p>
+          <div className="text-center sm:text-right space-y-1">
+            <p className="text-gray-400 font-medium">
+              Designed & Developed by <span className="text-[#C5A059] font-bold">Naga Pavan Kumar</span>
+            </p>
+            <p className="text-gray-400 text-[10px]">
+              For website-related support/contact:{' '}
+              <a href="https://wa.me/916301196547" target="_blank" rel="noopener noreferrer" className="text-[#C5A059] hover:underline font-mono">
+                WhatsApp: 6301196547
+              </a>{' '}
+              |{' '}
+              <a href="https://wa.me/919030196547" target="_blank" rel="noopener noreferrer" className="text-[#C5A059] hover:underline font-mono">
+                WhatsApp: 9030196547
+              </a>
+            </p>
+          </div>
         </div>
       </footer>
 

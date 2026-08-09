@@ -258,147 +258,16 @@ export const initialStaffAndDrivers: UserProfile[] = [
 
 export const initialPendingRegistrations: UserProfile[] = [];
 
-export const initialOrders: Order[] = [
-  {
-    id: 'o-1004',
-    order_number: '#1004',
-    customer_id: 'c-1004',
-    customer_name: 'Utfi - Keity',
-    customer_phone: '8302923111',
-    delivery_address: 'Hcb Sports villa u1216',
-    landmark: 'Hcb Sports villa',
-    items: [{ dish_id: 'm1', dish_name: 'Bagara Rice & Chicken Curry (Dum)', quantity: 1, price: 150 }],
-    subtotal: 150,
-    tax_amount: 0,
-    delivery_fee: 0,
-    total_amount: 150,
-    payment_method: 'COD',
-    payment_status: 'completed',
-    status: 'cancelled',
-    campus: 'Keity',
-    created_at: '27/7/2026, 3:43:22 pm'
-  },
-  {
-    id: 'o-1003',
-    order_number: '#1003',
-    customer_id: 'c-1003',
-    customer_name: 'Shruti',
-    customer_phone: '8302923111',
-    delivery_address: 'Hcbs Sports villa u1216',
-    items: [{ dish_id: 'm5', dish_name: 'Home made Ghee Dosa (3 Pcs)', quantity: 1, price: 100 }],
-    subtotal: 100,
-    tax_amount: 0,
-    delivery_fee: 0,
-    total_amount: 100,
-    payment_method: 'COD',
-    payment_status: 'completed',
-    status: 'delivered',
-    driver_name: 'Nithish',
-    rating: 5.0,
-    created_at: '27/7/2026, 10:13:44 am'
-  },
-  {
-    id: 'o-1002',
-    order_number: '#1002',
-    customer_id: 'c-1002',
-    customer_name: 'Rakesh Ranjan',
-    customer_phone: '7050918132',
-    delivery_address: 'Gls - Gls axewell homes tower 3 1201',
-    items: [{ dish_id: 'm2', dish_name: 'Chicken Dum Biryani', quantity: 1, price: 180 }],
-    subtotal: 180,
-    tax_amount: 0,
-    delivery_fee: 0,
-    total_amount: 180,
-    payment_method: 'COD',
-    payment_status: 'completed',
-    status: 'delivered',
-    driver_name: 'Gls',
-    created_at: '27/7/2026, 8:35:53 pm'
-  },
-  {
-    id: 'o-1001',
-    order_number: '#1001',
-    customer_id: 'c-1001',
-    customer_name: 'Sajid',
-    customer_phone: '7396475834',
-    delivery_address: 'Gls campus hostel',
-    items: [{ dish_id: 'm1', dish_name: 'Chicken Dum Biryani', quantity: 1, price: 180 }],
-    subtotal: 180,
-    tax_amount: 0,
-    delivery_fee: 0,
-    total_amount: 180,
-    payment_method: 'COD',
-    payment_status: 'completed',
-    status: 'delivered',
-    driver_name: 'Sandeep',
-    created_at: '27/7/2026, 7:06:50 pm'
-  }
-];
+export const initialOrders: Order[] = [];
 
 // Emptied in Phase 1: these were fabricated customer records (real-looking
 // names, emails and phone numbers) shipped in the bundle and seeded straight
 // into state. Real customers now come from Supabase.
 export const initialCustomers: UserProfile[] = [];
 
-export const initialGalleryItems: GalleryItem[] = [
-  {
-    id: 'g-1',
-    title: 'Authentic Hyderabadi Dum Biryani',
-    caption: 'Slow-cooked in handi with rich saffron, fried onions & tender marinated chicken.',
-    image_url: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=1200&q=80',
-    created_at: '2026-07-28'
-  },
-  {
-    id: 'g-2',
-    title: 'Freshly Baked Artisanal Pizzas',
-    caption: 'Hand-stretched dough topped with melted mozzarella and fresh basil leaves.',
-    image_url: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1200&q=80',
-    created_at: '2026-07-29'
-  },
-  {
-    id: 'g-3',
-    title: 'Crispy South Indian Dosa Mehfill',
-    caption: 'Golden paper dosa served with spicy potato masala, coconut chutney & hot sambar.',
-    image_url: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=1200&q=80',
-    created_at: '2026-07-30'
-  },
-  {
-    id: 'g-4',
-    title: 'Trippy Signature Burgers',
-    caption: 'Double juicy patty stacked with crispy onion rings and secret garlic sauce.',
-    image_url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1200&q=80',
-    created_at: '2026-07-31'
-  },
-  {
-    id: 'g-5',
-    title: 'Decadent Chocolate Lava Delight',
-    caption: 'Warm molten chocolate cake served with a scoop of Madagascar vanilla ice cream.',
-    image_url: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=1200&q=80',
-    created_at: '2026-08-01'
-  },
-  {
-    id: 'g-6',
-    title: 'Hygiene First Kitchen Standard',
-    caption: 'Clean stainless steel kitchen adhering to international packaging standards.',
-    image_url: 'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200&q=80',
-    created_at: '2026-08-01'
-  }
-];
+export const initialGalleryItems: GalleryItem[] = [];
 
-export const initialFeedback: Feedback[] = [
-  {
-    id: 'fb-1',
-    order_id: '#1003',
-    customer_name: 'Shruti',
-    food_rating: 5,
-    taste_rating: 5,
-    packing_rating: 5,
-    delivery_rating: 5,
-    driver_name: 'Nithish',
-    comment: 'Super fast delivery and delicious warm biryani!',
-    created_at: '26/7/2026, 11:51:50 pm'
-  }
-];
+export const initialFeedback: Feedback[] = [];
 
 export const initialBanners: PromotionalBanner[] = [
   {

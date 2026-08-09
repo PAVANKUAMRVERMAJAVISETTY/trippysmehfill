@@ -40,7 +40,9 @@ import {
   Store,
   AlertCircle,
   Receipt,
-  ThumbsUp
+  ThumbsUp,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 
 interface CustomerDashboardModalProps {
@@ -108,6 +110,12 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
   const [editAddress, setEditAddress] = useState(user?.hostel_address || '');
   const [profileSuccessMsg, setProfileSuccessMsg] = useState<string | null>(null);
 
+  // Account Permanent Deletion states
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteConfirmInput, setDeleteConfirmInput] = useState('');
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false);
+  const [deleteAccountErr, setDeleteAccountErr] = useState('');
+
   // Editable Address state
   const [isEditingAddress, setIsEditingAddress] = useState(false);
   const [hostelName, setHostelName] = useState(user?.hostel_name || 'GD Goenka University Campus');
@@ -118,6 +126,46 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
   const [isDefaultAddress, setIsDefaultAddress] = useState(true);
   const [addressSuccessMsg, setAddressSuccessMsg] = useState<string | null>(null);
   const [isSavingAddress, setIsSavingAddress] = useState(false);
+
+  const handleDeleteOwnAccount = async () => {
+    if (deleteConfirmInput.trim().toUpperCase() !== 'DELETE') {
+      setDeleteAccountErr('Please type DELETE to confirm account deletion.');
+      return;
+    }
+
+    try {
+      setIsDeletingAccount(true);
+      setDeleteAccountErr('');
+
+      // Get authenticated JWT session token
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Not authenticated. Please sign in again.');
+      }
+
+      // Invoke Edge Function for permanent deletion
+      const { data, error } = await supabase.functions.invoke('admin-staff-management', {
+        body: { action: 'delete-own-account' },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`
+        }
+      });
+
+      if (error || !data?.success) {
+        throw new Error(error?.message || data?.error || 'Failed to delete account.');
+      }
+
+      // Sign out and close modal
+      setShowDeleteModal(false);
+      await signOut();
+      onClose();
+    } catch (err: any) {
+      console.error('Error deleting account:', err);
+      setDeleteAccountErr(err?.message || 'An error occurred while deleting your account.');
+    } finally {
+      setIsDeletingAccount(false);
+    }
+  };
 
   if (!isOpen || !user) return null;
 
@@ -1336,12 +1384,101 @@ export const CustomerDashboardModal: React.FC<CustomerDashboardModalProps> = ({
                 </form>
               </div>
 
+              {/* DANGER ZONE: PERMANENTLY DELETE ACCOUNT CARD */}
+              <div className="bg-[#FDE2E1] p-5 sm:p-6 rounded-3xl border border-[#F5A6A1] space-y-3 text-xs shadow-sm">
+                <div className="flex items-center gap-2 text-[#922B21] border-b border-[#F5A6A1] pb-2 font-serif font-extrabold text-base">
+                  <AlertTriangle className="w-5 h-5 shrink-0" />
+                  <span>Danger Zone: Account Deletion</span>
+                </div>
+                <p className="text-[#922B21] leading-relaxed">
+                  Permanently delete your user profile, saved login credentials, and authentication history.
+                  Your phone number and email address will be released immediately so you can register a new account anytime.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowDeleteModal(true);
+                    setDeleteConfirmInput('');
+                    setDeleteAccountErr('');
+                  }}
+                  className="w-full py-3 bg-[#922B21] hover:bg-[#722119] text-white font-extrabold rounded-2xl shadow-sm border border-[#722119] transition flex items-center justify-center gap-2 cursor-pointer"
+                >
+                  <Trash2 className="w-4 h-4 text-white" />
+                  <span>Delete Account</span>
+                </button>
+              </div>
+
             </div>
           )}
 
         </div>
 
       </div>
+
+      {/* CUSTOMER PERMANENT ACCOUNT DELETION CONFIRMATION MODAL */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+          <div className="bg-white rounded-3xl w-full max-w-md p-6 shadow-2xl border border-[#DDD6C8] text-[#1F2933] space-y-4">
+            <div className="flex items-center justify-between border-b border-[#DDD6C8] pb-3">
+              <div className="flex items-center gap-2 text-rose-600 font-extrabold">
+                <AlertTriangle className="w-5 h-5" />
+                <h3 className="text-base font-serif">Permanently Delete Account</h3>
+              </div>
+              <button
+                onClick={() => setShowDeleteModal(false)}
+                className="text-[#5F6368] hover:text-[#1F2933] p-1 rounded-full cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="space-y-2 text-xs text-[#5F6368] leading-relaxed">
+              <p className="font-bold text-[#1F2933]">
+                Are you sure you want to permanently delete your account?
+              </p>
+              <div className="p-3 bg-[#FDE2E1] border border-[#F5A6A1] text-[#922B21] rounded-2xl text-[11px] space-y-1">
+                <p className="font-bold">⚠️ IRREVERSIBLE ACTION:</p>
+                <p>• Permanently removes your Supabase Auth login account.</p>
+                <p>• Removes your profile and releases your phone ({user.phone || 'N/A'}) & email ({user.email || 'N/A'}).</p>
+                <p>• You can register again using the same phone or email anytime.</p>
+              </div>
+              <p className="pt-2">Type <strong className="text-[#1F2933] font-mono font-bold">DELETE</strong> below to confirm:</p>
+              <input
+                type="text"
+                value={deleteConfirmInput}
+                onChange={(e) => setDeleteConfirmInput(e.target.value)}
+                placeholder="Type DELETE"
+                className="w-full p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl font-mono text-xs font-bold text-[#1F2933] outline-none focus:border-rose-600"
+              />
+              {deleteAccountErr && (
+                <p className="text-rose-600 font-bold text-[11px] pt-1">{deleteAccountErr}</p>
+              )}
+            </div>
+
+            <div className="flex items-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowDeleteModal(false)}
+                className="flex-1 py-2.5 border border-[#9F988A] hover:bg-[#F0E8D8] text-[#1F2933] font-bold rounded-xl text-xs cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleDeleteOwnAccount}
+                disabled={isDeletingAccount || deleteConfirmInput.trim().toUpperCase() !== 'DELETE'}
+                className="flex-1 py-2.5 bg-rose-600 hover:bg-rose-700 disabled:opacity-50 text-white font-extrabold rounded-xl shadow-md text-xs flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                {isDeletingAccount ? (
+                  <span>Deleting...</span>
+                ) : (
+                  <span>Confirm Permanent Delete</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* SWIGGY / ZOMATO TAX INVOICE RECEIPT MODAL */}
       {selectedInvoiceOrder && (

@@ -4,9 +4,9 @@ import { RestaurantSettings } from '../../types';
 export const defaultRestaurantSettings: RestaurantSettings = {
   restaurant_name: "Trippy's Mehfill",
   brand_title: "CLOUD KITCHEN ERP",
-  address: 'Sohna GLS Homes (Near GD Goenka University, GDGU), Sohna, Haryana',
-  contact_phone: '6301196547',
-  whatsapp_numbers: '6301196547 / 9030196547',
+  address: 'GLS Arawali Homes, Damdama Lake Rd, Sohna Rural, Haryana 122103',
+  contact_phone: '8569955929',
+  whatsapp_numbers: '8569955929',
   logo_url: null,
   created_by: 'Naga Pavan Kumar',
 };

@@ -63,7 +63,25 @@ export const GallerySection: React.FC<GallerySectionProps> = ({ galleryItems }) 
     };
   }, [selectedIndex, isPlaying, galleryItems.length]);
 
-  if (!galleryItems || galleryItems.length === 0) return null;
+  if (!galleryItems || galleryItems.length === 0) {
+    return (
+      <section id="gallery-section" className="py-12 bg-[#F4F1E8] border-t border-[#DDD6C8] text-[#1F2933]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6 text-center">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#F7F4EC] border border-[#DDD6C8] text-[#B8862D] text-xs font-extrabold tracking-wider uppercase">
+            <Sparkles className="w-3.5 h-3.5 text-[#B8862D]" />
+            <span>Visual Food Showcase</span>
+          </div>
+          <h2 className="text-2xl sm:text-3xl font-black font-serif tracking-tight text-[#1F2933]">
+            Gallery & Ambiance
+          </h2>
+          <div className="py-12 bg-white rounded-2xl border border-[#DDD6C8] shadow-sm max-w-xl mx-auto space-y-2">
+            <p className="text-base font-bold text-[#1F2933]">No gallery images yet.</p>
+            <p className="text-xs text-[#5F6368]">Add your first gallery image from the Admin Gallery panel.</p>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   const handlePrev = (e?: React.MouseEvent) => {
     e?.stopPropagation();

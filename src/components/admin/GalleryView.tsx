@@ -127,35 +127,58 @@ export const GalleryView: React.FC<GalleryViewProps> = ({
     setIsCameraOpen(false);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!imageUrl) {
       alert('Please select or capture an image for the gallery.');
       return;
     }
 
-    const newItem: GalleryItem = {
-      id: 'g-' + Date.now(),
-      title: title.trim() || 'Trippy Mehfill Gallery Item',
-      caption: caption.trim() || 'Delicious moments at Trippy Mehfill',
-      image_url: imageUrl,
-      created_at: new Date().toISOString().split('T')[0]
-    };
-
-    onAddGalleryItem(newItem);
-    setTitle('');
-    setCaption('');
-    setImageUrl('');
+    try {
+      await onAddGalleryItem({
+        id: '',
+        title: title.trim() || 'Trippy Mehfill Gallery Item',
+        caption: caption.trim() || 'Delicious moments at Trippy Mehfill',
+        image_url: imageUrl,
+        created_at: ''
+      });
+      setTitle('');
+      setCaption('');
+      setImageUrl('');
+    } catch (err: any) {
+      alert('Failed to publish gallery image: ' + (err.message || 'Database error'));
+    }
   };
 
-  const saveEdit = (item: GalleryItem) => {
-    onUpdateGalleryItem({
-      ...item,
-      title: editTitle,
-      caption: editCaption,
-      image_url: editImageUrl || item.image_url
-    });
-    setEditingId(null);
+  const saveEdit = async (item: GalleryItem) => {
+    if (!editTitle.trim()) {
+      alert('Title cannot be empty.');
+      return;
+    }
+
+    const newImageUrl = editImageUrl.trim() || item.image_url;
+    const oldImageUrl = item.image_url;
+
+    try {
+      await onUpdateGalleryItem({
+        ...item,
+        title: editTitle.trim(),
+        caption: editCaption.trim(),
+        image_url: newImageUrl
+      });
+
+      setEditingId(null);
+
+      // If image URL changed, clean up old storage object safely after successful DB update
+      if (newImageUrl !== oldImageUrl && oldImageUrl) {
+        storageService.deleteAssetByUrl(oldImageUrl).catch(err => {
+          console.warn('Old storage image cleanup notice:', err);
+        });
+      }
+    } catch (err: any) {
+      console.error('Gallery item save edit failed:', err);
+      alert('Update Failed: ' + (err.message || 'Failed to update database row.'));
+    }
   };
 
   return (
@@ -447,9 +470,19 @@ export const GalleryView: React.FC<GalleryViewProps> = ({
                       <Edit2 className="w-3.5 h-3.5" />
                     </button>
                     <button
-                      onClick={() => {
+                      onClick={async () => {
                         if (confirm(`Delete "${item.title}" from gallery?`)) {
-                          onDeleteGalleryItem(item.id);
+                          try {
+                            await onDeleteGalleryItem(item.id);
+                            if (item.image_url) {
+                              storageService.deleteAssetByUrl(item.image_url).catch(err => {
+                                console.warn('Gallery storage cleanup notice:', err);
+                              });
+                            }
+                          } catch (err: any) {
+                            console.error('Gallery item database delete error:', err);
+                            alert('Delete Failed: ' + (err.message || 'Database error'));
+                          }
                         }
                       }}
                       className="p-1.5 rounded-lg bg-white text-[#1F2933] hover:text-[#922B21] border border-[#9F988A] cursor-pointer"

@@ -187,7 +187,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setInfoMsg('');
 
     if (!forgotEmail.trim()) {
-      setErrorMsg('Please enter your registered email address.');
+      setErrorMsg('Please enter your registered mobile number or email address.');
       return;
     }
 
@@ -195,9 +195,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     const result = await sendPasswordResetOTP(forgotEmail.trim());
     setIsSendingForgotOtp(false);
 
-    if (!result.success) {
-      setErrorMsg(result.message);
-      return;
+    if (result.targetEmail) {
+      setForgotEmail(result.targetEmail);
     }
 
     setEnteredOtp('');
@@ -901,7 +900,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </div>
           )}
 
-          {/* FORGOT PASSWORD STEP 1: EMAIL INPUT */}
+          {/* FORGOT PASSWORD STEP 1: MOBILE OR EMAIL INPUT */}
           {forgotStep === 'email_input' && (
             <form onSubmit={handleSendForgotOtp} className="space-y-4">
               <div className="p-3.5 bg-orange-500/10 border border-orange-500/30 rounded-2xl text-xs space-y-1.5">
@@ -910,22 +909,22 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <span>Reset Your Password</span>
                 </div>
                 <p className="text-gray-300 text-[11px] leading-relaxed">
-                  Enter your registered email address below. We will send you an OTP code to reset your password.
+                  Enter your registered mobile number or email address below.
                 </p>
               </div>
 
               <div>
                 <label className="block text-xs font-bold text-gray-300 mb-1">
-                  Registered Email Address *
+                  Enter your registered mobile number or email address *
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-gray-500 absolute left-3 top-1/2 -translate-y-1/2" />
                   <input
-                    type="email"
+                    type="text"
                     value={forgotEmail}
                     onChange={(e) => setForgotEmail(e.target.value)}
                     required
-                    placeholder="Enter your email"
+                    placeholder="Enter mobile number or email"
                     className="w-full pl-9 pr-12 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
                   />
                 </div>
@@ -966,7 +965,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <Mail className="w-4 h-4" /> Reset Code Sent
                 </p>
                 <p className="text-gray-300 text-[11px]">
-                  Check your inbox <strong className="text-white">{forgotEmail}</strong> for the verification OTP code.
+                  Check your registered email for the verification OTP code.
                 </p>
               </div>
 
@@ -1079,7 +1078,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     value={signInIdentifier}
                     onChange={(e) => setSignInIdentifier(e.target.value)}
                     required
-                    placeholder="Enter your phone or email"
+                    placeholder="Enter mobile number or email"
                     className="w-full pl-9 pr-12 py-2.5 bg-[#181818] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 outline-none focus:border-orange-500"
                   />
                 </div>
@@ -1094,7 +1093,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                     type="button"
                     onClick={() => {
                       setForgotStep('email_input');
-                      setForgotEmail(signInIdentifier.includes('@') ? signInIdentifier.trim() : '');
+                      setForgotEmail(signInIdentifier.trim());
                       setErrorMsg('');
                       setInfoMsg('');
                     }}

@@ -34,4 +34,30 @@ export const storageService = {
 
     return data.publicUrl;
   },
+
+  /**
+   * Safely deletes a file from Supabase storage by parsing its public URL.
+   * If the URL doesn't point to a managed bucket or deletion fails, it returns
+   * gracefully without throwing or interrupting the database workflow.
+   */
+  async deleteAssetByUrl(publicUrl: string): Promise<boolean> {
+    if (!publicUrl) return false;
+    try {
+      const match = publicUrl.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/);
+      if (!match) return false;
+
+      const bucket = match[1];
+      const filePath = decodeURIComponent(match[2]);
+
+      const { error } = await supabase.storage.from(bucket).remove([filePath]);
+      if (error) {
+        console.warn(`Storage cleanup notice: could not remove file "${filePath}" from bucket "${bucket}":`, error.message);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.warn('Storage cleanup exception:', err);
+      return false;
+    }
+  },
 };

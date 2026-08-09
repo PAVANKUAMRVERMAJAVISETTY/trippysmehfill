@@ -1,23 +1,17 @@
 import React, { useState, useRef } from 'react';
-import { MenuItem } from '../../types';
+import { MenuItem, OFFICIAL_CATEGORIES, CategoryDefinition } from '../../types';
 import {
   Plus,
   Edit3,
   Trash2,
   X,
-  Check,
-  Upload,
   Image as ImageIcon,
   Camera,
   FileImage,
   Sparkles,
-  RefreshCw,
-  Flame,
   CheckCircle2,
-  Loader2
 } from 'lucide-react';
 import { storageService } from '../../services/supabase/storage';
-
 
 interface MenuManagerViewProps {
   menuItems: MenuItem[];
@@ -39,7 +33,6 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
 
   // Camera & File Upload states
   const [isCameraActive, setIsCameraActive] = useState(false);
-  const [cameraError, setCameraError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const galleryInputRef = useRef<HTMLInputElement | null>(null);
   const cameraInputRef = useRef<HTMLInputElement | null>(null);
@@ -47,11 +40,11 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
   // Quick preset food images
   const sampleFoodImages = [
     { label: 'Biryani', url: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&q=80' },
-    { label: 'Kebab Starter', url: 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=500&q=80' },
-    { label: 'Chicken Curry', url: 'https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=500&q=80' },
-    { label: 'Dosa / Tiffin', url: 'https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=500&q=80' },
-    { label: 'Paneer Tikka', url: 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=500&q=80' },
-    { label: 'Beverage / Lassi', url: 'https://images.unsplash.com/photo-1553530666-ba11a7da3888?w=500&q=80' }
+    { label: 'Pizza', url: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=500&q=80' },
+    { label: 'Burger', url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=500&q=80' },
+    { label: 'Fried Chicken', url: 'https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=500&q=80' },
+    { label: 'Frankie / Roll', url: 'https://images.unsplash.com/photo-1599487488170-d11ec9c172f0?w=500&q=80' },
+    { label: 'Snacks', url: 'https://images.unsplash.com/photo-1567188040759-fb8a883dc6d8?w=500&q=80' }
   ];
 
   const handleOpenAdd = () => {
@@ -60,8 +53,8 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
       name: '',
       description: '',
       price: 100,
-      category: 'Biryani',
-      image_url: 'https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=500&q=80',
+      category: OFFICIAL_CATEGORIES[0].name,
+      image_url: sampleFoodImages[0].url,
       is_veg: false,
       is_available: true,
       is_todays_special: false,
@@ -75,17 +68,17 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
     setIsModalOpen(true);
   };
 
-  // Storage Upload state
-  const [isUploadingImage, setIsUploadingImage] = useState(false);
-  const [uploadError, setUploadError] = useState<string | null>(null);
+  const handleDeleteWithConfirm = (dish: MenuItem) => {
+    if (window.confirm(`Are you sure you want to delete "${dish.name}"? This will permanently remove the dish.`)) {
+      onDeleteDish(dish.id);
+    }
+  };
 
   // Process selected image file (from Camera or Gallery input)
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    setIsUploadingImage(true);
-    setUploadError(null);
     try {
       const publicUrl = await storageService.uploadAsset(file, 'menu');
       if (editingDish) {
@@ -93,15 +86,12 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
       }
     } catch (err: any) {
       console.error('Failed to upload dish photo to Supabase storage:', err);
-      setUploadError('Image upload failed: ' + (err.message || 'Storage error'));
-    } finally {
-      setIsUploadingImage(false);
+      alert('Image upload failed: ' + (err.message || 'Storage error'));
     }
   };
 
   // Start Live Camera Stream
   const startLiveCamera = async () => {
-    setCameraError(null);
     setIsCameraActive(true);
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
@@ -113,9 +103,7 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
       }
     } catch (err: any) {
       console.warn('Live camera stream error, falling back to direct input', err);
-      setCameraError('Live camera preview not supported in this iframe. Opening native device camera...');
       stopLiveCamera();
-      // Fallback directly to native camera file picker
       if (cameraInputRef.current) {
         cameraInputRef.current.click();
       }
@@ -146,8 +134,6 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
       canvas.toBlob(async (blob) => {
         if (!blob) return;
         const file = new File([blob], `dish_camera_${Date.now()}.jpg`, { type: 'image/jpeg' });
-        setIsUploadingImage(true);
-        setUploadError(null);
         try {
           const publicUrl = await storageService.uploadAsset(file, 'menu');
           if (editingDish) {
@@ -155,9 +141,8 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
           }
         } catch (err: any) {
           console.error('Failed to upload camera photo:', err);
-          setUploadError('Photo upload failed: ' + err.message);
+          alert('Photo upload failed: ' + err.message);
         } finally {
-          setIsUploadingImage(false);
           stopLiveCamera();
         }
       }, 'image/jpeg', 0.85);
@@ -172,8 +157,40 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
     setIsModalOpen(false);
   };
 
+  // Group dishes category-wise in the exact required order
+  const officialGrouped = OFFICIAL_CATEGORIES.map(cat => {
+    const items = menuItems.filter(m => {
+      const itemCat = (m.category || '').trim().toLowerCase();
+      const catName = cat.name.toLowerCase();
+      const catDisplay = cat.display.toLowerCase();
+      return itemCat === catName || itemCat === catDisplay || itemCat === cat.id.toLowerCase();
+    });
+    return {
+      ...cat,
+      items
+    };
+  }).filter(group => group.items.length > 0); // Hide empty categories!
+
+  // Handle any legacy categories that exist in production and have dishes
+  const officialCatSet = new Set(OFFICIAL_CATEGORIES.map(c => c.name.toLowerCase()));
+  const legacyCategoryNames = Array.from(new Set(
+    menuItems
+      .map(m => (m.category || '').trim())
+      .filter(c => c && !officialCatSet.has(c.toLowerCase()) && !OFFICIAL_CATEGORIES.some(oc => oc.display.toLowerCase() === c.toLowerCase()))
+  ));
+
+  const legacyGrouped = legacyCategoryNames.map(legName => ({
+    id: legName,
+    name: legName,
+    emoji: '🍽️',
+    display: `🍽️ ${legName}`,
+    items: menuItems.filter(m => (m.category || '').trim().toLowerCase() === legName.toLowerCase())
+  })).filter(group => group.items.length > 0);
+
+  const allCategoryGroups = [...officialGrouped, ...legacyGrouped];
+
   return (
-    <div className="min-h-screen p-4 sm:p-6 max-w-7xl mx-auto space-y-6 text-[#1F2933]" style={{ backgroundColor: '#FFF5E8' }}>
+    <div className="min-h-screen p-4 sm:p-6 max-w-7xl mx-auto space-y-8 text-[#1F2933]" style={{ backgroundColor: '#FFF5E8' }}>
       
       {/* Hidden File Inputs for Gallery & Camera Capture */}
       <input
@@ -197,110 +214,144 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
         <div>
           <h1 className="text-2xl font-black text-[#252525] font-serif">Menu & Dishes Manager</h1>
           <p className="text-xs text-[#5F6368]">
-            Add new dishes, upload photos from your device gallery or camera, and manage prices.
+            Organized category-wise. Add new dishes, upload photos from device gallery or camera, and manage availability.
           </p>
         </div>
 
         <button
           onClick={handleOpenAdd}
-          className="px-4 py-2.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold rounded-2xl text-xs flex items-center justify-center gap-2 border border-[#B94D00] shadow-sm transition cursor-pointer"
+          className="px-5 py-2.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold rounded-2xl text-xs flex items-center justify-center gap-2 border border-[#B94D00] shadow-sm transition cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Add New Dish</span>
         </button>
       </div>
 
-      {/* Menu Dish Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {menuItems.map((dish) => (
-          <div
-            key={dish.id}
-            className="bg-white rounded-2xl p-5 border border-[#DDD6C8] shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition relative group"
-          >
-            <div>
-              <div className="flex gap-3 mb-2">
-                
-                {/* Dish Thumbnail with Quick Image Edit Badge */}
-                <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-[#DDD6C8] shadow-sm group/img">
-                  <img
-                    src={dish.image_url}
-                    alt={dish.name}
-                    className="w-full h-full object-cover"
-                  />
-                  <button
-                    onClick={() => {
-                      handleOpenEdit(dish);
-                    }}
-                    className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 transition flex flex-col items-center justify-center text-white text-[9px] font-bold gap-0.5 cursor-pointer"
-                    title="Change Photo"
-                  >
-                    <Camera className="w-4 h-4 text-[#D95F0A]" />
-                    <span>Change</span>
-                  </button>
-                </div>
+      {/* Category-Wise Admin Menu Display */}
+      {allCategoryGroups.length === 0 ? (
+        <div className="bg-white rounded-2xl p-10 text-center border border-[#DDD6C8] shadow-sm">
+          <p className="text-[#1F2933] font-bold">No menu dishes found.</p>
+          <p className="text-xs text-[#5F6368] mt-1">Click "Add New Dish" above to create your first menu item.</p>
+        </div>
+      ) : (
+        <div className="space-y-10">
+          {allCategoryGroups.map((group) => (
+            <section key={group.id} className="space-y-4">
+              
+              {/* Category Header */}
+              <div className="border-b-2 border-[#D95F0A]/30 pb-2 flex items-center justify-between">
+                <h2 className="text-lg font-black text-[#1F2933] font-serif uppercase tracking-wider flex items-center gap-2">
+                  <span className="text-xl">{group.emoji}</span>
+                  <span>{group.name}</span>
+                  <span className="text-xs font-mono font-bold bg-[#F4F1EA] text-[#5F6368] px-2.5 py-0.5 rounded-full border border-[#DDD6C8]">
+                    {group.items.length} {group.items.length === 1 ? 'dish' : 'dishes'}
+                  </span>
+                </h2>
+              </div>
 
-                <div className="flex-1">
-                  <div className="flex items-center justify-between mb-1">
-                    <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded border ${
-                      dish.is_veg ? 'bg-[#D1FAE5] text-[#146C43] border-[#86EFAC]' : 'bg-[#FDE2E1] text-[#922B21] border-[#F5A6A1]'
-                    }`}>
-                      {dish.is_veg ? 'VEG' : 'NON VEG'}
-                    </span>
-                    <span className="text-base font-black text-[#1F2933]">₹{dish.price}</span>
+              {/* Category Dishes Grid (NO 6-DISH LIMIT) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {group.items.map((dish) => (
+                  <div
+                    key={dish.id}
+                    className={`bg-white rounded-2xl p-5 border shadow-sm flex flex-col justify-between space-y-4 hover:shadow-md transition relative group ${
+                      dish.is_available ? 'border-[#DDD6C8]' : 'border-red-300 bg-red-50/20'
+                    }`}
+                  >
+                    <div>
+                      <div className="flex gap-3 mb-2">
+                        
+                        {/* Dish Thumbnail */}
+                        <div className="relative w-20 h-20 rounded-xl overflow-hidden shrink-0 border border-[#DDD6C8] shadow-sm group/img bg-[#F7F4EC]">
+                          <img
+                            src={dish.image_url || sampleFoodImages[0].url}
+                            alt={dish.name}
+                            className="w-full h-full object-cover"
+                          />
+                          <button
+                            onClick={() => handleOpenEdit(dish)}
+                            className="absolute inset-0 bg-black/60 opacity-0 group-hover/img:opacity-100 transition flex flex-col items-center justify-center text-white text-[9px] font-bold gap-0.5 cursor-pointer"
+                            title="Change Photo"
+                          >
+                            <Camera className="w-4 h-4 text-[#D95F0A]" />
+                            <span>Change</span>
+                          </button>
+                        </div>
+
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className={`text-[10px] font-black uppercase px-2 py-0.5 rounded border ${
+                              dish.is_veg ? 'bg-[#D1FAE5] text-[#146C43] border-[#86EFAC]' : 'bg-[#FDE2E1] text-[#922B21] border-[#F5A6A1]'
+                            }`}>
+                              {dish.is_veg ? 'VEG' : 'NON VEG'}
+                            </span>
+                            <span className="text-base font-black text-[#1F2933]">₹{dish.price}</span>
+                          </div>
+                          <h3 className="font-extrabold text-[#1F2933] text-sm line-clamp-1">{dish.name}</h3>
+                          <p className="text-xs text-[#5F6368] line-clamp-2 mt-1">{dish.description}</p>
+                        </div>
+                      </div>
+
+                      {/* Toggles Bar */}
+                      <div className="pt-3 border-t border-[#DDD6C8] space-y-2 text-xs">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <span className="font-bold text-[#1F2933]">Available</span>
+                            {!dish.is_available && (
+                              <span className="text-[10px] bg-red-100 text-red-700 px-1.5 py-0.2 font-extrabold rounded">
+                                OFF (Hidden from Customers)
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => onToggleAvailable(dish.id)}
+                            className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
+                              dish.is_available ? 'bg-[#198754] justify-end' : 'bg-[#DDD6C8] justify-start'
+                            }`}
+                          >
+                            <span className="bg-white w-4 h-4 rounded-full shadow-md" />
+                          </button>
+                        </div>
+
+                        <div className="flex items-center justify-between">
+                          <span className="font-bold text-[#1F2933]">Today's special</span>
+                          <button
+                            onClick={() => onToggleSpecial(dish.id)}
+                            className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
+                              dish.is_todays_special ? 'bg-[#D95F0A] justify-end' : 'bg-[#DDD6C8] justify-start'
+                            }`}
+                          >
+                            <span className="bg-white w-4 h-4 rounded-full shadow-md" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Card Footer Actions */}
+                    <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#DDD6C8]">
+                      <button
+                        onClick={() => handleOpenEdit(dish)}
+                        className="py-2 bg-white hover:bg-[#F0E8D8] text-[#1F2933] border border-[#9F988A] font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                      >
+                        <Edit3 className="w-3.5 h-3.5 text-[#D95F0A]" />
+                        <span>Edit Dish</span>
+                      </button>
+                      <button
+                        onClick={() => handleDeleteWithConfirm(dish)}
+                        className="py-2 bg-[#C0392B] hover:bg-[#922B21] text-white border border-[#922B21] font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete</span>
+                      </button>
+                    </div>
                   </div>
-                  <h3 className="font-extrabold text-[#1F2933] text-sm line-clamp-1">{dish.name}</h3>
-                  <p className="text-xs text-[#5F6368] line-clamp-2 mt-1">{dish.description}</p>
-                </div>
+                ))}
               </div>
 
-              {/* Toggles Bar */}
-              <div className="pt-3 border-t border-[#DDD6C8] space-y-2 text-xs">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#1F2933]">Available</span>
-                  <button
-                    onClick={() => onToggleAvailable(dish.id)}
-                    className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
-                      dish.is_available ? 'bg-[#198754] justify-end' : 'bg-[#DDD6C8] justify-start'
-                    }`}
-                  >
-                    <span className="bg-white w-4 h-4 rounded-full shadow-md" />
-                  </button>
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-[#1F2933]">Today's special</span>
-                  <button
-                    onClick={() => onToggleSpecial(dish.id)}
-                    className={`w-11 h-6 flex items-center rounded-full p-1 transition-colors cursor-pointer ${
-                      dish.is_todays_special ? 'bg-[#D95F0A] justify-end' : 'bg-[#DDD6C8] justify-start'
-                    }`}
-                  >
-                    <span className="bg-white w-4 h-4 rounded-full shadow-md" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* Card Footer Actions */}
-            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[#DDD6C8]">
-              <button
-                onClick={() => handleOpenEdit(dish)}
-                className="py-2 bg-white hover:bg-[#F0E8D8] text-[#1F2933] border border-[#9F988A] font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
-              >
-                <Edit3 className="w-3.5 h-3.5 text-[#D95F0A]" />
-                <span>Edit Dish</span>
-              </button>
-              <button
-                onClick={() => onDeleteDish(dish.id)}
-                className="py-2 bg-[#C0392B] hover:bg-[#922B21] text-white border border-[#922B21] font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-                <span>Delete</span>
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
+            </section>
+          ))}
+        </div>
+      )}
 
       {/* Edit / Add Dish Modal with Camera & Gallery Upload */}
       {isModalOpen && editingDish && (
@@ -383,28 +434,18 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                       </p>
 
                       <div className="grid grid-cols-2 gap-2">
-                        {/* CAMERA BUTTON */}
                         <button
                           type="button"
-                          onClick={() => {
-                            if (cameraInputRef.current) {
-                              cameraInputRef.current.click();
-                            }
-                          }}
+                          onClick={() => cameraInputRef.current?.click()}
                           className="py-2.5 px-3 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold rounded-xl flex items-center justify-center gap-1.5 border border-[#B94D00] shadow-sm transition text-xs cursor-pointer"
                         >
                           <Camera className="w-4 h-4" />
                           <span>Take Photo</span>
                         </button>
 
-                        {/* GALLERY BUTTON */}
                         <button
                           type="button"
-                          onClick={() => {
-                            if (galleryInputRef.current) {
-                              galleryInputRef.current.click();
-                            }
-                          }}
+                          onClick={() => galleryInputRef.current?.click()}
                           className="py-2.5 px-3 bg-[#1F2933] hover:bg-black text-white font-extrabold rounded-xl flex items-center justify-center gap-1.5 shadow-sm transition text-xs cursor-pointer"
                         >
                           <FileImage className="w-4 h-4 text-[#B8862D]" />
@@ -412,7 +453,6 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                         </button>
                       </div>
 
-                      {/* Live Viewfinder Secondary Trigger */}
                       <button
                         type="button"
                         onClick={startLiveCamera}
@@ -503,16 +543,17 @@ export const MenuManagerView: React.FC<MenuManagerViewProps> = ({
                 <div>
                   <label className="font-extrabold text-[#1F2933] block mb-1">Category</label>
                   <select
-                    value={editingDish.category || 'Biryani'}
+                    value={editingDish.category || OFFICIAL_CATEGORIES[0].name}
                     onChange={(e) => setEditingDish({ ...editingDish, category: e.target.value })}
                     className="w-full p-2.5 bg-[#F8F6F0] border border-[#9F988A] rounded-xl outline-none focus:border-[#D95F0A] text-xs font-bold text-[#1F2933]"
                   >
-                    <option value="Biryani">Biryani</option>
-                    <option value="South Indian">South Indian</option>
-                    <option value="Veg">Veg</option>
-                    <option value="Non-Veg">Non-Veg</option>
-                    <option value="Pizza">Pizza</option>
-                    <option value="Desserts">Desserts</option>
+                    {OFFICIAL_CATEGORIES.map(cat => (
+                      <option key={cat.id} value={cat.name}>{cat.display}</option>
+                    ))}
+                    {/* Preserve existing legacy category if present */}
+                    {editingDish.category && !OFFICIAL_CATEGORIES.some(c => c.name.toLowerCase() === editingDish.category?.toLowerCase()) && (
+                      <option value={editingDish.category}>{editingDish.category}</option>
+                    )}
                   </select>
                 </div>
               </div>

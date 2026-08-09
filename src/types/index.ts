@@ -25,7 +25,7 @@ export interface UserProfile {
   delivery_notes?: string;
   is_default_address?: boolean;
   role: UserRole;
-  account_status?: 'active' | 'pending_verification' | 'blocked_fraud';
+  account_status?: 'active' | 'pending_verification' | 'blocked_fraud' | 'inactive';
   is_whatsapp_verified?: boolean;
   is_approved: boolean;
   is_active: boolean;
@@ -65,7 +65,39 @@ export interface GalleryItem {
   created_at: string;
 }
 
-export type FoodCategory = 'All' | 'Biryani' | 'Pizza' | 'Desserts' | 'South Indian' | 'Burgers' | 'Veg' | 'Non-Veg';
+export interface CategoryDefinition {
+  id: string;
+  name: string;
+  emoji: string;
+  display: string;
+}
+
+export const OFFICIAL_CATEGORIES: CategoryDefinition[] = [
+  { id: 'Biryani', name: 'Biryani', emoji: '🍚', display: '🍚 Biryani' },
+  { id: 'Pizza', name: 'Pizza', emoji: '🍕', display: '🍕 Pizza' },
+  { id: 'Burger', name: 'Burger', emoji: '🍔', display: '🍔 Burger' },
+  { id: 'Fried Chicken', name: 'Fried Chicken', emoji: '🍗', display: '🍗 Fried Chicken' },
+  { id: 'Frankie', name: 'Frankie', emoji: '🌯', display: '🌯 Frankie' },
+  { id: 'Quesadilla', name: 'Quesadilla', emoji: '🫓', display: '🫓 Quesadilla' },
+  { id: 'Sandwich', name: 'Sandwich', emoji: '🥪', display: '🥪 Sandwich' },
+  { id: 'Rolls', name: 'Rolls', emoji: '🍽️', display: '🍽️ Rolls' },
+  { id: 'Snacks', name: 'Snacks', emoji: '🍟', display: '🍟 Snacks' },
+  { id: "Chef's Special", name: "Chef's Special", emoji: '👨‍🍳', display: "👨‍🍳 Chef's Special" }
+];
+
+export type FoodCategory =
+  | 'All'
+  | 'Biryani'
+  | 'Pizza'
+  | 'Burger'
+  | 'Fried Chicken'
+  | 'Frankie'
+  | 'Quesadilla'
+  | 'Sandwich'
+  | 'Rolls'
+  | 'Snacks'
+  | "Chef's Special"
+  | (string & {});
 
 export interface MenuItem {
   id: string;

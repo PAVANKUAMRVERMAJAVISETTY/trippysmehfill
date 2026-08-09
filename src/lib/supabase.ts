@@ -3,14 +3,20 @@ import { createClient } from '@supabase/supabase-js';
 const cleanEnvVar = (val: any): string => {
   if (!val) return '';
   let s = String(val).trim();
-  if ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
+  while ((s.startsWith('"') && s.endsWith('"')) || (s.startsWith("'") && s.endsWith("'"))) {
     s = s.slice(1, -1).trim();
   }
   return s;
 };
 
-const rawUrl = cleanEnvVar((import.meta as any).env?.VITE_SUPABASE_URL);
-const rawAnonKey = cleanEnvVar((import.meta as any).env?.VITE_SUPABASE_ANON_KEY);
+const rawUrl = cleanEnvVar(
+  (import.meta as any).env?.VITE_SUPABASE_URL ||
+    (typeof process !== 'undefined' ? process.env?.VITE_SUPABASE_URL : '')
+);
+const rawAnonKey = cleanEnvVar(
+  (import.meta as any).env?.VITE_SUPABASE_ANON_KEY ||
+    (typeof process !== 'undefined' ? process.env?.VITE_SUPABASE_ANON_KEY : '')
+);
 
 const PLACEHOLDER_HINTS = ['your-supabase-project', 'placeholder', 'example.supabase.co'];
 

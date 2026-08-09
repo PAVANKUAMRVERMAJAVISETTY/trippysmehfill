@@ -36,7 +36,7 @@ export const TodaysSpecials: React.FC<TodaysSpecialsProps> = ({
   // Filter out invalid items safely with null/undefined checks
   const specialsList = (rawList ?? [])
     .filter((item): item is MenuItem => Boolean(item && typeof item === 'object'))
-    .filter(item => item.is_todays_special !== false);
+    .filter(item => item.is_todays_special !== false && item.is_available === true);
 
   // Loading state handling
   if (isLoading) {

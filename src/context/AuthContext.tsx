@@ -73,7 +73,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       .maybeSingle();
 
     if (profile) {
-      if ((profile as UserProfile).account_status === 'blocked_fraud') {
+      if ((profile as UserProfile).account_status === 'blocked_fraud' || (profile as UserProfile).account_status === 'inactive' || (profile as UserProfile).is_active === false) {
         await supabase.auth.signOut();
         return null;
       }
@@ -166,19 +166,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { success: false, message: NOT_CONFIGURED_MESSAGE };
     }
 
-    let email = identifier.trim().toLowerCase();
-    if (!email || !password) {
+    const trimmedIdent = identifier.trim();
+    if (!trimmedIdent || !password) {
       return { success: false, message: 'Please enter your email/phone and password.' };
     }
 
     setLoading(true);
     try {
-      // If identifier is not an email (e.g. phone number or username), find email from profiles
+      let email = trimmedIdent.toLowerCase();
+
+      // If identifier is not an email (e.g. phone number or username), find email from profiles via RPC
       if (!email.includes('@')) {
-        // `profiles` is unreadable until a session exists, so the phone/username
-        // to email resolution goes through a SECURITY DEFINER function.
         const { data: foundEmail } = await supabase.rpc('lookup_login_email', {
-          p_identifier: identifier.trim()
+          p_identifier: trimmedIdent
         });
 
         if (typeof foundEmail === 'string' && foundEmail) {
@@ -186,7 +186,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         } else {
           return {
             success: false,
-            message: 'No account found with this phone number or username. Please check your details or enter your email.'
+            message: 'Invalid email/phone or password. Please check your credentials and try again.'
           };
         }
       }
@@ -194,7 +194,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
       if (error) {
-        return { success: false, message: toFriendlyAuthError(error).message };
+        const friendly = toFriendlyAuthError(error);
+        if (error.message?.toLowerCase().includes('email not confirmed')) {
+          return { success: false, message: 'Please verify your email address before signing in.' };
+        }
+        return {
+          success: false,
+          message: 'Invalid email/phone or password. Please check your credentials and try again.'
+        };
       }
 
       if (data.session) {
@@ -203,7 +210,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (!profile) {
           return {
             success: false,
-            message: 'Account Suspended: Suspicious anti-fraud activity detected.'
+            message: 'Account Deactivated: Access disabled by an administrator.'
           };
         }
 

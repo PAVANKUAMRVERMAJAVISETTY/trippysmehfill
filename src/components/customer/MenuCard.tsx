@@ -1,7 +1,7 @@
 import React from 'react';
 import { MenuItem } from '../../types';
 import { useCart } from '../../context/CartContext';
-import { Plus, Minus, Check, Lock } from 'lucide-react';
+import { Plus, Minus, Lock } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 
 interface MenuCardProps {
@@ -12,6 +12,11 @@ interface MenuCardProps {
 export const MenuCard: React.FC<MenuCardProps> = ({ item, onRequireAuth }) => {
   const { cart, addToCart, updateQuantity, settings } = useCart();
   const { user } = useAuth();
+
+  // Defensively return null if item is not available on customer storefront
+  if (!item.is_available) {
+    return null;
+  }
 
   const cartItem = cart.find(c => c.menuItem.id === item.id);
 
@@ -45,11 +50,6 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, onRequireAuth }) => {
               {item.is_veg ? 'VEG' : 'NON-VEG'}
             </span>
           </div>
-          {!item.is_available && (
-            <div className="absolute inset-0 bg-[#1F2933]/80 backdrop-blur-[2px] flex items-center justify-center text-white font-bold text-xs uppercase tracking-wider">
-              Sold Out
-            </div>
-          )}
         </div>
 
         {/* Title & Description */}
@@ -76,9 +76,7 @@ export const MenuCard: React.FC<MenuCardProps> = ({ item, onRequireAuth }) => {
               <span className="text-lg font-black text-[#D95F0A]">₹{item.price}</span>
             </div>
 
-            {!item.is_available ? (
-              <span className="text-xs text-[#5F6368] font-medium">Unavailable</span>
-            ) : !settings.is_open ? (
+            {!settings.is_open ? (
               <button
                 onClick={handleAddClick}
                 className="bg-[#F8F6F0] text-[#5F6368] font-extrabold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 border border-[#DDD6C8] shadow-sm transition hover:bg-[#F0E8D8] cursor-pointer"
