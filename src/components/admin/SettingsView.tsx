@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Save, Check, Upload, Trash2, Eye, EyeOff, Plus, Image as ImageIcon, Tag, Camera, Building, Phone, MessageSquare, Store } from 'lucide-react';
-import { KitchenSettings, PromotionalBanner, HomePromotion, Offer } from '../../types';
+import { Save, Check, Upload, Trash2, Eye, EyeOff, Plus, Image as ImageIcon, Tag, Camera, Building, Phone, MessageSquare, Store, Globe, Sliders } from 'lucide-react';
+import { KitchenSettings, PromotionalBanner, HomePromotion, Offer, HomepageSection } from '../../types';
 import { useCart } from '../../context/CartContext';
 import { useRestaurantSettings } from '../../context/RestaurantSettingsContext';
 import { storageService } from '../../services/supabase/storage';
+import { WebsiteContentSettings } from './WebsiteContentSettings';
 
 interface SettingsViewProps {
   banners: PromotionalBanner[];
@@ -20,6 +21,9 @@ interface SettingsViewProps {
   onAddOffer?: (offer: Omit<Offer, 'id'>) => void;
   onUpdateOffer?: (id: string, updates: Partial<Offer>) => void;
   onDeleteOffer?: (id: string) => void;
+
+  homepageSections?: Record<string, HomepageSection>;
+  onSaveHomepageSection?: (sectionKey: string, updates: Partial<HomepageSection>) => Promise<void>;
 }
 
 export const SettingsView: React.FC<SettingsViewProps> = ({
@@ -34,10 +38,13 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
   offers = [],
   onAddOffer,
   onUpdateOffer,
-  onDeleteOffer
+  onDeleteOffer,
+  homepageSections = {},
+  onSaveHomepageSection = async () => {},
 }) => {
   const { settings, updateSettings } = useCart();
   const { restaurantSettings, updateRestaurantSettings } = useRestaurantSettings();
+  const [settingsTab, setSettingsTab] = useState<'cms' | 'operations'>('cms');
   const [formData, setFormData] = useState<KitchenSettings>({ ...settings });
   const [isSaved, setIsSaved] = useState(false);
 
@@ -286,12 +293,50 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
       
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-extrabold text-[#1F2933] font-serif">Kitchen & Operational Settings</h2>
-        <p className="text-xs text-[#5F6368]">Configure restaurant identity, branding logo, address, store timing, ordering thresholds, and promotional content.</p>
+        <h2 className="text-2xl font-extrabold text-[#1F2933] font-serif">Settings & Content Management</h2>
+        <p className="text-xs text-[#5F6368]">Manage customer-facing website content (hero, chef photo, venue, guest house) and operational kitchen settings.</p>
       </div>
 
-      {/* 1. RESTAURANT BRANDING */}
-      <div className="bg-white p-6 rounded-2xl border border-[#DDD6C8] shadow-sm space-y-4">
+      {/* Sub-Tab Navigation */}
+      <div className="flex items-center gap-3 border-b border-[#DDD6C8] pb-3">
+        <button
+          type="button"
+          onClick={() => setSettingsTab('cms')}
+          className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer ${
+            settingsTab === 'cms'
+              ? 'bg-[#121212] text-[#C5A059] border border-[#C5A059]/40 shadow-md'
+              : 'bg-white text-[#5F6368] hover:text-[#1F2933] border border-[#DDD6C8]'
+          }`}
+        >
+          <Globe className="w-4 h-4 text-[#C5A059]" />
+          <span>Website Content CMS</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setSettingsTab('operations')}
+          className={`px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 transition-all cursor-pointer ${
+            settingsTab === 'operations'
+              ? 'bg-[#121212] text-[#C5A059] border border-[#C5A059]/40 shadow-md'
+              : 'bg-white text-[#5F6368] hover:text-[#1F2933] border border-[#DDD6C8]'
+          }`}
+        >
+          <Sliders className="w-4 h-4 text-[#D95F0A]" />
+          <span>Kitchen Operations & Taxes</span>
+        </button>
+      </div>
+
+      {settingsTab === 'cms' ? (
+        <WebsiteContentSettings
+          restaurantSettings={restaurantSettings}
+          onSaveRestaurantSettings={updateRestaurantSettings}
+          homepageSections={homepageSections}
+          onSaveHomepageSection={onSaveHomepageSection}
+        />
+      ) : (
+        <div className="space-y-8">
+          {/* 1. RESTAURANT BRANDING */}
+          <div className="bg-white p-6 rounded-2xl border border-[#DDD6C8] shadow-sm space-y-4">
         <div className="flex items-center justify-between border-b border-[#DDD6C8] pb-3">
           <div>
             <h3 className="font-extrabold text-[#1F2933] text-base font-serif flex items-center gap-2">
@@ -1019,6 +1064,8 @@ export const SettingsView: React.FC<SettingsViewProps> = ({
           </div>
         )}
       </div>
+        </div>
+      )}
 
     </div>
   );

@@ -51,6 +51,9 @@ export interface UserProfile {
   browser_name?: string;
   timezone?: string;
   google_maps_url?: string;
+  last_seen_at?: string;
+  last_location_update_at?: string;
+  updated_at?: string;
   fraud_risk_level?: 'low' | 'medium' | 'high';
   fraud_risk_reasons?: string[];
   wallet_balance?: number;
@@ -170,8 +173,10 @@ export interface Order {
   id: string;
   order_number: string;
   customer_id: string;
+  user_id?: string;
   customer_name: string;
   customer_phone: string;
+  customer_email?: string;
   delivery_address: string;
   landmark?: string;
   items: OrderItem[];
@@ -332,8 +337,39 @@ export interface RestaurantSettings {
   address: string;
   contact_phone: string;
   whatsapp_numbers: string;
+  email?: string;
   logo_url?: string | null;
   created_by?: string;
   updated_at?: string;
 }
+
+export type HomepageSectionKey =
+  | 'hero'
+  | 'chef_corner'
+  | 'food_dining'
+  | 'events_parties'
+  | 'function_hall'
+  | 'guest_house'
+  | 'gallery_intro'
+  | 'offers_intro'
+  | 'contact_intro';
+
+export interface HomepageSection {
+  id?: string;
+  section_key: HomepageSectionKey | string;
+  title: string;
+  subtitle?: string;
+  description?: string;
+  image_url?: string | null;
+  mobile_image_url?: string | null;
+  button_text?: string | null;
+  button_link?: string | null;
+  secondary_button_text?: string | null;
+  secondary_button_link?: string | null;
+  is_visible: boolean;
+  display_order: number;
+  created_at?: string;
+  updated_at?: string;
+}
+
 

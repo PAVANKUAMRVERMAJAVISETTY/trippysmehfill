@@ -8,6 +8,12 @@ const BUCKET_MAP: Record<string, string> = {
   gallery: 'gallery-images',
   profile: 'profile-images',
   profiles: 'profile-images',
+  hero: 'banner-images',
+  chef: 'gallery-images',
+  events: 'gallery-images',
+  hall: 'gallery-images',
+  guesthouse: 'gallery-images',
+  website: 'banner-images',
 };
 
 export const storageService = {

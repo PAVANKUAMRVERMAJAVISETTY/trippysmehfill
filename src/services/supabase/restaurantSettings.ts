@@ -7,6 +7,7 @@ export const defaultRestaurantSettings: RestaurantSettings = {
   address: 'GLS Arawali Homes, Damdama Lake Rd, Sohna Rural, Haryana 122103',
   contact_phone: '8569955929',
   whatsapp_numbers: '8569955929',
+  email: 'trippysmehfill.kitchen@gmail.com',
   logo_url: null,
   created_by: 'Naga Pavan Kumar',
 };
@@ -16,7 +17,7 @@ export const restaurantSettingsService = {
     try {
       const { data, error } = await supabase
         .from('restaurant_settings')
-        .select('id, restaurant_name, brand_title, address, contact_phone, whatsapp_numbers, logo_url, created_by, updated_at')
+        .select('id, restaurant_name, brand_title, address, contact_phone, whatsapp_numbers, email, logo_url, created_by, updated_at')
         .limit(1)
         .maybeSingle();
 
@@ -36,6 +37,7 @@ export const restaurantSettingsService = {
         address: data.address || defaultRestaurantSettings.address,
         contact_phone: data.contact_phone || defaultRestaurantSettings.contact_phone,
         whatsapp_numbers: data.whatsapp_numbers || defaultRestaurantSettings.whatsapp_numbers,
+        email: data.email || defaultRestaurantSettings.email,
         logo_url: data.logo_url ?? null,
         created_by: data.created_by || defaultRestaurantSettings.created_by,
         updated_at: data.updated_at,
@@ -81,6 +83,7 @@ export const restaurantSettingsService = {
       address: merged.address,
       contact_phone: merged.contact_phone,
       whatsapp_numbers: merged.whatsapp_numbers,
+      email: merged.email || defaultRestaurantSettings.email,
       logo_url: merged.logo_url !== undefined ? merged.logo_url : null,
       created_by: merged.created_by || 'Naga Pavan Kumar',
       updated_at: merged.updated_at,
@@ -91,7 +94,7 @@ export const restaurantSettingsService = {
         .from('restaurant_settings')
         .update(payload)
         .eq('id', existingId)
-        .select('id, restaurant_name, brand_title, address, contact_phone, whatsapp_numbers, logo_url, created_by, updated_at')
+        .select('id, restaurant_name, brand_title, address, contact_phone, whatsapp_numbers, email, logo_url, created_by, updated_at')
         .single();
 
       if (error) {
@@ -110,6 +113,7 @@ export const restaurantSettingsService = {
         address: data.address,
         contact_phone: data.contact_phone,
         whatsapp_numbers: data.whatsapp_numbers,
+        email: data.email || defaultRestaurantSettings.email,
         logo_url: data.logo_url ?? null,
         created_by: data.created_by,
         updated_at: data.updated_at,
@@ -118,7 +122,7 @@ export const restaurantSettingsService = {
       const { data, error } = await supabase
         .from('restaurant_settings')
         .insert([payload])
-        .select('id, restaurant_name, brand_title, address, contact_phone, whatsapp_numbers, logo_url, created_by, updated_at')
+        .select('id, restaurant_name, brand_title, address, contact_phone, whatsapp_numbers, email, logo_url, created_by, updated_at')
         .single();
 
       if (error) {
@@ -137,6 +141,7 @@ export const restaurantSettingsService = {
         address: data.address,
         contact_phone: data.contact_phone,
         whatsapp_numbers: data.whatsapp_numbers,
+        email: data.email || defaultRestaurantSettings.email,
         logo_url: data.logo_url ?? null,
         created_by: data.created_by,
         updated_at: data.updated_at,

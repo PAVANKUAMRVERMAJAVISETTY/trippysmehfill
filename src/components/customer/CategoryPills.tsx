@@ -18,7 +18,6 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
 
   // Filter OFFICIAL_CATEGORIES to only those with at least 1 available item
   const visibleCategories = OFFICIAL_CATEGORIES.filter(cat => {
-    // If no items list is passed, default to showing official categories
     if (items.length === 0) return true;
 
     return availableItems.some(item => {
@@ -30,19 +29,19 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
   });
 
   return (
-    <div className="py-6 px-4 max-w-7xl mx-auto overflow-x-auto no-scrollbar">
+    <div className="py-6 px-4 max-w-7xl mx-auto overflow-x-auto no-scrollbar select-none">
       <div className="flex items-center gap-3 min-w-max justify-start sm:justify-center">
         {/* 'All' category button */}
         <button
           onClick={() => onSelectCategory('All')}
-          className={`flex items-center gap-2.5 px-5 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all shadow-sm cursor-pointer border ${
+          className={`flex items-center gap-2.5 px-5 py-2.5 rounded-full font-bold text-xs sm:text-sm transition-all cursor-pointer border ${
             selectedCategory === 'All'
-              ? 'bg-[#B8862D] text-white font-extrabold border-[#8F691F] shadow-md scale-105'
-              : 'bg-white text-[#1F2933] hover:bg-[#F0E8D8] border-[#DDD6C8] hover:border-[#9F988A]'
+              ? 'bg-[#C5A059] text-black font-black border-[#C5A059] shadow-lg scale-105'
+              : 'bg-[#1A1A1A] text-gray-200 hover:bg-[#252525] hover:text-[#C5A059] border-[#333333]'
           }`}
         >
           <Utensils className="w-4 h-4" />
-          <span>All</span>
+          <span>All Categories</span>
         </button>
 
         {/* Dynamic Category Buttons */}
@@ -52,10 +51,10 @@ export const CategoryPills: React.FC<CategoryPillsProps> = ({
             <button
               key={cat.id}
               onClick={() => onSelectCategory(cat.name)}
-              className={`flex items-center gap-2 rounded-full font-bold text-xs sm:text-sm transition-all shadow-sm cursor-pointer border px-4 py-2.5 ${
+              className={`flex items-center gap-2 rounded-full font-bold text-xs sm:text-sm transition-all cursor-pointer border px-4 py-2.5 ${
                 isSelected
-                  ? 'bg-[#B8862D] text-white font-extrabold border-[#8F691F] shadow-md scale-105'
-                  : 'bg-white text-[#1F2933] hover:bg-[#F0E8D8] border-[#DDD6C8] hover:border-[#9F988A]'
+                  ? 'bg-[#C5A059] text-black font-black border-[#C5A059] shadow-lg scale-105'
+                  : 'bg-[#1A1A1A] text-gray-200 hover:bg-[#252525] hover:text-[#C5A059] border-[#333333]'
               }`}
             >
               <span>{cat.emoji}</span>

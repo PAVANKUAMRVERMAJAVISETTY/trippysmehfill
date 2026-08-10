@@ -49,56 +49,56 @@ const OfferCard: React.FC<{ offer: Offer }> = ({ offer }) => {
   };
 
   const getBadgeStyle = () => {
-    if (offer.discount_type === 'free_delivery') return { bg: 'bg-[#B8862D]', icon: <Truck className="w-5 h-5" /> };
-    if (offer.discount_type === 'fixed') return { bg: 'bg-[#C0392B]', icon: <Gift className="w-5 h-5" /> };
-    return { bg: 'bg-[#D95F0A]', icon: <Percent className="w-5 h-5" /> };
+    if (offer.discount_type === 'free_delivery') return { bg: 'bg-[#C5A059]', icon: <Truck className="w-5 h-5 text-black" /> };
+    if (offer.discount_type === 'fixed') return { bg: 'bg-[#FF5722]', icon: <Gift className="w-5 h-5 text-white" /> };
+    return { bg: 'bg-[#C5A059]', icon: <Percent className="w-5 h-5 text-black" /> };
   };
 
   const badgeStyle = getBadgeStyle();
 
   return (
-    <div className="relative overflow-hidden rounded-2xl p-5 border border-[#DDD6C8] bg-white shadow-sm hover:border-[#B8862D] hover:shadow-md transition-all group flex flex-col justify-between">
+    <div className="relative overflow-hidden rounded-3xl p-6 border border-[#C5A059]/30 bg-[#1A1A1A] shadow-xl hover:border-[#C5A059] transition-all group flex flex-col justify-between select-none">
       <div className="space-y-3 relative z-10">
         <div className="flex items-center justify-between gap-2">
-          <div className={`p-2.5 rounded-xl ${badgeStyle.bg} text-white shadow-sm`}>
+          <div className={`p-2.5 rounded-xl ${badgeStyle.bg} shadow-md`}>
             {badgeStyle.icon}
           </div>
-          <span className="text-2xl sm:text-3xl font-black text-[#D95F0A] font-serif tracking-tight">
+          <span className="text-2xl sm:text-3xl font-black text-[#C5A059] font-serif tracking-tight">
             {offer.discount_label}
           </span>
         </div>
 
         <div>
-          <h3 className="font-serif font-black text-[#1F2933] text-base sm:text-lg leading-tight">
+          <h3 className="font-serif font-black text-white text-base sm:text-lg leading-tight group-hover:text-[#C5A059] transition-colors">
             {offer.title}
           </h3>
           {offer.description && (
-            <p className="text-xs text-[#5F6368] mt-1 line-clamp-2">
+            <p className="text-xs text-gray-400 mt-1 line-clamp-2 leading-relaxed">
               {offer.description}
             </p>
           )}
         </div>
       </div>
 
-      <div className="pt-4 border-t border-[#DDD6C8] mt-4 flex items-center justify-between gap-2 relative z-10">
-        <div className="flex items-center gap-1.5 bg-[#F7F4EC] px-3 py-1.5 rounded-xl border border-[#DDD6C8]">
-          <Tag className="w-3.5 h-3.5 text-[#B8862D]" />
-          <span className="text-xs font-mono font-black text-[#B8862D] tracking-wider">
+      <div className="pt-4 border-t border-[#333333] mt-4 flex items-center justify-between gap-2 relative z-10">
+        <div className="flex items-center gap-1.5 bg-[#121212] px-3 py-1.5 rounded-xl border border-[#C5A059]/40">
+          <Tag className="w-3.5 h-3.5 text-[#C5A059]" />
+          <span className="text-xs font-mono font-black text-[#C5A059] tracking-wider">
             {offer.code}
           </span>
         </div>
 
         <button
           onClick={handleCopy}
-          className={`px-3.5 min-h-[36px] rounded-xl font-extrabold text-xs transition flex items-center gap-1.5 shadow-sm cursor-pointer ${
+          className={`px-4 min-h-[36px] rounded-xl font-extrabold text-xs transition flex items-center gap-1.5 shadow-md cursor-pointer ${
             copied
-              ? 'bg-[#198754] text-white border border-[#146C43]'
-              : 'bg-white hover:bg-[#F0E8D8] text-[#1F2933] border border-[#9F988A]'
+              ? 'bg-emerald-600 text-white border border-emerald-500'
+              : 'bg-[#FF5722] hover:bg-[#E64A19] text-white border border-[#FF5722]'
           }`}
         >
           {copied ? (
             <>
-              <Check className="w-3.5 h-3.5" />
+              <Check className="w-3.5 h-3.5 text-white" />
               <span>Copied!</span>
             </>
           ) : (
@@ -118,26 +118,26 @@ export const OffersSection: React.FC<OffersSectionProps> = ({ offers = [] }) => 
   const displayOffers = activeOffers.length > 0 ? activeOffers : DEFAULT_OFFERS;
 
   return (
-    <section id="offers-section" className="py-10 bg-[#F4F1E8] border-t border-[#DDD6C8]">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    <section id="offers-section" className="py-16 bg-[#121212] border-t border-[#333333] select-none text-[#F7F2E8]">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
         
         {/* Section Header */}
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-[#B8862D] text-white shadow-sm">
+        <div className="flex items-center gap-3 border-b border-[#333333] pb-6">
+          <div className="p-2.5 rounded-xl bg-[#C5A059] text-black shadow-md">
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-2xl font-black text-[#1F2933] font-serif tracking-wide flex items-center gap-2">
-              <span>LATEST OFFERS</span>
+            <h2 className="text-2xl sm:text-3xl font-black text-white font-serif tracking-wide">
+              LATEST PROMO OFFERS
             </h2>
-            <p className="text-xs text-[#5F6368]">
-              Exclusive discount promo codes for online food delivery orders
+            <p className="text-xs text-gray-400">
+              Exclusive discount promo codes for multi-cuisine food delivery & party orders
             </p>
           </div>
         </div>
 
         {/* Offers Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {displayOffers.map((offer) => (
             <OfferCard key={offer.id} offer={offer} />
           ))}

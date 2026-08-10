@@ -41,6 +41,16 @@ import { OffersSection } from './components/customer/OffersSection';
 import { RightOrderPanel } from './components/customer/RightOrderPanel';
 import { CheckoutView } from './components/customer/CheckoutView';
 import { MyOrdersView } from './components/customer/MyOrdersView';
+import { FloatingPromotions } from './components/customer/FloatingPromotions';
+import { CoreServicesSection } from './components/customer/CoreServicesSection';
+import { ChefSection } from './components/customer/ChefSection';
+import { EventsSection } from './components/customer/EventsSection';
+import { FunctionHallSection } from './components/customer/FunctionHallSection';
+import { GuestHouseSection } from './components/customer/GuestHouseSection';
+import { ContactSection } from './components/customer/ContactSection';
+import { CustomerWelcomeHero } from './components/customer/CustomerWelcomeHero';
+import { recordCustomerActivity } from './services/telemetryService';
+import { Footer } from './components/common/Footer';
 import { ToastHost } from './components/common/ToastHost';
 import { statusToastCopy, paymentToastCopy } from './lib/orderStatus';
 import { AdminGuardView } from './components/admin/AdminGuardView';
@@ -56,7 +66,7 @@ import {
   initialInventory,
   initialBanners
 } from './lib/initialData';
-import { AppSection, FoodCategory, MenuItem, Order, OrderStatus, PaymentStatus, UserProfile, InventoryItem, Feedback, PromotionalBanner, GalleryItem, HomePromotion, Offer, OFFICIAL_CATEGORIES } from './types';
+import { AppSection, FoodCategory, MenuItem, Order, OrderStatus, PaymentStatus, UserProfile, InventoryItem, Feedback, PromotionalBanner, GalleryItem, HomePromotion, Offer, HomepageSection, OFFICIAL_CATEGORIES } from './types';
 import { supabase, isSupabaseConfigured } from './lib/supabase';
 import { playKitchenAlertSound } from './lib/sound';
 import {
@@ -69,10 +79,11 @@ import {
   homeContentService,
   offersService,
   realtimeService,
+  homepageSectionsService,
 } from './services/supabase';
 
 function MainApp() {
-  const { user } = useAuth();
+  const { user, updateProfile } = useAuth();
   // Both branches destructured useCart() for different things: `settings` for
   // the restaurant open/closed gate, `cart` for the header badge. Both are used
   // further down, so both are taken.
@@ -126,6 +137,22 @@ function MainApp() {
   const [banners, setBanners] = useState<PromotionalBanner[]>(initialBanners);
   const [homePromotions, setHomePromotions] = useState<HomePromotion[]>([]);
   const [offers, setOffers] = useState<Offer[]>([]);
+  const [homepageSections, setHomepageSections] = useState<Record<string, HomepageSection>>({});
+
+  const handleSaveHomepageSection = async (sectionKey: string, updates: Partial<HomepageSection>) => {
+    try {
+      const updated = await homepageSectionsService.updateSection(sectionKey, updates);
+      setHomepageSections(prev => ({
+        ...prev,
+        [sectionKey]: updated,
+      }));
+      showToast({ title: 'Section Saved', description: `Website section "${sectionKey}" updated.`, tone: 'success' });
+    } catch (err: any) {
+      console.error('Failed to save homepage section:', err);
+      showToast({ title: 'Save Failed', description: err.message, tone: 'error' });
+      throw err;
+    }
+  };
 
   // Presence Context Hook
   const { liveCount, setIsLiveModalOpen, updateCurrentActivity } = usePresence();
@@ -139,6 +166,13 @@ function MainApp() {
     };
     updateCurrentActivity(activityMap[activeSection] || 'Active on website');
   }, [activeSection, updateCurrentActivity]);
+
+  // Record Customer Activity & Location Telemetry (Throttled per session)
+  useEffect(() => {
+    if (user && user.role === 'customer') {
+      void recordCustomerActivity(user, updateProfile);
+    }
+  }, [user, updateProfile]);
 
   // Modals
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -172,6 +206,7 @@ function MainApp() {
         fetchedBanners,
         fetchedHomePromos,
         fetchedOffers,
+        fetchedSections,
       ] = await Promise.all([
         menuService.fetchMenuItems().catch(() => null),
         ordersService.fetchOrders().catch(() => null),
@@ -181,6 +216,7 @@ function MainApp() {
         bannersService.fetchBanners().catch(() => null),
         homeContentService.fetchHomePromotions().catch(() => null),
         offersService.fetchOffers().catch(() => null),
+        homepageSectionsService.fetchSections().catch(() => null),
       ]);
 
       if (fetchedMenu && fetchedMenu.length > 0) setMenuItems(fetchedMenu);
@@ -191,6 +227,7 @@ function MainApp() {
       if (fetchedBanners && fetchedBanners.length > 0) setBanners(fetchedBanners);
       if (fetchedHomePromos && fetchedHomePromos.length > 0) setHomePromotions(fetchedHomePromos);
       if (fetchedOffers && fetchedOffers.length > 0) setOffers(fetchedOffers);
+      if (fetchedSections) setHomepageSections(fetchedSections);
 
       // Fetch Profile Roles & Pending Registrations
       const { data: profs } = await supabase.from('profiles').select('*');
@@ -643,7 +680,7 @@ function MainApp() {
   const drivers = staffList.filter(s => s.role === 'driver');
 
   return (
-    <div className="min-h-screen bg-[#F4F1E8] text-[#1F2933] font-sans flex flex-col antialiased">
+    <div className="min-h-screen bg-[#121212] text-[#F7F2E8] font-sans flex flex-col antialiased">
       
       {/* Top Closed Banner Notification if kitchen closed */}
       <NotificationBanner />
@@ -687,124 +724,92 @@ function MainApp() {
 
       {/* SECTION ROUTING */}
 
-      {/* 1. STOREFRONT MENU VIEW */}
+      {/* 1. STOREFRONT MENU & HOSPITALITY JOURNEY VIEW */}
       {activeSection === 'menu' && (
         <main className="flex-1 pb-16">
-          <HeroSection
-            searchQuery={searchQuery}
-            setSearchQuery={setSearchQuery}
-            selectedLocation={selectedLocation}
-            setSelectedLocation={setSelectedLocation}
-            onLogoClick={handleLogoClick}
-            promotions={homePromotions}
-          />
+          {/* FOOD-FIRST EXPERIENCE FOR LOGGED-IN CUSTOMERS */}
+          {user && user.role === 'customer' ? (
+            <>
+              {/* Compact Welcome & Live Search Header */}
+              <CustomerWelcomeHero
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                selectedLocation={selectedLocation}
+                setSelectedLocation={setSelectedLocation}
+              />
 
-          {/* Dynamic Active Promotional Banners Section */}
-          {banners.filter(b => b.is_active).length > 0 && (
-            <section className="py-6 bg-[#F4F1E8] border-b border-[#DDD6C8]">
-              <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-4">
-                {banners.filter(b => b.is_active).map((banner) => (
-                  <div key={banner.id} className="bg-white rounded-3xl overflow-hidden border-2 border-[#B8862D]/40 hover:border-[#B8862D] shadow-md grid grid-cols-1 md:grid-cols-12 items-center transition-all">
-                    <div className="md:col-span-5 aspect-video md:aspect-auto h-48 md:h-56 overflow-hidden bg-[#F7F4EC] relative">
-                      <img src={banner.poster_url} alt={banner.title} className="w-full h-full object-cover object-center select-none" />
-                    </div>
-                    <div className="md:col-span-7 p-6 space-y-3">
-                      <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-[#FFF0CC] text-[#8A5A00] text-xs font-black uppercase rounded-lg border border-[#E8C66A]">
-                        <span>🔥 Special Promotion</span>
-                      </div>
-                      <h3 className="text-xl sm:text-2xl font-black text-[#1F2933] font-serif leading-tight">{banner.title}</h3>
-                      {banner.link_url && (
-                        <a
-                          href={banner.link_url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center gap-2 px-5 py-2.5 bg-[#D95F0A] hover:bg-[#B94D00] text-white font-extrabold text-xs rounded-xl shadow-sm border border-[#B94D00] transition cursor-pointer"
-                        >
-                          <span>View Special Offer</span>
-                          <span>→</span>
-                        </a>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          )}
+              {/* Main Food Menu & Sticky Order Panel */}
+              <div id="menu-section" className="pt-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <CategoryPills
+                  selectedCategory={selectedCategory}
+                  onSelectCategory={setSelectedCategory}
+                  items={menuItems}
+                />
 
-          {/* Promotional Discount Codes & Offers Section */}
-          <OffersSection offers={offers} />
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 my-6">
+                  {/* Left Column: Chef Specials & Main Menu Grid */}
+                  <div className="lg:col-span-7 xl:col-span-8 space-y-8">
+                    {!searchQuery && selectedCategory === 'All' && (
+                      <TodaysSpecials
+                        items={todaysSpecials}
+                        specials={todaysSpecials}
+                        onRequireAuth={() => {
+                          setAuthModalTab('signin');
+                          setIsAuthModalOpen(true);
+                        }}
+                      />
+                    )}
 
-          {/* Interactive Public Gallery Section with Fullscreen Lightbox Zoom */}
-          <GallerySection galleryItems={galleryItems} />
+                    <div>
+                      {selectedCategory === 'All' && !searchQuery ? (
+                        <div className="space-y-8">
+                          {OFFICIAL_CATEGORIES.map(cat => {
+                            const categoryDishes = filteredDishes.filter(dish => {
+                              const itemCat = (dish.category || '').trim().toLowerCase();
+                              return itemCat === cat.name.toLowerCase() || itemCat === cat.display.toLowerCase() || itemCat === cat.id.toLowerCase();
+                            });
 
-          {/* Category Pills & Main Food Menu Section with Persistent Right-Side Order Summary Panel */}
-          <div id="menu-section" className="pt-6 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <CategoryPills
-              selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
-              items={menuItems}
-            />
+                            if (categoryDishes.length === 0) return null;
 
-            {/* Unauthenticated User Prompt Banner */}
-            {!user && (
-              <div className="max-w-2xl mx-auto my-6">
-                <div className="bg-[#181818] border border-orange-500/30 rounded-3xl p-6 text-center shadow-xl space-y-3">
-                  <p className="text-sm sm:text-base font-extrabold text-white">
-                    Sign in or Register to view prices and place an order.
-                  </p>
-                  <button
-                    onClick={() => {
-                      setAuthModalTab('signin');
-                      setIsAuthModalOpen(true);
-                    }}
-                    className="px-8 py-3 bg-[#C5A059] hover:bg-[#b38f48] text-black font-extrabold text-sm rounded-2xl shadow-lg transition transform active:scale-95"
-                  >
-                    Sign In to Order
-                  </button>
-                </div>
-              </div>
-            )}
+                            return (
+                              <section key={cat.id} className="space-y-4">
+                                <h2 className="text-lg sm:text-xl font-black text-[#C5A059] font-serif flex items-center gap-2 border-b border-[#333333] pb-2">
+                                  <span>{cat.emoji}</span>
+                                  <span className="uppercase tracking-wider text-white">{cat.name}</span>
+                                  <span className="text-xs font-mono font-bold bg-[#1A1A1A] text-[#C5A059] px-2 py-0.5 rounded-full border border-[#C5A059]/40">
+                                    {categoryDishes.length}
+                                  </span>
+                                </h2>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                                  {categoryDishes.map((dish) => (
+                                    <MenuCard
+                                      key={dish.id}
+                                      item={dish}
+                                      onRequireAuth={() => {
+                                        setAuthModalTab('signin');
+                                        setIsAuthModalOpen(true);
+                                      }}
+                                    />
+                                  ))}
+                                </div>
+                              </section>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div>
+                          <h2 className="text-xl sm:text-2xl font-black text-[#C5A059] font-serif mb-4 tracking-wide">
+                            {selectedCategory === 'All' ? 'Search Results' : selectedCategory}
+                          </h2>
 
-            {/* Split Main Area: Left Menu & Right Sticky Live Order Summary Panel */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 my-6">
-              
-              {/* Left Column: Specials & Menu Items */}
-              <div className="lg:col-span-7 xl:col-span-8 space-y-8">
-                {/* Today's Specials */}
-                {!searchQuery && selectedCategory === 'All' && (
-                  <TodaysSpecials
-                    items={todaysSpecials}
-                    specials={todaysSpecials}
-                    onRequireAuth={() => {
-                      setAuthModalTab('signin');
-                      setIsAuthModalOpen(true);
-                    }}
-                  />
-                )}
-
-                {/* Main Menu Grid */}
-                <div>
-                  {selectedCategory === 'All' && !searchQuery ? (
-                    <div className="space-y-8">
-                      {OFFICIAL_CATEGORIES.map(cat => {
-                        const categoryDishes = filteredDishes.filter(dish => {
-                          const itemCat = (dish.category || '').trim().toLowerCase();
-                          return itemCat === cat.name.toLowerCase() || itemCat === cat.display.toLowerCase() || itemCat === cat.id.toLowerCase();
-                        });
-
-                        if (categoryDishes.length === 0) return null; // Hide empty categories!
-
-                        return (
-                          <section key={cat.id} className="space-y-4">
-                            <h2 className="text-lg sm:text-xl font-black text-[#D95F0A] font-serif flex items-center gap-2 border-b border-[#DDD6C8] pb-2">
-                              <span>{cat.emoji}</span>
-                              <span className="uppercase tracking-wider">{cat.name}</span>
-                              <span className="text-xs font-mono font-bold bg-[#FFF0CC] text-[#8A5A00] px-2 py-0.5 rounded-full border border-[#E8C66A]">
-                                {categoryDishes.length}
-                              </span>
-                            </h2>
+                          {filteredDishes.length === 0 ? (
+                            <div className="text-center py-12 bg-[#1A1A1A] rounded-2xl border border-[#333333] shadow-sm">
+                              <p className="text-white font-bold">No dishes found matching your selection.</p>
+                              <p className="text-xs text-gray-400 mt-1">Try searching for another dish or selecting another category.</p>
+                            </div>
+                          ) : (
                             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                              {categoryDishes.map((dish) => (
+                              {filteredDishes.map((dish) => (
                                 <MenuCard
                                   key={dish.id}
                                   item={dish}
@@ -815,56 +820,208 @@ function MainApp() {
                                 />
                               ))}
                             </div>
-                          </section>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <div>
-                      <h2 className="text-xl sm:text-2xl font-black text-[#D95F0A] font-serif mb-4 tracking-wide">
-                        {selectedCategory === 'All' ? 'Search Results' : selectedCategory}
-                      </h2>
-
-                      {filteredDishes.length === 0 ? (
-                        <div className="text-center py-12 bg-white rounded-2xl border border-[#DDD6C8] shadow-sm">
-                          <p className="text-[#1F2933] font-bold">No dishes found matching your selection.</p>
-                          <p className="text-xs text-[#5F6368] mt-1">Try searching for another dish or selecting another category.</p>
-                        </div>
-                      ) : (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-                          {filteredDishes.map((dish) => (
-                            <MenuCard
-                              key={dish.id}
-                              item={dish}
-                              onRequireAuth={() => {
-                                setAuthModalTab('signin');
-                                setIsAuthModalOpen(true);
-                              }}
-                            />
-                          ))}
+                          )}
                         </div>
                       )}
                     </div>
-                  )}
+                  </div>
+
+                  {/* Right Column: Sticky Live Order Summary Panel */}
+                  <div className="hidden lg:block lg:col-span-5 xl:col-span-4">
+                    <RightOrderPanel
+                      onRequireAuth={() => {
+                        setAuthModalTab('signin');
+                        setIsAuthModalOpen(true);
+                      }}
+                      onProceedToCheckout={() => {
+                        setActiveSection('checkout');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                    />
+                  </div>
                 </div>
               </div>
 
-              {/* Right Column: Sticky Live Order Summary & Checkout Panel */}
-              <div className="hidden lg:block lg:col-span-5 xl:col-span-4">
-                <RightOrderPanel
-                  onRequireAuth={() => {
-                    setAuthModalTab('signin');
-                    setIsAuthModalOpen(true);
-                  }}
-                  onProceedToCheckout={() => {
-                    setActiveSection('checkout');
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-                  }}
+              {/* Secondary Hospitality Content (After Menu) */}
+              <OffersSection offers={offers} />
+              <ChefSection section={homepageSections['chef_corner']} />
+              <EventsSection section={homepageSections['events_parties']} />
+              <FunctionHallSection section={homepageSections['function_hall']} />
+              <GuestHouseSection section={homepageSections['guest_house']} />
+              <GallerySection galleryItems={galleryItems} />
+              <ContactSection section={homepageSections['contact_intro']} />
+            </>
+          ) : (
+            /* MARKETING HOMEPAGE FOR LOGGED-OUT VISITORS & OTHER USERS */
+            <>
+              {/* Hero Section Carousel */}
+              <HeroSection
+                searchQuery={searchQuery}
+                setSearchQuery={setSearchQuery}
+                selectedLocation={selectedLocation}
+                setSelectedLocation={setSelectedLocation}
+                onLogoClick={handleLogoClick}
+                promotions={homePromotions}
+                heroSection={homepageSections['hero']}
+              />
+
+              {/* Floating Promotional Notifications */}
+              <FloatingPromotions />
+
+              {/* Core Services Section: Everything You Need Under One Roof */}
+              <CoreServicesSection />
+
+              {/* Continental Chef Section: Crafted by an Experienced Continental Chef */}
+              <ChefSection section={homepageSections['chef_corner']} />
+
+              {/* Promotional Discount Codes & Offers Section */}
+              <OffersSection offers={offers} />
+
+              {/* Category Pills & Main Food Menu Section with Sticky Live Order Summary Panel */}
+              <div id="menu-section" className="pt-8 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <CategoryPills
+                  selectedCategory={selectedCategory}
+                  onSelectCategory={setSelectedCategory}
+                  items={menuItems}
                 />
+
+                {/* Unauthenticated User Prompt Banner */}
+                {!user && (
+                  <div className="max-w-2xl mx-auto my-6 select-none">
+                    <div className="bg-[#1A1A1A] border border-[#C5A059]/40 rounded-3xl p-6 text-center shadow-xl space-y-3">
+                      <p className="text-sm sm:text-base font-extrabold text-white">
+                        Sign in or Register to view prices and place an order.
+                      </p>
+                      <button
+                        onClick={() => {
+                          setAuthModalTab('signin');
+                          setIsAuthModalOpen(true);
+                        }}
+                        className="px-8 py-3 bg-[#C5A059] hover:bg-[#b58f48] text-black font-extrabold text-sm rounded-2xl shadow-lg transition transform active:scale-95 cursor-pointer"
+                      >
+                        Sign In to Order
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* Split Main Area: Left Menu & Right Sticky Live Order Summary Panel */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 my-6">
+                  
+                  {/* Left Column: Specials & Menu Items */}
+                  <div className="lg:col-span-7 xl:col-span-8 space-y-8">
+                    {/* Today's Specials */}
+                    {!searchQuery && selectedCategory === 'All' && (
+                      <TodaysSpecials
+                        items={todaysSpecials}
+                        specials={todaysSpecials}
+                        onRequireAuth={() => {
+                          setAuthModalTab('signin');
+                          setIsAuthModalOpen(true);
+                        }}
+                      />
+                    )}
+
+                    {/* Main Menu Grid */}
+                    <div>
+                      {selectedCategory === 'All' && !searchQuery ? (
+                        <div className="space-y-8">
+                          {OFFICIAL_CATEGORIES.map(cat => {
+                            const categoryDishes = filteredDishes.filter(dish => {
+                              const itemCat = (dish.category || '').trim().toLowerCase();
+                              return itemCat === cat.name.toLowerCase() || itemCat === cat.display.toLowerCase() || itemCat === cat.id.toLowerCase();
+                            });
+
+                            if (categoryDishes.length === 0) return null; // Hide empty categories!
+
+                            return (
+                              <section key={cat.id} className="space-y-4">
+                                <h2 className="text-lg sm:text-xl font-black text-[#C5A059] font-serif flex items-center gap-2 border-b border-[#333333] pb-2">
+                                  <span>{cat.emoji}</span>
+                                  <span className="uppercase tracking-wider text-white">{cat.name}</span>
+                                  <span className="text-xs font-mono font-bold bg-[#1A1A1A] text-[#C5A059] px-2 py-0.5 rounded-full border border-[#C5A059]/40">
+                                    {categoryDishes.length}
+                                  </span>
+                                </h2>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                                  {categoryDishes.map((dish) => (
+                                    <MenuCard
+                                      key={dish.id}
+                                      item={dish}
+                                      onRequireAuth={() => {
+                                        setAuthModalTab('signin');
+                                        setIsAuthModalOpen(true);
+                                      }}
+                                    />
+                                  ))}
+                                </div>
+                              </section>
+                            );
+                          })}
+                        </div>
+                      ) : (
+                        <div>
+                          <h2 className="text-xl sm:text-2xl font-black text-[#C5A059] font-serif mb-4 tracking-wide">
+                            {selectedCategory === 'All' ? 'Search Results' : selectedCategory}
+                          </h2>
+
+                          {filteredDishes.length === 0 ? (
+                            <div className="text-center py-12 bg-[#1A1A1A] rounded-2xl border border-[#333333] shadow-sm">
+                              <p className="text-white font-bold">No dishes found matching your selection.</p>
+                              <p className="text-xs text-gray-400 mt-1">Try searching for another dish or selecting another category.</p>
+                            </div>
+                          ) : (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
+                              {filteredDishes.map((dish) => (
+                                <MenuCard
+                                  key={dish.id}
+                                  item={dish}
+                                  onRequireAuth={() => {
+                                    setAuthModalTab('signin');
+                                    setIsAuthModalOpen(true);
+                                  }}
+                                />
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Right Column: Sticky Live Order Summary Panel */}
+                  <div className="hidden lg:block lg:col-span-5 xl:col-span-4">
+                    <RightOrderPanel
+                      onRequireAuth={() => {
+                        setAuthModalTab('signin');
+                        setIsAuthModalOpen(true);
+                      }}
+                      onProceedToCheckout={() => {
+                        setActiveSection('checkout');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }}
+                    />
+                  </div>
+
+                </div>
               </div>
 
-            </div>
-          </div>
+              {/* Events & Party Section */}
+              <EventsSection section={homepageSections['events_parties']} />
+
+              {/* Function Hall Showcase Section */}
+              <FunctionHallSection section={homepageSections['function_hall']} />
+
+              {/* Guest House Accommodations Section */}
+              <GuestHouseSection section={homepageSections['guest_house']} />
+
+              {/* Interactive Public Gallery Section */}
+              <GallerySection galleryItems={galleryItems} />
+
+              {/* Contact & Location Section */}
+              <ContactSection section={homepageSections['contact_intro']} />
+            </>
+          )}
         </main>
       )}
 
@@ -1057,6 +1214,7 @@ function MainApp() {
             {adminTab === 'customers' && (
               <CustomersView
                 customersList={customersList}
+                orders={orders}
                 onAddCustomer={(c) => setCustomersList(prev => [...prev, c])}
                 onToggleActive={(id) => setCustomersList(prev => prev.map(c => c.id === id ? { ...c, is_active: !c.is_active } : c))}
                 onDeleteCustomer={(id) => {
@@ -1149,6 +1307,8 @@ function MainApp() {
                     console.error('Failed to delete offer:', err);
                   }
                 }}
+                homepageSections={homepageSections}
+                onSaveHomepageSection={handleSaveHomepageSection}
               />
             )}
           </main>

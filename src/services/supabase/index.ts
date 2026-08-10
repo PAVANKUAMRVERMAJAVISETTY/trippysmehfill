@@ -11,4 +11,4 @@ export * from './realtime';
 export * from './homeContent';
 export * from './offers';
 export * from './restaurantSettings';
-
+export * from './homepageSections';
